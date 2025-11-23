@@ -16,17 +16,13 @@ $languageClasses = LanguageCssService::getLanguageCssClasses();
     <flux:sidebar sticky stashable class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
         <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
-        <a href="{{ route('dashboard') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
+        <a href="{{ route('cms.dashboard') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
             <x-app-logo />
         </a>
 
         <flux:navlist variant="outline">
             <!-- 📊 Dashboard -->
-            @if(Route::has('cms.dashboard'))
-                <flux:navlist.item icon="chart-bar" :href="route('cms.dashboard')" :current="request()->routeIs('cms.dashboard')" wire:navigate> Dashboard</flux:navlist.item>
-            @else
-                <flux:navlist.item icon="chart-bar" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate> Dashboard</flux:navlist.item>
-            @endif
+            <flux:navlist.item icon="chart-bar" :href="route('cms.dashboard')" :current="request()->routeIs('cms.dashboard')" wire:navigate> CMS Dashboard</flux:navlist.item>
 
             <!-- 📄 Pages -->
             @if(Route::has('cms.pages.index'))
@@ -36,11 +32,6 @@ $languageClasses = LanguageCssService::getLanguageCssClasses();
             <!-- 🎨 Templates -->
             @if(Route::has('cms.templates'))
                 <flux:navlist.item icon="swatch" :href="route('cms.templates')" :current="request()->routeIs('cms.templates')" wire:navigate> Templates</flux:navlist.item>
-            @endif
-
-            <!-- 🎨 Template Manager -->
-            @if(Route::has('cms.templates.manager'))
-                <flux:navlist.item icon="adjustments-horizontal" :href="route('cms.templates.manager')" :current="request()->routeIs('cms.templates.manager')" wire:navigate> Template Manager</flux:navlist.item>
             @endif
 
             <!-- 🧩 Sections -->
@@ -59,8 +50,11 @@ $languageClasses = LanguageCssService::getLanguageCssClasses();
             @endif
 
             <!-- ⚙️ Settings -->
+            @if(Route::has('cms.settings.footer'))
+                <flux:navlist.item icon="rectangle-stack" :href="route('cms.settings.footer')" :current="request()->routeIs('cms.settings.footer')" wire:navigate> Footer Settings</flux:navlist.item>
+            @endif
             @if(Route::has('cms.settings.general'))
-                <flux:navlist.item icon="cog-6-tooth" :href="route('cms.settings.general')" :current="request()->routeIs('cms.settings.*')" wire:navigate> Settings</flux:navlist.item>
+                <flux:navlist.item icon="cog-6-tooth" :href="route('cms.settings.general')" :current="request()->routeIs('cms.settings.general')" wire:navigate> Settings</flux:navlist.item>
             @endif
 
             <!-- 📜 Logs -->

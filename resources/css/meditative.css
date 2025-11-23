@@ -1,0 +1,75 @@
+/* 
+ * Meditative Template Styles
+ * Based on the original meditative-master template
+ * Import all necessary CSS files
+ */
+
+/* Import Bootstrap 4 */
+@import './meditative/bootstrap.min.css';
+
+/* Import template dependencies */
+@import './meditative/animate.css';
+@import './meditative/aos.css';
+@import './meditative/owl.carousel.min.css';
+@import './meditative/owl.theme.default.min.css';
+@import './meditative/magnific-popup.css';
+@import './meditative/ionicons.min.css';
+@import './meditative/bootstrap-datepicker.css';
+@import './meditative/jquery.timepicker.css';
+@import './meditative/flaticon.css';
+@import './meditative/icomoon.css';
+@import './meditative/open-iconic-bootstrap.min.css';
+
+/* Import main template styles */
+@import './meditative/style.css';
+
+/* Font imports */
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css?family=EB+Garamond:400,400i,500,500i,600,600i,700,700i&display=swap');
+
+/* Fix font paths for meditative fonts */
+@font-face {
+  font-family: 'Flaticon';
+  src: url('/fonts/meditative/flaticon/font/Flaticon.eot');
+  src: url('/fonts/meditative/flaticon/font/Flaticon.eot?#iefix') format('embedded-opentype'),
+       url('/fonts/meditative/flaticon/font/Flaticon.woff2') format('woff2'),
+       url('/fonts/meditative/flaticon/font/Flaticon.woff') format('woff'),
+       url('/fonts/meditative/flaticon/font/Flaticon.ttf') format('truetype'),
+       url('/fonts/meditative/flaticon/font/Flaticon.svg#Flaticon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'IcoMoon';
+  src: url('/fonts/meditative/icomoon/icomoon.eot');
+  src: url('/fonts/meditative/icomoon/icomoon.eot?#iefix') format('embedded-opentype'),
+       url('/fonts/meditative/icomoon/icomoon.woff') format('woff'),
+       url('/fonts/meditative/icomoon/icomoon.ttf') format('truetype'),
+       url('/fonts/meditative/icomoon/icomoon.svg#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Override any conflicting styles for CMS integration */
+.cms-page {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.cms-section {
+  position: relative;
+}
+
+/* Ensure template-specific styles */
+.meditative-template {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.meditative-template h1,
+.meditative-template h2,
+.meditative-template h3,
+.meditative-template h4,
+.meditative-template h5,
+.meditative-template h6 {
+  font-family: 'EB Garamond', serif;
+}

@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Spatie\Permission\Exceptions\PermissionDoesNotExist;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Middleware to handle permission-related exceptions gracefully
@@ -30,9 +31,9 @@ class HandlePermissionExceptions
             // Log the missing permission for debugging
             Log::warning('Permission system not configured', [
                 'permission' => $e->getMessage(),
-                'user_id' => auth()->id(),
-                'org_user_id' => auth()->user()?->orgUser?->id,
-                'org_id' => auth()->user()?->orgUser?->org_id,
+                'user_id' => Auth::check() ? Auth::user()?->id : null,
+                'org_user_id' => Auth::user()?->orgUser?->id,
+                'org_id' => Auth::user()?->orgUser?->org_id,
                 'url' => $request->url(),
                 'user_agent' => $request->userAgent(),
                 'ip' => $request->ip(),

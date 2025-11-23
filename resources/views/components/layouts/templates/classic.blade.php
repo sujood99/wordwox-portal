@@ -14,69 +14,10 @@
     <link href="https://fonts.bunny.net/css?family=playfair-display:400,700|source-sans-pro:400,600&display=swap" rel="stylesheet" />
 
     <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/css/classic.css', 'resources/js/app.js', 'resources/js/classic.js'])
     @livewireStyles
 
     @stack('head')
-
-    <style>
-        .classic-serif { font-family: 'Playfair Display', serif; }
-        .classic-sans { font-family: 'Source Sans Pro', sans-serif; }
-        
-        .classic-pattern {
-            background-image: 
-                radial-gradient(circle at 25px 25px, rgba(255,255,255,.2) 2px, transparent 2px),
-                radial-gradient(circle at 75px 75px, rgba(255,255,255,.2) 2px, transparent 2px);
-            background-size: 100px 100px;
-        }
-        
-        .classic-border {
-            border: 3px solid #d4af37;
-            position: relative;
-        }
-        
-        .classic-border::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
-            border: 1px solid #d4af37;
-            pointer-events: none;
-        }
-        
-        .classic-shadow {
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-        }
-        
-        .classic-button {
-            background: linear-gradient(145deg, #d4af37, #b8941f);
-            border: 2px solid #d4af37;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .classic-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s;
-        }
-        
-        .classic-button:hover::before {
-            left: 100%;
-        }
-        
-        .ornament {
-            font-size: 1.5rem;
-            color: #d4af37;
-        }
-    </style>
 </head>
 <body class="classic-sans antialiased h-full bg-gradient-to-b from-amber-50 to-orange-50">
     <div class="min-h-full">

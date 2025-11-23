@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\CmsPage;
 use Livewire\Component;
+use Illuminate\Support\Facades\Log;
 
 class TemplatePreview extends Component
 {
@@ -14,8 +15,8 @@ class TemplatePreview extends Component
     public function mount()
     {
         // Get a sample page for preview (preferably homepage)
-        $this->previewPage = CmsPage::where('org_id', 8)
-            ->where('orgPortal_id', 1)
+        $this->previewPage = CmsPage::where('org_id', env('CMS_DEFAULT_ORG_ID', 8))
+            ->where('orgPortal_id', env('CMS_DEFAULT_PORTAL_ID', 1))
             ->where('status', 'published')
             ->where('is_homepage', true)
             ->with(['sections' => function($query) {
@@ -27,8 +28,8 @@ class TemplatePreview extends Component
 
         // If no homepage, get any published page
         if (!$this->previewPage) {
-            $this->previewPage = CmsPage::where('org_id', 8)
-                ->where('orgPortal_id', 1)
+            $this->previewPage = CmsPage::where('org_id', env('CMS_DEFAULT_ORG_ID', 8))
+                ->where('orgPortal_id', env('CMS_DEFAULT_PORTAL_ID', 1))
                 ->where('status', 'published')
                 ->with(['sections' => function($query) {
                     $query->where('is_active', true)
@@ -38,8 +39,16 @@ class TemplatePreview extends Component
                 ->first();
         }
 
-        $this->selectedTemplate = $this->previewPage ? $this->previewPage->template : 'modern';
         $this->loadAvailableTemplates();
+        
+        // Set selected template - use page template if it exists in available templates, otherwise use first available
+        if ($this->previewPage && $this->previewPage->template && isset($this->availableTemplates[$this->previewPage->template])) {
+            $this->selectedTemplate = $this->previewPage->template;
+        } elseif (!empty($this->availableTemplates)) {
+            $this->selectedTemplate = array_key_first($this->availableTemplates);
+        } else {
+            $this->selectedTemplate = '';
+        }
     }
 
     public function loadAvailableTemplates()
@@ -66,6 +75,14 @@ class TemplatePreview extends Component
                 'preview_color' => 'bg-gradient-to-r from-purple-100 via-pink-100 to-indigo-100',
                 'features' => ['Zen aesthetics', 'Peaceful colors', 'Mindful animations']
             ],
+
+            'fitness' => [
+                'name' => 'Fitness Template',
+                'description' => 'Fitness & Yoga Design',
+                'icon' => '💪',
+                'preview_color' => 'bg-gradient-to-r from-green-100 to-teal-100',
+                'features' => ['Fitness layout', 'Yoga classes', 'Bootstrap 4 design']
+            ],
         ];
     }
 
@@ -76,12 +93,48 @@ class TemplatePreview extends Component
 
     public function applyTemplate()
     {
-        if ($this->previewPage) {
-            $this->previewPage->update(['template' => $this->selectedTemplate]);
-            session()->flash('message', 'Template applied successfully!');
+        try {
+            if (!$this->selectedTemplate || !isset($this->availableTemplates[$this->selectedTemplate])) {
+                session()->flash('error', 'Please select a valid template first.');
+                return;
+            }
+
+            $orgId = env('CMS_DEFAULT_ORG_ID', 8);
+            $portalId = env('CMS_DEFAULT_PORTAL_ID', 1);
+
+            // Log the attempt
+            Log::info('Attempting to apply template to all organization pages', [
+                'org_id' => $orgId,
+                'portal_id' => $portalId,
+                'selected_template' => $this->selectedTemplate,
+            ]);
+
+            // Update template for all pages in the organization
+            $updatedCount = CmsPage::where('org_id', $orgId)
+                ->where('orgPortal_id', $portalId)
+                ->update(['template' => $this->selectedTemplate]);
             
-            // Redirect to view the page with new template
-            return redirect()->to('/' . ($this->previewPage->slug === 'home' ? '' : $this->previewPage->slug));
+            if ($updatedCount > 0) {
+                Log::info('Template applied successfully to all pages', [
+                    'pages_updated' => $updatedCount,
+                    'template' => $this->selectedTemplate
+                ]);
+                
+                session()->flash('message', 
+                    'Template "' . $this->availableTemplates[$this->selectedTemplate]['name'] . 
+                    '" applied successfully to all ' . $updatedCount . ' page(s) in your organization!'
+                );
+                
+                // Refresh the page to show the success message
+                $this->dispatch('template-applied');
+            } else {
+                Log::warning('No pages found to update template for');
+                session()->flash('error', 'No pages found to apply template to. Please create some pages first.');
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Error applying template to all pages: ' . $e->getMessage());
+            session()->flash('error', 'Error applying template: ' . $e->getMessage());
         }
     }
 
@@ -97,7 +150,6 @@ class TemplatePreview extends Component
 
     public function render()
     {
-        return view('livewire.template-preview')
-            ->layout('components.layouts.app');
+        return view('livewire.template-preview');
     }
 }

@@ -97,8 +97,8 @@ window.initBlockSortable = function(containerId) {
         handle: '[data-drag-handle]',
         animation: 200,
         ghostClass: 'opacity-50',
-        chosenClass: 'ring-2 ring-blue-500',
-        dragClass: 'shadow-lg'
+        chosenClass: 'sortable-chosen-active',
+        dragClass: 'sortable-drag-active'
     });
 };
 

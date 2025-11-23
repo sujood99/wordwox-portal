@@ -183,27 +183,53 @@ class User extends Authenticatable
 
     /**
      * Get the user's effective language
-     * Priority: user language_preference -> org default -> 'en-US'
+     * Priority: user language_preference -> org default -> env org -> 'en-US'
      * Only works if language feature is enabled for the organization
      *
      * @return string
      */
     public function getEffectiveLanguage(): string
     {
+        // Check if orgUser and org exist
+        if (!$this->orgUser || !$this->orgUser->org) {
+            // Fallback to org from env file
+            $defaultOrgId = env('CMS_DEFAULT_ORG_ID', env('DEFAULT_ORG_ID', null));
+            
+            if ($defaultOrgId) {
+                try {
+                    $org = \App\Models\Org::find($defaultOrgId);
+                    if ($org && $org->orgSettingsFeatures) {
+                        $orgFeatures = $org->orgSettingsFeatures;
+                        
+                        if ($orgFeatures->isLanguageFeatureEnabled()) {
+                            $enabledLanguages = $orgFeatures->getEnabledLanguages();
+                            if (is_array($enabledLanguages) && !empty($enabledLanguages)) {
+                                return $enabledLanguages[0];
+                            }
+                        }
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to load org from env in getEffectiveLanguage', [
+                        'org_id' => $defaultOrgId,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+            
+            return 'en-US';
+        }
+
         $orgFeatures = $this->orgUser->org->orgSettingsFeatures ?? null;
-
-
 
         // If language feature is not enabled, always return English
         if (!$orgFeatures || !$orgFeatures->isLanguageFeatureEnabled()) {
-
             return 'en-US';
         }
 
         // If user has a language preference, use it (if it's still enabled)
         if (!empty($this->language_preference)) {
             $enabledLanguages = $orgFeatures->getEnabledLanguages();
-            if (in_array($this->language_preference, $enabledLanguages)) {
+            if (is_array($enabledLanguages) && in_array($this->language_preference, $enabledLanguages)) {
                 return $this->language_preference;
             }
         }
@@ -217,8 +243,6 @@ class User extends Authenticatable
         } else {
             $fallbackLanguage = $enabledLanguages[0];
         }
-
-
 
         return $fallbackLanguage;
     }

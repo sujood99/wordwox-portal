@@ -11,14 +11,28 @@ class CmsPageViewer extends Component
     public $page;
     public $orgId;
     public $portalId;
+    public $navigationPages;
 
     public function mount($slug = 'home', $orgId = null, $portalId = null)
     {
         $this->slug = $slug;
-        $this->orgId = $orgId ?? 8; // Default to superhero org
-        $this->portalId = $portalId ?? 1; // Default to superhero portal
+        $this->orgId = $orgId ?? env('CMS_DEFAULT_ORG_ID', 8);
+        $this->portalId = $portalId ?? env('CMS_DEFAULT_PORTAL_ID', 1);
         
         $this->loadPage();
+        $this->loadNavigationPages();
+    }
+    
+    public function loadNavigationPages()
+    {
+        $this->navigationPages = CmsPage::where('org_id', $this->orgId)
+            ->where('orgPortal_id', $this->portalId)
+            ->where('status', 'published')
+            ->where('show_in_navigation', true)
+            ->where('is_homepage', false) // Exclude homepage from navigation (it's shown separately)
+            ->where('slug', '!=', 'home') // Also exclude pages with slug 'home'
+            ->orderBy('sort_order', 'asc')
+            ->get();
     }
 
     public function loadPage()
@@ -59,19 +73,27 @@ class CmsPageViewer extends Component
         // Check for preview template parameter
         $previewTemplate = request()->get('preview_template');
         
-        // Determine which template layout to use
-        $template = $previewTemplate ?: ($this->page ? $this->page->template : 'modern');
+        // Determine which template layout to use - check page, then env variable, then default
+        $template = $previewTemplate ?: ($this->page ? $this->page->template : env('CMS_DEFAULT_THEME', 'modern'));
         
         // Map template names to layout files
         $templateMap = [
             'modern' => 'components.layouts.templates.modern',
-            'classic' => 'components.layouts.templates.classic',
+            'classic' => 'components.layouts.templates.classic', 
             'meditative' => 'components.layouts.templates.meditative',
+            'fitness' => 'components.layouts.templates.fitness',
+            'packages' => 'components.layouts.templates.modern', // Fallback for packages template
         ];
         
         $layoutPath = $templateMap[$template] ?? 'components.layouts.templates.modern';
         
-        return view('livewire.cms-page-viewer')
-            ->layout($layoutPath);
+        return view('livewire.cms-page-viewer', [
+            'navigationPages' => $this->navigationPages ?? collect(),
+            'template' => $template
+        ])
+            ->layout($layoutPath, [
+                'navigationPages' => $this->navigationPages ?? collect(),
+                'template' => $template
+            ]);
     }
 }

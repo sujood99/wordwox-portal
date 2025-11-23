@@ -66,6 +66,7 @@ class TemplateSelector extends Component
             'modern' => ['name' => 'Modern', 'description' => 'Futuristic Glass'],
             'classic' => ['name' => 'Classic', 'description' => 'Elegant Traditional'],
             'meditative' => ['name' => 'Meditative', 'description' => 'Zen Wellness'],
+            'fitness' => ['name' => 'Fitness', 'description' => 'Fitness & Yoga'],
         ];
 
         return view('livewire.template-selector', compact('templates'));

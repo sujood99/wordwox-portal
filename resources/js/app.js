@@ -1,6 +1,7 @@
 import './language-switcher.js';
 import './dashboard-clock.js';
 import './ckeditor.js';
+import './ckeditor-advanced.js';
 import './filepond.js';
 import './sortable.js';
 

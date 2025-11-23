@@ -10,9 +10,10 @@ if (app()->environment('local') && config('debugbar.enabled')) {
     Route::get('_debugbar/assets/javascript', ['as' => 'debugbar.assets.js', 'uses' => '\Barryvdh\Debugbar\Controllers\AssetController@js']);
 }
 
-// Dashboard route
-Route::get('dashboard', \App\Livewire\Dashboard::class)
-    ->middleware(['auth', 'verified', \App\Http\Middleware\SetTenantTimezone::class])
+// Redirect dashboard to CMS admin dashboard
+Route::get('dashboard', function () {
+    return redirect()->route('cms.dashboard');
+})->middleware(['auth', 'verified', \App\Http\Middleware\SetTenantTimezone::class])
     ->name('dashboard');
 
 // CMS Public Routes with /cms/ prefix (for admin reference)
@@ -42,7 +43,6 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\SetTenantTimezone::c
     
     // Templates
     Route::get('templates', \App\Livewire\TemplatePreview::class)->name('templates');
-    Route::get('templates/manager', \App\Livewire\TemplateManager::class)->name('templates.manager');
     
     // Image Upload for CKEditor
     Route::post('upload-image', function (\Illuminate\Http\Request $request) {
@@ -71,7 +71,10 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\SetTenantTimezone::c
     // Media - Temporarily commented out - components missing
     // Route::get('media', \App\Livewire\CmsMediaIndex::class)->name('media.index');
     
-    // Settings - Temporarily commented out - components missing
+    // Settings
+    Route::get('settings/footer', \App\Livewire\CmsFooterSettings::class)->name('settings.footer');
+    
+    // Temporarily commented out - components missing
     // Route::get('settings/general', \App\Livewire\CmsSettingsGeneral::class)->name('settings.general');
     // Route::get('settings/seo', \App\Livewire\CmsSettingsSeo::class)->name('settings.seo');
     // Route::get('settings/appearance', \App\Livewire\CmsSettingsAppearance::class)->name('settings.appearance');

@@ -13,8 +13,8 @@ class CmsPagesIndex extends Component
     public $search = '';
     public $statusFilter = 'all';
     public $typeFilter = 'all';
-    public $sortBy = 'updated_at';
-    public $sortDirection = 'desc';
+    public $sortBy = 'sort_order';
+    public $sortDirection = 'asc';
     public $orgId;
     public $portalId;
 
@@ -94,7 +94,8 @@ class CmsPagesIndex extends Component
     public function render()
     {
         $query = CmsPage::where('org_id', $this->orgId)
-            ->where('orgPortal_id', $this->portalId);
+            ->where('orgPortal_id', $this->portalId)
+            ->where('slug', '!=', 'footer'); // Exclude footer settings page from listing
 
         if ($this->search) {
             $query->where(function($q) {

@@ -1,0 +1,370 @@
+/**
+ * CKEditor 5 Dark Mode & Enhanced Styling
+ * Complete CSS for CKEditor dark mode and custom styling
+ */
+
+/* Base CKEditor Dark Mode Variables */
+:root {
+    --ck-color-base-background: #ffffff;
+    --ck-color-base-foreground: #fafafa;
+    --ck-color-focus-border: #1976d2;
+    --ck-color-text: #333333;
+    --ck-color-shadow-drop: rgba(0, 0, 0, 0.15);
+    --ck-color-shadow-inner: rgba(0, 0, 0, 0.1);
+    --ck-color-button-default-background: transparent;
+    --ck-color-button-default-hover-background: #e6e6e6;
+    --ck-color-button-on-background: #1976d2;
+    --ck-color-button-on-hover-background: #1565c0;
+    --ck-color-dropdown-panel-background: #ffffff;
+    --ck-color-input-background: #ffffff;
+    --ck-color-input-border: #c4c4c4;
+    --ck-color-list-background: #ffffff;
+    --ck-color-list-button-hover-background: #e6e6e6;
+    --ck-color-list-button-on-background: #1976d2;
+    --ck-color-panel-background: #ffffff;
+    --ck-color-panel-border: #c4c4c4;
+    --ck-color-toolbar-background: #f5f5f5;
+    --ck-color-toolbar-border: #c4c4c4;
+    --ck-color-tooltip-background: #333333;
+    --ck-color-tooltip-text: #ffffff;
+    --ck-color-engine-placeholder-text: #999999;
+    --ck-color-upload-bar-background: #1976d2;
+    --ck-color-link-default: #1976d2;
+    --ck-color-link-selected-background: rgba(25, 118, 210, 0.3);
+}
+
+/* Dark Mode Variables */
+.dark :root,
+:root.dark,
+[data-theme="dark"] {
+    --ck-color-base-background: #1f2937;
+    --ck-color-base-foreground: #f9fafb;
+    --ck-color-focus-border: #3b82f6;
+    --ck-color-text: #f9fafb;
+    --ck-color-shadow-drop: rgba(0, 0, 0, 0.3);
+    --ck-color-shadow-inner: rgba(0, 0, 0, 0.2);
+    --ck-color-button-default-background: transparent;
+    --ck-color-button-default-hover-background: #374151;
+    --ck-color-button-on-background: #3b82f6;
+    --ck-color-button-on-hover-background: #2563eb;
+    --ck-color-dropdown-panel-background: #1f2937;
+    --ck-color-input-background: #374151;
+    --ck-color-input-border: #4b5563;
+    --ck-color-list-background: #1f2937;
+    --ck-color-list-button-hover-background: #374151;
+    --ck-color-list-button-on-background: #3b82f6;
+    --ck-color-panel-background: #1f2937;
+    --ck-color-panel-border: #4b5563;
+    --ck-color-toolbar-background: #111827;
+    --ck-color-toolbar-border: #374151;
+    --ck-color-tooltip-background: #111827;
+    --ck-color-tooltip-text: #f9fafb;
+    --ck-color-engine-placeholder-text: #9ca3af;
+    --ck-color-upload-bar-background: #3b82f6;
+    --ck-color-link-default: #60a5fa;
+    --ck-color-link-selected-background: rgba(59, 130, 246, 0.3);
+}
+
+/* CKEditor Dark Mode Specific Styles */
+.dark .ck-editor,
+.ck-editor-dark {
+    --ck-color-base-background: #1f2937;
+    --ck-color-base-foreground: #f9fafb;
+    --ck-color-text: #f9fafb;
+    --ck-color-toolbar-background: #111827;
+    --ck-color-toolbar-border: #374151;
+}
+
+.dark .ck-editor .ck-content,
+.ck-editor-dark .ck-content {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #374151 !important;
+}
+
+.dark .ck-editor .ck-placeholder::before,
+.ck-editor-dark .ck-placeholder::before {
+    color: #9ca3af !important;
+}
+
+/* Enhanced Table Styling for Dark Mode */
+.dark .ck-editor .ck-content .table,
+.ck-editor-dark .ck-content .table {
+    background-color: transparent;
+}
+
+.dark .ck-editor .ck-content .table td,
+.dark .ck-editor .ck-content .table th,
+.ck-editor-dark .ck-content .table td,
+.ck-editor-dark .ck-content .table th {
+    border-color: #4b5563 !important;
+    background-color: transparent;
+}
+
+.dark .ck-editor .ck-content .table th,
+.ck-editor-dark .ck-content .table th {
+    background-color: #374151 !important;
+}
+
+/* Image Widget Dark Mode */
+.dark .ck-editor .ck-widget,
+.ck-editor-dark .ck-widget {
+    outline-color: #3b82f6 !important;
+}
+
+.dark .ck-editor .ck-widget:hover,
+.ck-editor-dark .ck-widget:hover {
+    outline-color: #60a5fa !important;
+}
+
+/* Code Block Dark Mode */
+.dark .ck-editor .ck-content pre,
+.ck-editor-dark .ck-content pre {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+    border-color: #374151 !important;
+}
+
+.dark .ck-editor .ck-content code,
+.ck-editor-dark .ck-content code {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+}
+
+/* Blockquote Dark Mode */
+.dark .ck-editor .ck-content blockquote,
+.ck-editor-dark .ck-content blockquote {
+    background-color: #374151 !important;
+    border-left-color: #3b82f6 !important;
+    color: #f9fafb !important;
+}
+
+/* Link Styles in Dark Mode */
+.dark .ck-editor .ck-content a,
+.ck-editor-dark .ck-content a {
+    color: #60a5fa !important;
+}
+
+.dark .ck-editor .ck-content a:hover,
+.ck-editor-dark .ck-content a:hover {
+    color: #93c5fd !important;
+}
+
+/* Dropdown Panel Dark Mode */
+.dark .ck-dropdown__panel,
+.ck-editor-dark .ck-dropdown__panel {
+    background-color: #1f2937 !important;
+    border-color: #4b5563 !important;
+}
+
+.dark .ck-list__item,
+.ck-editor-dark .ck-list__item {
+    color: #f9fafb !important;
+}
+
+.dark .ck-list__item:hover,
+.ck-editor-dark .ck-list__item:hover {
+    background-color: #374151 !important;
+}
+
+.dark .ck-list__item.ck-on,
+.ck-editor-dark .ck-list__item.ck-on {
+    background-color: #3b82f6 !important;
+    color: #ffffff !important;
+}
+
+/* Button States in Dark Mode */
+.dark .ck-button,
+.ck-editor-dark .ck-button {
+    color: #f9fafb !important;
+}
+
+.dark .ck-button:hover,
+.ck-editor-dark .ck-button:hover {
+    background-color: #374151 !important;
+}
+
+.dark .ck-button.ck-on,
+.ck-editor-dark .ck-button.ck-on {
+    background-color: #3b82f6 !important;
+    color: #ffffff !important;
+}
+
+/* Input Fields in Dark Mode */
+.dark .ck-input,
+.ck-editor-dark .ck-input {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+    color: #f9fafb !important;
+}
+
+.dark .ck-input:focus,
+.ck-editor-dark .ck-input:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Tooltip Dark Mode */
+.dark .ck-tooltip,
+.ck-editor-dark .ck-tooltip {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+    border-color: #374151 !important;
+}
+
+.dark .ck-tooltip__text,
+.ck-editor-dark .ck-tooltip__text {
+    color: #f9fafb !important;
+}
+
+/* Color Picker Dark Mode */
+.dark .ck-color-ui-dropdown,
+.ck-editor-dark .ck-color-ui-dropdown {
+    background-color: #1f2937 !important;
+}
+
+.dark .ck-color-grid__tile,
+.ck-editor-dark .ck-color-grid__tile {
+    border-color: #4b5563 !important;
+}
+
+/* Media Embed Dark Mode */
+.dark .ck-media__wrapper,
+.ck-editor-dark .ck-media__wrapper {
+    background-color: #374151 !important;
+}
+
+/* Special Characters Panel */
+.dark .ck-special-characters-grid,
+.ck-editor-dark .ck-special-characters-grid {
+    background-color: #1f2937 !important;
+}
+
+.dark .ck-special-characters-grid__tile,
+.ck-editor-dark .ck-special-characters-grid__tile {
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+
+.dark .ck-special-characters-grid__tile:hover,
+.ck-editor-dark .ck-special-characters-grid__tile:hover {
+    background-color: #374151 !important;
+}
+
+/* Find and Replace Dialog */
+.dark .ck-find-and-replace-form,
+.ck-editor-dark .ck-find-and-replace-form {
+    background-color: #1f2937 !important;
+    border-color: #4b5563 !important;
+}
+
+.dark .ck-find-and-replace-form__find,
+.dark .ck-find-and-replace-form__replace,
+.ck-editor-dark .ck-find-and-replace-form__find,
+.ck-editor-dark .ck-find-and-replace-form__replace {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+    border-color: #4b5563 !important;
+}
+
+/* Word Count Display */
+.ck-word-count {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+}
+
+.dark .ck-word-count {
+    color: #9ca3af;
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+/* Custom Editor Container Styling */
+.ckeditor-container {
+    position: relative;
+}
+
+.ckeditor-container.dark .ck-editor {
+    border-color: #374151;
+}
+
+.ckeditor-container.dark .ck-editor__editable {
+    background-color: #1f2937;
+    color: #f9fafb;
+}
+
+/* Custom Toolbar Styling */
+.ck-toolbar {
+    border-radius: 0.375rem 0.375rem 0 0 !important;
+}
+
+.ck-editor__editable {
+    border-radius: 0 0 0.375rem 0.375rem !important;
+    min-height: 200px;
+}
+
+/* Responsive Toolbar */
+@media (max-width: 768px) {
+    .ck-toolbar {
+        flex-wrap: wrap;
+    }
+    
+    .ck-toolbar__items {
+        flex-wrap: wrap;
+        gap: 2px;
+    }
+    
+    .ck-button {
+        min-width: auto !important;
+        padding: 4px 6px !important;
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .ck-editor {
+        --ck-color-focus-border: #ffffff;
+        --ck-color-button-on-background: #000000;
+    }
+    
+    .dark .ck-editor {
+        --ck-color-focus-border: #000000;
+        --ck-color-button-on-background: #ffffff;
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .ck-editor * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus Management */
+.ck-editor__editable:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.dark .ck-editor__editable:focus {
+    outline-color: #60a5fa;
+}
+
+/* Print Styles */
+@media print {
+    .ck-editor__main {
+        box-shadow: none !important;
+        border: 1px solid #000 !important;
+    }
+    
+    .ck-toolbar {
+        display: none !important;
+    }
+}

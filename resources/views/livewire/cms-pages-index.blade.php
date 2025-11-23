@@ -47,6 +47,7 @@
     {{-- Pages Table --}}
     <flux:table :paginate="$pages">
         <flux:table.columns>
+            <flux:table.column sortable :sorted="$sortBy === 'sort_order'" :direction="$sortDirection" wire:click="sort('sort_order')">Order</flux:table.column>
             <flux:table.column sortable :sorted="$sortBy === 'title'" :direction="$sortDirection" wire:click="sort('title')">Page</flux:table.column>
             <flux:table.column sortable :sorted="$sortBy === 'type'" :direction="$sortDirection" wire:click="sort('type')">Type</flux:table.column>
             <flux:table.column sortable :sorted="$sortBy === 'status'" :direction="$sortDirection" wire:click="sort('status')">Status</flux:table.column>
@@ -57,6 +58,9 @@
         <flux:table.rows>
                     @forelse($pages as $page)
                 <flux:table.row :key="$page->id">
+                    <flux:table.cell>
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $page->sort_order ?? 0 }}</div>
+                    </flux:table.cell>
                     <flux:table.cell class="flex items-center gap-3">
                                         @if($page->is_homepage)
                                             <flux:icon name="home" class="h-5 w-5 text-blue-500" />
