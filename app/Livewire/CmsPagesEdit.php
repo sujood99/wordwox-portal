@@ -8,6 +8,9 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Flux\Flux;
 
 /**
  * CMS Page Editor Component
@@ -68,6 +71,13 @@ class CmsPagesEdit extends Component
     public $showBlockSelector = false;
     public $selectedBlockType = '';
     
+    // Confirmation modal state
+    public $showDeleteConfirm = false;
+    public $deleteConfirmType = ''; // 'block', 'image', 'banner', 'video', 'gallery', 'fax'
+    public $deleteConfirmIndex = null;
+    public $deleteConfirmSubIndex = null; // For gallery images and fax numbers
+    public $deleteConfirmMessage = '';
+    
     protected $rules = [
         'title' => 'required|string|max:255',
         'slug' => 'required|string|max:255',
@@ -81,6 +91,8 @@ class CmsPagesEdit extends Component
         'is_homepage' => 'boolean',
         'show_in_navigation' => 'boolean',
         'sort_order' => 'integer|min:0',
+        'blocks.*.is_active' => 'boolean',
+        'blocks.*.is_active' => 'boolean',
     ];
 
     public function mount(CmsPage $page)
@@ -118,8 +130,13 @@ class CmsPagesEdit extends Component
             'hero' => ['name' => 'Hero', 'icon' => 'sparkles', 'category' => 'structured'],
             'heading' => ['name' => 'Heading', 'icon' => 'h1', 'category' => 'structured'],
             'image' => ['name' => 'Image', 'icon' => 'photo', 'category' => 'structured'],
+            'banner' => ['name' => 'Banner', 'icon' => 'rectangle-stack', 'category' => 'structured'],
             'spacer' => ['name' => 'Spacer', 'icon' => 'minus', 'category' => 'structured'],
             'video' => ['name' => 'Video', 'icon' => 'play', 'category' => 'structured'],
+            'contact' => ['name' => 'Contact', 'icon' => 'envelope', 'category' => 'structured'],
+            'packages' => ['name' => 'Packages', 'icon' => 'shopping-bag', 'category' => 'structured'],
+            'coaches' => ['name' => 'Coaches', 'icon' => 'user-group', 'category' => 'structured'],
+            'schedule' => ['name' => 'Schedule', 'icon' => 'calendar', 'category' => 'structured'],
             
             // Rich text blocks (CKEditor 5 - powerful table support, Arabic/RTL support)
             'paragraph' => ['name' => 'Paragraph', 'icon' => 'document-text', 'category' => 'richtext']
@@ -182,7 +199,8 @@ class CmsPagesEdit extends Component
 
     public function updatedTitle()
     {
-        if (empty($this->slug) || $this->slug === Str::slug($this->page->title)) {
+        // Auto-generate slug from title only if slug is empty
+        if (empty($this->slug)) {
             $this->slug = Str::slug($this->title);
         }
     }
@@ -193,12 +211,98 @@ class CmsPagesEdit extends Component
      */
     public function addBlock($type)
     {
-        // Default settings for hero blocks
-        $defaultSettings = [];
+        // Default settings for all blocks with section customization
+        $defaultSettings = [
+            'layout' => [
+                'width' => 'container', // full, container, narrow
+                'alignment' => 'center' // left, center, right
+            ],
+            'spacing' => [
+                'padding_top' => 'md',
+                'padding_bottom' => 'md',
+                'padding_left' => 'auto',
+                'padding_right' => 'auto'
+            ],
+            'background' => [
+                'type' => 'color', // color, gradient, image, none
+                'color' => $type === 'hero' ? '#1f2937' : '#ffffff'
+            ],
+            'typography' => [
+                'text_align' => $type === 'hero' ? 'center' : 'left',
+                'text_color' => $type === 'hero' ? '#ffffff' : '#1f2937'
+            ]
+        ];
+        
+        // Hero-specific settings
         if ($type === 'hero') {
-            $defaultSettings = [
-                'background_color' => '#1f2937',
-                'text_color' => '#ffffff'
+            $defaultSettings['background_color'] = '#1f2937';
+            $defaultSettings['text_color'] = '#ffffff';
+        }
+        
+        // Default data for contact blocks
+        $defaultData = [];
+        if ($type === 'contact') {
+            $defaultData = [
+                'email' => '',
+                'phone' => '',
+                'fax' => ['', '', ''] // Initialize with 3 empty slots
+            ];
+        }
+        
+        // Default data for banner blocks
+        if ($type === 'banner') {
+            $defaultData = [
+                'image_url' => '',
+                'link_url' => '',
+                'alt_text' => '',
+                'height' => 'medium'
+            ];
+        }
+        
+        // Default data for image blocks
+        if ($type === 'image') {
+            $defaultData = [
+                'image_url' => '',
+                'alt_text' => '',
+                'height' => 'auto',
+                'width' => 'full'
+            ];
+        }
+        
+        // Default data for packages blocks
+        if ($type === 'packages') {
+            $defaultData = [
+                'show_all' => true, // Show all active plans
+                'plan_types' => [], // Empty = all types, or array of type IDs
+                'layout' => 'grid', // grid or list
+                'columns' => 3, // Number of columns for grid layout
+                'show_description' => true,
+                'show_programs' => true,
+                'buy_button_text' => 'Buy',
+                'purchase_at_gym_text' => 'Purchase at the Gym'
+            ];
+        }
+        
+        // Default data for coaches blocks
+        if ($type === 'coaches') {
+            $defaultData = [
+                'layout' => 'grid', // grid or list
+                'columns' => 3, // Number of columns for grid layout
+                'show_bio' => true,
+                'show_photo' => true,
+                'view_profile_text' => 'View Profile'
+            ];
+        }
+        
+        // Default data for schedule blocks
+        if ($type === 'schedule') {
+            $defaultData = [
+                'default_date' => 'today', // today, or specific date YYYY-MM-DD
+                'show_date_navigation' => true,
+                'show_drop_in_button' => true,
+                'drop_in_text' => 'Drop In',
+                'days_to_show' => 1, // Number of days to show (1 = single day, 7 = week)
+                'group_by_date' => true
             ];
         }
         
@@ -210,7 +314,7 @@ class CmsPagesEdit extends Component
             'subtitle' => $type === 'hero' ? 'Transform your business today' : '',
             'content' => $this->getDefaultContent($type),
             'settings_json' => !empty($defaultSettings) ? json_encode($defaultSettings) : '{}',
-            'data_json' => '{}',
+            'data_json' => !empty($defaultData) ? json_encode($defaultData) : '{}',
             'sort_order' => count($this->blocks),
             'is_active' => true,
             'is_visible' => true,
@@ -228,6 +332,86 @@ class CmsPagesEdit extends Component
         $this->showBlockSelector = false;
     }
 
+    /**
+     * Show delete confirmation modal
+     */
+    public function confirmDelete($type, $index, $subIndex = null, $message = null)
+    {
+        $this->deleteConfirmType = $type;
+        $this->deleteConfirmIndex = $index;
+        $this->deleteConfirmSubIndex = $subIndex;
+        
+        // Set default messages based on type
+        if ($message) {
+            $this->deleteConfirmMessage = $message;
+        } else {
+            $messages = [
+                'block' => 'Are you sure you want to remove this block? This action cannot be undone.',
+                'image' => 'Are you sure you want to remove this image?',
+                'banner' => 'Are you sure you want to remove this banner image?',
+                'video' => 'Are you sure you want to remove this video?',
+                'gallery' => 'Are you sure you want to remove this image from the gallery?',
+                'fax' => 'Are you sure you want to remove this fax number?',
+            ];
+            $this->deleteConfirmMessage = $messages[$type] ?? 'Are you sure you want to delete this item?';
+        }
+        
+        $this->showDeleteConfirm = true;
+    }
+    
+    /**
+     * Cancel delete confirmation
+     */
+    public function cancelDelete()
+    {
+        $this->showDeleteConfirm = false;
+        $this->deleteConfirmType = '';
+        $this->deleteConfirmIndex = null;
+        $this->deleteConfirmSubIndex = null;
+        $this->deleteConfirmMessage = '';
+    }
+    
+    /**
+     * Execute delete after confirmation
+     */
+    public function executeDelete()
+    {
+        if (!$this->showDeleteConfirm || !$this->deleteConfirmType) {
+            return;
+        }
+        
+        $type = $this->deleteConfirmType;
+        $index = $this->deleteConfirmIndex;
+        $subIndex = $this->deleteConfirmSubIndex;
+        
+        switch ($type) {
+            case 'block':
+                $this->removeBlock($index);
+                break;
+            case 'image':
+                $this->removeImage($index);
+                break;
+            case 'banner':
+                $this->removeBannerImage($index);
+                break;
+            case 'video':
+                $this->removeVideo($index);
+                break;
+            case 'gallery':
+                if ($subIndex !== null) {
+                    $this->removeGalleryImage($index, $subIndex);
+                }
+                break;
+            case 'fax':
+                if ($subIndex !== null) {
+                    $this->removeFaxNumber($index, $subIndex);
+                }
+                break;
+        }
+        
+        $this->cancelDelete();
+    }
+    
     public function removeBlock($index)
     {
         // Validate index exists
@@ -235,12 +419,20 @@ class CmsPagesEdit extends Component
             return;
         }
         
+        $blockType = $this->blocks[$index]['type'] ?? 'Block';
+        
         unset($this->blocks[$index]);
         $this->blocks = array_values($this->blocks);
         $this->reorderBlocks();
         
         // Dispatch event to reinitialize SortableJS
         $this->dispatch('block-removed');
+        
+        // Show success message
+        Flux::toast(
+            variant: 'success',
+            text: ucfirst($blockType) . ' block deleted successfully!'
+        );
     }
 
     public function moveBlockUp($index)
@@ -311,6 +503,15 @@ class CmsPagesEdit extends Component
         if (count($reorderedBlocks) === count($this->blocks)) {
             $this->blocks = $reorderedBlocks;
             $this->reorderBlocks();
+            
+            // Notify user of successful reorder
+            $this->dispatch('blocks-reordered');
+            
+            // Optional: Show toast notification
+            Flux::toast(
+                variant: 'success',
+                text: 'Blocks reordered successfully!'
+            );
         }
     }
 
@@ -371,6 +572,185 @@ class CmsPagesEdit extends Component
         }
     }
 
+    /**
+     * Update section layout settings
+     */
+    public function updateSectionLayout($index, $key, $value)
+    {
+        $settingsJson = $this->blocks[$index]['settings_json'] ?? '{}';
+        $settings = is_array($settingsJson) ? $settingsJson : json_decode($settingsJson, true) ?? [];
+        
+        $settings['layout'][$key] = $value;
+        $this->blocks[$index]['settings_json'] = json_encode($settings);
+    }
+
+    /**
+     * Update section spacing settings
+     */
+    public function updateSectionSpacing($index, $key, $value)
+    {
+        $settingsJson = $this->blocks[$index]['settings_json'] ?? '{}';
+        $settings = is_array($settingsJson) ? $settingsJson : json_decode($settingsJson, true) ?? [];
+        
+        $settings['spacing'][$key] = $value;
+        $this->blocks[$index]['settings_json'] = json_encode($settings);
+    }
+
+    /**
+     * Update section background settings
+     */
+    public function updateSectionBackground($index, $key, $value)
+    {
+        $settingsJson = $this->blocks[$index]['settings_json'] ?? '{}';
+        $settings = is_array($settingsJson) ? $settingsJson : json_decode($settingsJson, true) ?? [];
+        
+        $settings['background'][$key] = $value;
+        $this->blocks[$index]['settings_json'] = json_encode($settings);
+    }
+
+    /**
+     * Update section typography settings
+     */
+    public function updateSectionTypography($index, $key, $value)
+    {
+        $settingsJson = $this->blocks[$index]['settings_json'] ?? '{}';
+        $settings = is_array($settingsJson) ? $settingsJson : json_decode($settingsJson, true) ?? [];
+        
+        $settings['typography'][$key] = $value;
+        $this->blocks[$index]['settings_json'] = json_encode($settings);
+    }
+
+    /**
+     * Apply section preset styling
+     */
+    /**
+     * Generate CSS classes and styles from section settings
+     */
+    public function getSectionStyles($settings)
+    {
+        $settingsArray = is_string($settings) ? json_decode($settings, true) : ($settings ?? []);
+        
+        $layout = $settingsArray['layout'] ?? [];
+        $spacing = $settingsArray['spacing'] ?? [];
+        $background = $settingsArray['background'] ?? [];
+        $typography = $settingsArray['typography'] ?? [];
+        
+        $classes = [];
+        $inlineStyles = [];
+        
+        // Layout classes
+        switch ($layout['width'] ?? 'container') {
+            case 'full':
+                $classes[] = 'w-full';
+                break;
+            case 'narrow':
+                $classes[] = 'max-w-4xl mx-auto px-6';
+                break;
+            default: // container
+                $classes[] = 'container mx-auto px-6';
+                break;
+        }
+        
+        // Spacing classes
+        $paddingMap = [
+            'none' => 'p-0',
+            'xs' => 'py-2',
+            'sm' => 'py-4', 
+            'md' => 'py-8',
+            'lg' => 'py-12',
+            'xl' => 'py-16',
+            '2xl' => 'py-24'
+        ];
+        
+        $topPadding = $spacing['padding_top'] ?? 'md';
+        $bottomPadding = $spacing['padding_bottom'] ?? 'md';
+        
+        if ($topPadding === $bottomPadding) {
+            $classes[] = $paddingMap[$topPadding] ?? $paddingMap['md'];
+        } else {
+            $classes[] = str_replace('py-', 'pt-', $paddingMap[$topPadding] ?? $paddingMap['md']);
+            $classes[] = str_replace('py-', 'pb-', $paddingMap[$bottomPadding] ?? $paddingMap['md']);
+        }
+        
+        // Background
+        switch ($background['type'] ?? 'color') {
+            case 'gradient':
+                $classes[] = $background['gradient'] ?? 'bg-gradient-to-r from-blue-500 to-purple-600';
+                break;
+            case 'image':
+                $classes[] = 'bg-cover bg-center';
+                if (isset($background['image'])) {
+                    $inlineStyles[] = "background-image: url('{$background['image']}')";
+                }
+                break;
+            case 'none':
+                // No background
+                break;
+            default: // color
+                $inlineStyles[] = 'background-color: ' . ($background['color'] ?? '#ffffff');
+                break;
+        }
+        
+        // Typography
+        $alignmentMap = [
+            'left' => 'text-left',
+            'center' => 'text-center', 
+            'right' => 'text-right',
+            'justify' => 'text-justify'
+        ];
+        
+        $classes[] = $alignmentMap[$typography['text_align'] ?? 'left'];
+        
+        if (isset($typography['text_color'])) {
+            $inlineStyles[] = 'color: ' . $typography['text_color'];
+        }
+        
+        return [
+            'classes' => implode(' ', $classes),
+            'styles' => implode('; ', $inlineStyles)
+        ];
+    }
+
+    public function applySectionPreset($index, $preset)
+    {
+        $presets = [
+            'default' => [
+                'layout' => ['width' => 'container', 'alignment' => 'center'],
+                'spacing' => ['padding_top' => 'md', 'padding_bottom' => 'md'],
+                'background' => ['type' => 'color', 'color' => '#ffffff'],
+                'typography' => ['text_align' => 'left']
+            ],
+            'hero_section' => [
+                'layout' => ['width' => 'full', 'alignment' => 'center'],
+                'spacing' => ['padding_top' => 'xl', 'padding_bottom' => 'xl'],
+                'background' => ['type' => 'gradient', 'gradient' => 'bg-gradient-to-r from-blue-600 to-purple-600'],
+                'typography' => ['text_align' => 'center', 'text_color' => '#ffffff']
+            ],
+            'content_section' => [
+                'layout' => ['width' => 'container', 'alignment' => 'center'],
+                'spacing' => ['padding_top' => 'lg', 'padding_bottom' => 'lg'],
+                'background' => ['type' => 'color', 'color' => '#f9fafb'],
+                'typography' => ['text_align' => 'left']
+            ],
+            'minimal' => [
+                'layout' => ['width' => 'container', 'alignment' => 'center'],
+                'spacing' => ['padding_top' => 'sm', 'padding_bottom' => 'sm'],
+                'background' => ['type' => 'none'],
+                'typography' => ['text_align' => 'left']
+            ]
+        ];
+
+        if (isset($presets[$preset])) {
+            $currentSettings = is_array($this->blocks[$index]['settings_json']) ? 
+                $this->blocks[$index]['settings_json'] : 
+                json_decode($this->blocks[$index]['settings_json'], true) ?? [];
+            
+            // Merge with current settings to preserve other settings like hero colors
+            $newSettings = array_merge($currentSettings, $presets[$preset]);
+            $this->blocks[$index]['settings_json'] = json_encode($newSettings);
+        }
+    }
+
     public $imageUploads = [];
 
     public function updatedImageUploads($value, $key)
@@ -411,7 +791,17 @@ class CmsPagesEdit extends Component
             $data['image_path'] = $path;
             
             $this->blocks[$blockIndex]['data_json'] = json_encode($data);
-            $this->blocks[$blockIndex]['content'] = $url;
+            
+            // For image blocks, also set the content field
+            if (isset($this->blocks[$blockIndex]['type']) && $this->blocks[$blockIndex]['type'] === 'image') {
+                $this->blocks[$blockIndex]['content'] = $url;
+            }
+            
+            // For banner blocks, set default alt text if empty
+            if (isset($this->blocks[$blockIndex]['type']) && $this->blocks[$blockIndex]['type'] === 'banner' && empty($data['alt_text'])) {
+                $data['alt_text'] = 'Banner image';
+                $this->blocks[$blockIndex]['data_json'] = json_encode($data);
+            }
             
             // Clear the file from uploads array
             unset($this->imageUploads[$key]);
@@ -594,14 +984,261 @@ class CmsPagesEdit extends Component
         $this->blocks[$index]['content'] = '';
     }
 
+    /**
+     * Update contact field (email or phone)
+     */
+    public function updateContactField($index, $field, $value)
+    {
+        $data = json_decode($this->blocks[$index]['data_json'] ?? '{}', true);
+        if (!is_array($data)) {
+            $data = [];
+        }
+        
+        $data[$field] = $value;
+        $this->blocks[$index]['data_json'] = json_encode($data);
+    }
+
+    /**
+     * Add a new fax number to contact block
+     */
+    public function addFaxNumber($index)
+    {
+        $data = json_decode($this->blocks[$index]['data_json'] ?? '{}', true);
+        if (!is_array($data)) {
+            $data = [];
+        }
+        
+        $faxNumbers = $data['fax'] ?? [];
+        if (!is_array($faxNumbers)) {
+            $faxNumbers = [];
+        }
+        
+        $faxNumbers[] = '';
+        $data['fax'] = $faxNumbers;
+        $this->blocks[$index]['data_json'] = json_encode($data);
+    }
+
+    /**
+     * Remove a fax number from contact block
+     */
+    public function removeFaxNumber($index, $faxIndex)
+    {
+        $data = json_decode($this->blocks[$index]['data_json'] ?? '{}', true);
+        if (!is_array($data)) {
+            $data = [];
+        }
+        
+        $faxNumbers = $data['fax'] ?? [];
+        if (!is_array($faxNumbers)) {
+            $faxNumbers = [];
+        }
+        
+        if (isset($faxNumbers[$faxIndex])) {
+            unset($faxNumbers[$faxIndex]);
+            $faxNumbers = array_values($faxNumbers); // Re-index array
+        }
+        
+        $data['fax'] = $faxNumbers;
+        $this->blocks[$index]['data_json'] = json_encode($data);
+    }
+
+    /**
+     * Update a specific fax number
+     */
+    public function updateFaxNumber($index, $faxIndex, $value)
+    {
+        $data = json_decode($this->blocks[$index]['data_json'] ?? '{}', true);
+        if (!is_array($data)) {
+            $data = [];
+        }
+        
+        $faxNumbers = $data['fax'] ?? [];
+        if (!is_array($faxNumbers)) {
+            $faxNumbers = [];
+        }
+        
+        // Ensure array has enough elements
+        while (count($faxNumbers) <= $faxIndex) {
+            $faxNumbers[] = '';
+        }
+        
+        $faxNumbers[$faxIndex] = $value;
+        
+        // Remove empty fax numbers at the end (but keep at least 3 slots)
+        $faxNumbers = array_values($faxNumbers);
+        while (count($faxNumbers) < 3) {
+            $faxNumbers[] = '';
+        }
+        
+        $data['fax'] = $faxNumbers;
+        $this->blocks[$index]['data_json'] = json_encode($data);
+    }
+
+    /**
+     * Update banner field (link_url, alt_text, height)
+     */
+    public function updateBannerField($index, $field, $value)
+    {
+        $data = json_decode($this->blocks[$index]['data_json'] ?? '{}', true);
+        if (!is_array($data)) {
+            $data = [];
+        }
+        
+        $data[$field] = $value;
+        $this->blocks[$index]['data_json'] = json_encode($data);
+    }
+
+    public function updatePackagesField($index, $field, $value)
+    {
+        $data = json_decode($this->blocks[$index]['data_json'] ?? '{}', true);
+        if (!is_array($data)) {
+            $data = [];
+        }
+        
+        $data[$field] = $value;
+        $this->blocks[$index]['data_json'] = json_encode($data);
+    }
+
+    public function updateCoachesField($index, $field, $value)
+    {
+        $data = json_decode($this->blocks[$index]['data_json'] ?? '{}', true);
+        if (!is_array($data)) {
+            $data = [];
+        }
+        
+        $data[$field] = $value;
+        $this->blocks[$index]['data_json'] = json_encode($data);
+    }
+
+    public function updateScheduleField($index, $field, $value)
+    {
+        $data = json_decode($this->blocks[$index]['data_json'] ?? '{}', true);
+        if (!is_array($data)) {
+            $data = [];
+        }
+        
+        $data[$field] = $value;
+        $this->blocks[$index]['data_json'] = json_encode($data);
+    }
+
+    /**
+     * Remove banner image
+     */
+    public function removeBannerImage($index)
+    {
+        $data = json_decode($this->blocks[$index]['data_json'] ?? '{}', true);
+        if (!is_array($data)) {
+            $data = [];
+        }
+        
+        // Delete the file if it exists
+        if (isset($data['image_path'])) {
+            Storage::disk('public')->delete($data['image_path']);
+        }
+        
+        // Remove the image URL and path but keep other banner data
+        $data['image_url'] = '';
+        $data['image_path'] = '';
+        $this->blocks[$index]['data_json'] = json_encode($data);
+    }
+
+    /**
+     * Toggle block active/inactive status
+     */
+    public function toggleBlockActive($index)
+    {
+        if (isset($this->blocks[$index])) {
+            $oldStatus = $this->blocks[$index]['is_active'] ?? true;
+            $this->blocks[$index]['is_active'] = !$oldStatus;
+            $newStatus = $this->blocks[$index]['is_active'];
+            
+            // Debug information
+            Log::info('Block toggle', [
+                'index' => $index,
+                'block_id' => $this->blocks[$index]['id'] ?? 'new',
+                'old_status' => $oldStatus,
+                'new_status' => $newStatus,
+                'block_type' => $this->blocks[$index]['type']
+            ]);
+            
+            // Immediately save this change to database if the block already exists
+            if ($this->blocks[$index]['id']) {
+                $updated = $this->page->sections()->where('id', $this->blocks[$index]['id'])->update([
+                    'is_active' => $newStatus
+                ]);
+                
+                Log::info('Database update result', [
+                    'block_id' => $this->blocks[$index]['id'],
+                    'updated_rows' => $updated,
+                    'new_is_active' => $newStatus
+                ]);
+            }
+            
+            // Provide user feedback
+            $status = $newStatus ? 'activated' : 'deactivated';
+            $blockType = ucfirst($this->blocks[$index]['type']);
+            Flux::toast(
+                variant: 'success',
+                text: "{$blockType} block {$status} successfully!"
+            );
+        }
+    }
+
+    /**
+     * Debug method to check section states
+     */
+    public function debugSectionStates()
+    {
+        $sections = $this->page->sections()->get();
+        Log::info('Current section states in database', [
+            'page_id' => $this->page->id,
+            'sections' => $sections->map(function($section) {
+                return [
+                    'id' => $section->id,
+                    'type' => $section->type,
+                    'title' => $section->title,
+                    'is_active' => $section->is_active,
+                    'is_visible' => $section->is_visible,
+                ];
+            })->toArray()
+        ]);
+        
+        Flux::toast(
+            variant: 'success',
+            text: 'Section states logged - check laravel.log'
+        );
+    }
+
+    /**
+     * Update image field (height, width, alt_text)
+     */
+    public function updateImageField($index, $field, $value)
+    {
+        $data = json_decode($this->blocks[$index]['data_json'] ?? '{}', true);
+        if (!is_array($data)) {
+            $data = [];
+        }
+        
+        $data[$field] = $value;
+        $this->blocks[$index]['data_json'] = json_encode($data);
+    }
+
     public function save()
     {
+        // Auto-generate slug if empty
+        if (empty($this->slug)) {
+            $this->slug = Str::slug($this->title);
+        }
+        
+        // Ensure slug is URL-friendly
+        $this->slug = Str::slug($this->slug);
+        
         $this->validate([
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:cms_pages,slug,' . $this->page->id,
             'description' => 'nullable|string',
             'status' => 'required|in:draft,published,archived',
-            'type' => 'required|in:page,post,home,about,contact,custom',
+            // Type field removed from UI, keeping existing value
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string|max:160',
             'seo_keywords' => 'nullable|string',
@@ -626,13 +1263,17 @@ class CmsPagesEdit extends Component
             'is_homepage' => $this->is_homepage,
             'show_in_navigation' => $this->show_in_navigation,
             'sort_order' => $this->sort_order,
-            'updated_by' => auth()->id(),
+            'updated_by' => Auth::check() ? Auth::user()?->id : null,
         ]);
 
         // Save blocks (blocks = sections in our architecture)
         $this->saveSections();
 
-        session()->flash('message', 'Page updated successfully!');
+        Flux::toast(
+            variant: 'success',
+            heading: 'Page Saved',
+            text: 'Your page has been updated successfully!'
+        );
         return redirect()->route('cms.pages.index');
     }
 
