@@ -1076,6 +1076,7 @@ class CmsPagesEdit extends Component
 
     /**
      * Update banner field (link_url, alt_text, height)
+     * Auto-saves to database immediately
      */
     public function updateBannerField($index, $field, $value)
     {
@@ -1086,6 +1087,16 @@ class CmsPagesEdit extends Component
         
         $data[$field] = $value;
         $this->blocks[$index]['data_json'] = json_encode($data);
+        
+        // Auto-save to database
+        // Note: CmsSection model casts 'data' to 'array', so we pass the array directly
+        if ($this->blocks[$index]['id']) {
+            $section = $this->page->sections()->find($this->blocks[$index]['id']);
+            if ($section) {
+                $section->data = $data; // Pass as array, model will handle JSON encoding
+                $section->save();
+            }
+        }
     }
 
     public function updatePackagesField($index, $field, $value)

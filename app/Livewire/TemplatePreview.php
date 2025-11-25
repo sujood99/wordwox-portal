@@ -71,6 +71,13 @@ class TemplatePreview extends Component
                 'preview_color' => 'bg-gradient-to-r from-purple-100 via-pink-100 to-indigo-100',
                 'features' => ['Zen aesthetics', 'Peaceful colors', 'Mindful animations']
             ],
+            'fitness' => [
+                'name' => 'Fitness Template',
+                'description' => 'Modern Gym & Fitness Design',
+                'icon' => '💪',
+                'preview_color' => 'bg-gradient-to-r from-red-100 to-orange-100',
+                'features' => ['Gym layout', 'Bootstrap 5', 'Responsive design', 'Multiple page types']
+            ],
         ];
     }
 

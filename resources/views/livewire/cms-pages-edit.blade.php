@@ -1175,17 +1175,15 @@
                                         <flux:field>
                                             <flux:checkbox 
                                                 checked="{{ ($packagesData['show_description'] ?? true) ? 'true' : 'false' }}"
-                                                wire:change="updatePackagesField({{ $index }}, 'show_description', $event.target.checked)">
-                                                Show plan descriptions
-                                            </flux:checkbox>
+                                                wire:change="updatePackagesField({{ $index }}, 'show_description', $event.target.checked)"
+                                                label="Show plan descriptions" />
                                         </flux:field>
 
                                         <flux:field>
                                             <flux:checkbox 
                                                 checked="{{ ($packagesData['show_programs'] ?? true) ? 'true' : 'false' }}"
-                                                wire:change="updatePackagesField({{ $index }}, 'show_programs', $event.target.checked)">
-                                                Show included programs/classes
-                                            </flux:checkbox>
+                                                wire:change="updatePackagesField({{ $index }}, 'show_programs', $event.target.checked)"
+                                                label="Show included programs/classes" />
                                         </flux:field>
 
                                         <flux:field>

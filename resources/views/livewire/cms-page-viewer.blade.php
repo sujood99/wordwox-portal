@@ -56,6 +56,7 @@
         @php
             $currentTemplate = $template ?? ($page->template ?? env('CMS_DEFAULT_THEME', 'modern'));
             $isMeditative = $currentTemplate === 'meditative';
+            $isFitness = $currentTemplate === 'fitness';
         @endphp
         
         <div class="cms-page" data-page-type="{{ $page->type }}" data-page-id="{{ $page->id }}" data-template="{{ $currentTemplate }}">
@@ -73,6 +74,30 @@
                                     @if($page->description)
                                     <p class="breadcrumbs"><span class="mr-2"><a href="/">Home</a></span> <span>{{ $page->title }}</span></p>
                                     @endif
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                @elseif($isFitness)
+                    {{-- Fitness Template Hero Header --}}
+                    <section class="hero-section" style="background: linear-gradient(rgba(255,107,107,0.8), rgba(78,205,196,0.8)), url('{{ asset('images/fitness-bg.jpg') }}') center/cover;">
+                        <div class="container">
+                            <div class="row align-items-center justify-content-center text-center" style="min-height: 400px;">
+                                <div class="col-lg-8">
+                                    <h1 class="display-4 fw-bold text-white mb-4">{{ $page->title }}</h1>
+                                    @if($page->description)
+                                    <p class="lead text-white mb-4">{{ $page->description }}</p>
+                                    @endif
+                                    <nav aria-label="breadcrumb">
+                                        <ol class="breadcrumb justify-content-center bg-transparent">
+                                            <li class="breadcrumb-item">
+                                                <a href="/" class="text-white text-decoration-none">
+                                                    <i class="fas fa-home me-1"></i>Home
+                                                </a>
+                                            </li>
+                                            <li class="breadcrumb-item active text-white-50">{{ $page->title }}</li>
+                                        </ol>
+                                    </nav>
                                 </div>
                             </div>
                         </div>
@@ -120,6 +145,19 @@
                                         break;
                                     case 'narrow':
                                         $containerClasses[] = 'container';
+                                        break;
+                                    default: // container
+                                        $containerClasses[] = 'container';
+                                        break;
+                                }
+                            } elseif ($isFitness) {
+                                // Fitness template uses Bootstrap 5
+                                switch ($layout['width'] ?? 'container') {
+                                    case 'full':
+                                        $containerClasses[] = 'container-fluid';
+                                        break;
+                                    case 'narrow':
+                                        $containerClasses[] = 'container-sm';
                                         break;
                                     default: // container
                                         $containerClasses[] = 'container';
@@ -185,6 +223,14 @@
                                     'right' => 'text-right',
                                     'justify' => 'text-justify'
                                 ];
+                            } elseif ($isFitness) {
+                                // Bootstrap 5 text alignment classes
+                                $alignmentMap = [
+                                    'left' => 'text-start',
+                                    'center' => 'text-center', 
+                                    'right' => 'text-end',
+                                    'justify' => 'text-justify'
+                                ];
                             } else {
                                 // Tailwind CSS text alignment classes
                                 $alignmentMap = [
@@ -207,6 +253,11 @@
                                 $templateClasses[] = 'ftco-section';
                                 if ($section->type !== 'hero') {
                                     $templateClasses[] = 'ftco-animate';
+                                }
+                            } elseif ($isFitness) {
+                                $templateClasses[] = 'section-padding';
+                                if ($section->type !== 'hero') {
+                                    $templateClasses[] = 'fitness-section';
                                 }
                             }
                             $finalSectionClasses = array_merge($sectionClasses, $templateClasses);
@@ -239,6 +290,29 @@
                                                             @if($section->content)
                                                             <div class="mt-4">{!! $section->content !!}</div>
                                                             @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+                                    @elseif($isFitness)
+                                        {{-- Fitness Template Hero Section --}}
+                                        <section class="hero-section">
+                                            <div class="container">
+                                                <div class="row align-items-center justify-content-center text-center" style="min-height: 600px;">
+                                                    <div class="col-lg-10">
+                                                        @if($section->title)
+                                                        <h1 class="display-2 fw-bold text-white mb-4">{{ $section->title }}</h1>
+                                                        @endif
+                                                        @if($section->subtitle)
+                                                        <h3 class="text-white mb-4">{{ $section->subtitle }}</h3>
+                                                        @endif
+                                                        @if($section->content)
+                                                        <div class="lead text-white mb-5">{!! $section->content !!}</div>
+                                                        @endif
+                                                        <div class="mt-5">
+                                                            <a href="#about" class="btn btn-fitness btn-lg me-3">Get Started</a>
+                                                            <a href="#packages" class="btn btn-outline-light btn-lg">View Plans</a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -671,6 +745,13 @@
                                                     @endif
                                                 </div>
                                             </div>
+                                        @elseif($isFitness)
+                                            <div class="text-center mb-5">
+                                                <h2 class="display-4 fw-bold mb-3">{{ $section->title }}</h2>
+                                                @if($section->subtitle)
+                                                <p class="lead text-muted">{{ $section->subtitle }}</p>
+                                                @endif
+                                            </div>
                                         @else
                                             <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 text-center">{{ $section->title }}</h2>
                                             @if($section->subtitle)
@@ -708,6 +789,112 @@
                                                     </div>
                                                 @endforeach
                                             </div>
+                                        @elseif($isFitness)
+                                            {{-- Fitness Template: Bootstrap 5 Grid or List Layout --}}
+                                            @if($layout === 'grid')
+                                                {{-- Grid Layout --}}
+                                                @php
+                                                    // Calculate Bootstrap 5 column class based on columns setting
+                                                    $fitnessBootstrapCols = match((int)$columns) {
+                                                        2 => 'col-lg-6 col-md-6',
+                                                        4 => 'col-lg-3 col-md-6',
+                                                        default => 'col-lg-4 col-md-6' // 3 columns default
+                                                    };
+                                                @endphp
+                                                <div class="row g-4">
+                                                    @foreach($plans as $plan)
+                                                        <div class="{{ $fitnessBootstrapCols }}">
+                                                            <div class="card card-fitness h-100">
+                                                                <div class="card-body d-flex flex-column text-center p-4">
+                                                                    <div class="mb-3">
+                                                                        <i class="fas fa-dumbbell fs-2 text-danger"></i>
+                                                                    </div>
+                                                                    <h3 class="card-title h4 fw-bold mb-3">{{ $plan->name }}</h3>
+                                                                    <p class="text-muted mb-3">{{ $plan->duration_text }}</p>
+                                                                    
+                                                                    @if($showDescription && $plan->description)
+                                                                    <p class="card-text mb-4 flex-grow-1">{{ Str::limit($plan->description, 120) }}</p>
+                                                                    @endif
+                                                                    
+                                                                    @if($showPrograms)
+                                                                    <div class="mb-3">
+                                                                        <span class="badge bg-primary">{{ $plan->type_label ?? 'Standard Plan' }}</span>
+                                                                    </div>
+                                                                    @endif
+                                                                    
+                                                                    <div class="price-section mb-4">
+                                                                        <h4 class="display-5 fw-bold text-danger mb-0">
+                                                                            {{ number_format($plan->price, 2) }}
+                                                                            <small class="text-muted fs-6">{{ $plan->currency }}</small>
+                                                                        </h4>
+                                                                    </div>
+                                                                    
+                                                                    @php
+                                                                        $canSellOnline = true;
+                                                                        $planUuid = $plan->uuid ?? $plan->id;
+                                                                    @endphp
+                                                                    
+                                                                    @if($canSellOnline)
+                                                                        <a href="/org-plan/index?plan={{ $planUuid }}" class="btn btn-fitness btn-lg mt-auto">
+                                                                            {{ $buyButtonText }} <i class="fas fa-arrow-right ms-1"></i>
+                                                                        </a>
+                                                                    @else
+                                                                        <button class="btn btn-outline-secondary btn-lg mt-auto" disabled>
+                                                                            {{ $purchaseAtGymText }}
+                                                                        </button>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                {{-- List Layout --}}
+                                                <div class="d-flex flex-column gap-4">
+                                                    @foreach($plans as $plan)
+                                                        <div class="card card-fitness">
+                                                            <div class="card-body">
+                                                                <div class="row align-items-center">
+                                                                    <div class="col-md-1 text-center">
+                                                                        <i class="fas fa-dumbbell fs-1 text-danger"></i>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <h3 class="card-title h4 fw-bold mb-2">{{ $plan->name }}</h3>
+                                                                        <p class="text-muted mb-2">{{ $plan->duration_text }}</p>
+                                                                        @if($showDescription && $plan->description)
+                                                                        <p class="card-text mb-2">{{ $plan->description }}</p>
+                                                                        @endif
+                                                                        @if($showPrograms)
+                                                                        <span class="badge bg-primary">{{ $plan->type_label ?? 'Standard Plan' }}</span>
+                                                                        @endif
+                                                                    </div>
+                                                                    <div class="col-md-3 text-center">
+                                                                        <h4 class="display-6 fw-bold text-danger mb-0">
+                                                                            {{ number_format($plan->price, 2) }}
+                                                                            <small class="text-muted fs-6">{{ $plan->currency }}</small>
+                                                                        </h4>
+                                                                    </div>
+                                                                    <div class="col-md-2 text-center">
+                                                                        @php
+                                                                            $canSellOnline = true;
+                                                                            $planUuid = $plan->uuid ?? $plan->id;
+                                                                        @endphp
+                                                                        @if($canSellOnline)
+                                                                            <a href="/org-plan/index?plan={{ $planUuid }}" class="btn btn-fitness">
+                                                                                {{ $buyButtonText }} <i class="fas fa-arrow-right ms-1"></i>
+                                                                            </a>
+                                                                        @else
+                                                                            <button class="btn btn-outline-secondary" disabled>
+                                                                                {{ $purchaseAtGymText }}
+                                                                            </button>
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
                                         @else
                                             <div class="{{ $layout === 'grid' ? 'grid grid-cols-1 ' . $gridCols . ' gap-6' : 'space-y-6' }}">
                                                 @foreach($plans as $plan)
@@ -764,6 +951,16 @@
                                         @if($isMeditative)
                                         <div class="text-center py-12">
                                             <p class="text-gray-600">No packages available at this time.</p>
+                                        </div>
+                                        @elseif($isFitness)
+                                        <div class="text-center py-5">
+                                            <div class="card card-fitness">
+                                                <div class="card-body p-5">
+                                                    <i class="fas fa-dumbbell fs-1 text-muted mb-3"></i>
+                                                    <h4 class="fw-bold text-muted">No packages available at this time.</h4>
+                                                    <p class="text-muted">Check back soon for our fitness packages!</p>
+                                                </div>
+                                            </div>
                                         </div>
                                         @else
                                         <div class="text-center py-12 bg-gray-50 rounded-lg">
