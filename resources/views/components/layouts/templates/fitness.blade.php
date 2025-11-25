@@ -147,124 +147,237 @@
 
     <!-- Footer -->
     @php
-        $footerData = \App\Services\CmsFooterService::getFooterData();
-        $about = $footerData['about'] ?? [];
-        $contact = $footerData['contact'] ?? [];
-        $classes = $footerData['classes'] ?? [];
-        $copyright = $footerData['copyright'] ?? [];
+        // Get dynamic footer blocks instead of static footer data
+        $footerBlocks = \App\Models\CmsSection::where('container', 'footer')
+            ->where('cms_page_id', null)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
     @endphp
     <footer class="footer-fitness">
         <div class="container">
-            <div class="row">
-                @if(($about['is_active'] ?? true) && (!empty($about['title']) || !empty($about['description'])))
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="footer-widget">
-                        @if(!empty($about['title']))
-                        <h5 class="fw-bold mb-3">
-                            <i class="fas fa-dumbbell text-danger me-2"></i>
-                            {{ $about['title'] }}
-                        </h5>
-                        @endif
-                        @if(!empty($about['description']))
-                        <p class="mb-3">{{ $about['description'] }}</p>
-                        @endif
-                        @if(!empty($about['social_links']) && is_array($about['social_links']))
-                        <div class="social-links">
-                            @foreach($about['social_links'] as $social)
-                            <a href="{{ $social['url'] ?? '#' }}" class="text-white me-3 fs-4">
-                                <i class="{{ $social['icon'] ?? 'fab fa-facebook' }}"></i>
-                            </a>
-                            @endforeach
+            @if($footerBlocks->count() > 0)
+                <!-- Dynamic Footer Blocks in 4-Column Grid -->
+                <div class="row g-4">
+                    @foreach($footerBlocks->take(4) as $index => $block)
+                        <div class="col-lg-3 col-md-6 mb-4">
+                            <div class="footer-widget">
+                                @switch($block->type)
+                                    @case('heading')
+                                        @if($block->content)
+                                            <h5 class="fw-bold mb-3 text-white">
+                                                <i class="fas fa-dumbbell text-danger me-2"></i>
+                                                {{ $block->content }}
+                                            </h5>
+                                        @endif
+                                        @break
+                                    
+                                    @case('text')
+                                        @if($block->content)
+                                            <div class="text-white-50">
+                                                {{ $block->content }}
+                                            </div>
+                                        @endif
+                                        @break
+                                    
+                                    @case('paragraph')
+                                        @if($block->content)
+                                            <div class="text-white-50">
+                                                {!! $block->content !!}
+                                            </div>
+                                        @endif
+                                        @break
+                                    
+                                    @case('html')
+                                        @if($block->content)
+                                            <div class="footer-html-content">
+                                                {!! $block->content !!}
+                                            </div>
+                                        @endif
+                                        @break
+                                    
+                                    @case('links')
+                                        @php
+                                            $links = [];
+                                            try {
+                                                if (is_string($block->content)) {
+                                                    $links = json_decode($block->content, true) ?? [];
+                                                } elseif (is_array($block->content)) {
+                                                    $links = $block->content;
+                                                }
+                                            } catch (\Exception $e) {
+                                                $links = [];
+                                            }
+                                        @endphp
+                                        @if(is_array($links) && count($links) > 0)
+                                            <ul class="list-unstyled">
+                                                @foreach($links as $link)
+                                                    @if(is_array($link) && isset($link['label']) && isset($link['url']))
+                                                        <li class="mb-2">
+                                                            <a href="{{ $link['url'] }}" class="text-white-50 text-decoration-none">
+                                                                <i class="fas fa-chevron-right me-2"></i>{{ $link['label'] }}
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                        @break
+                                    
+                                    @case('contact')
+                                        @php
+                                            $contactData = is_array($block->data) ? $block->data : (json_decode($block->data ?? '{}', true) ?? []);
+                                        @endphp
+                                        <div class="contact-info">
+                                            @if(!empty($contactData['address']))
+                                                <p class="mb-2 text-white-50">
+                                                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                                                    {{ $contactData['address'] }}
+                                                </p>
+                                            @endif
+                                            @if(!empty($contactData['phone']))
+                                                <p class="mb-2">
+                                                    <i class="fas fa-phone me-2 text-danger"></i>
+                                                    <a href="tel:{{ $contactData['phone'] }}" class="text-white-50 text-decoration-none">
+                                                        {{ $contactData['phone'] }}
+                                                    </a>
+                                                </p>
+                                            @endif
+                                            @if(!empty($contactData['email']))
+                                                <p class="mb-2">
+                                                    <i class="fas fa-envelope me-2 text-danger"></i>
+                                                    <a href="mailto:{{ $contactData['email'] }}" class="text-white-50 text-decoration-none">
+                                                        {{ $contactData['email'] }}
+                                                    </a>
+                                                </p>
+                                            @endif
+                                        </div>
+                                        @break
+                                    
+                                    @case('image')
+                                        @php
+                                            $imageData = is_array($block->data) ? $block->data : (json_decode($block->data ?? '{}', true) ?? []);
+                                            $imageUrl = $imageData['url'] ?? $block->content ?? null;
+                                        @endphp
+                                        @if($imageUrl)
+                                            <div class="footer-image mb-3">
+                                                <img src="{{ $imageUrl }}" 
+                                                     alt="{{ $imageData['alt'] ?? 'Footer image' }}" 
+                                                     class="img-fluid rounded">
+                                                @if(!empty($imageData['caption']))
+                                                    <p class="text-white-50 small mt-2 mb-0">{{ $imageData['caption'] }}</p>
+                                                @endif
+                                            </div>
+                                        @endif
+                                        @break
+                                    
+                                    @case('spacer')
+                                        @php
+                                            $height = $block->content ?: 30;
+                                        @endphp
+                                        <div style="height: {{ $height }}px;"></div>
+                                        @break
+                                    
+                                    @default
+                                        @if($block->content)
+                                            <div class="text-white-50">
+                                                {!! $block->content !!}
+                                            </div>
+                                        @endif
+                                        @break
+                                @endswitch
+                            </div>
                         </div>
-                        @endif
-                    </div>
+                    @endforeach
                 </div>
-                @endif
-                
-                @if(($classes['is_active'] ?? true) && (!empty($classes['title']) || !empty($classes['items'])))
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-widget">
-                        @if(!empty($classes['title']))
-                        <h5 class="fw-bold mb-3">{{ $classes['title'] }}</h5>
-                        @endif
-                        @if(!empty($classes['items']) && is_array($classes['items']))
-                        <ul class="list-unstyled">
-                            @foreach($classes['items'] as $item)
-                            <li class="mb-2">
-                                <a href="#" class="text-white-50 text-decoration-none">
-                                    <i class="fas fa-chevron-right me-2"></i>{{ $item }}
-                                </a>
-                            </li>
-                            @endforeach
-                        </ul>
-                        @endif
+            @else
+                <!-- Fallback: Default Footer Content when no blocks exist -->
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="footer-widget">
+                            <h5 class="fw-bold mb-3 text-white">
+                                <i class="fas fa-dumbbell text-danger me-2"></i>
+                                {{ config('app.name', 'Fitness Gym') }}
+                            </h5>
+                            <p class="text-white-50 mb-3">Transform your body and mind with our comprehensive fitness programs designed for all levels.</p>
+                        </div>
                     </div>
-                </div>
-                @endif
-                
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <div class="footer-widget">
-                        <h5 class="fw-bold mb-3">Quick Links</h5>
-                        <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <a href="/" class="text-white-50 text-decoration-none">
-                                    <i class="fas fa-chevron-right me-2"></i>Home
-                                </a>
-                            </li>
-                            @if(isset($navigationPages) && $navigationPages->count() > 0)
-                                @foreach($navigationPages->take(4) as $navPage)
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="footer-widget">
+                            <h5 class="fw-bold mb-3 text-white">Quick Links</h5>
+                            <ul class="list-unstyled">
                                 <li class="mb-2">
-                                    <a href="/{{ $navPage->slug }}" class="text-white-50 text-decoration-none">
-                                        <i class="fas fa-chevron-right me-2"></i>{{ $navPage->title }}
+                                    <a href="/" class="text-white-50 text-decoration-none">
+                                        <i class="fas fa-chevron-right me-2"></i>Home
                                     </a>
                                 </li>
-                                @endforeach
-                            @endif
-                        </ul>
+                                <li class="mb-2">
+                                    <a href="/about" class="text-white-50 text-decoration-none">
+                                        <i class="fas fa-chevron-right me-2"></i>About Us
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="/coaches" class="text-white-50 text-decoration-none">
+                                        <i class="fas fa-chevron-right me-2"></i>Our Coaches
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-                
-                @if(($contact['is_active'] ?? true) && (!empty($contact['address']) || !empty($contact['phone']) || !empty($contact['email'])))
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="footer-widget">
-                        <h5 class="fw-bold mb-3">Contact Info</h5>
-                        <div class="contact-info">
-                            @if(!empty($contact['address']))
-                            <p class="mb-2">
-                                <i class="fas fa-map-marker-alt me-2 text-danger"></i>
-                                {{ $contact['address'] }}
-                            </p>
-                            @endif
-                            @if(!empty($contact['phone']))
-                            <p class="mb-2">
-                                <i class="fas fa-phone me-2 text-danger"></i>
-                                <a href="tel:{{ $contact['phone'] }}" class="text-white-50 text-decoration-none">
-                                    {{ $contact['phone'] }}
-                                </a>
-                            </p>
-                            @endif
-                            @if(!empty($contact['email']))
-                            <p class="mb-2">
-                                <i class="fas fa-envelope me-2 text-danger"></i>
-                                <a href="mailto:{{ $contact['email'] }}" class="text-white-50 text-decoration-none">
-                                    {{ $contact['email'] }}
-                                </a>
-                            </p>
-                            @endif
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="footer-widget">
+                            <h5 class="fw-bold mb-3 text-white">Classes</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <a href="#" class="text-white-50 text-decoration-none">
+                                        <i class="fas fa-chevron-right me-2"></i>Strength Training
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="#" class="text-white-50 text-decoration-none">
+                                        <i class="fas fa-chevron-right me-2"></i>Cardio Fitness
+                                    </a>
+                                </li>
+                                <li class="mb-2">
+                                    <a href="#" class="text-white-50 text-decoration-none">
+                                        <i class="fas fa-chevron-right me-2"></i>Group Classes
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="footer-widget">
+                            <h5 class="fw-bold mb-3 text-white">Contact Info</h5>
+                            <div class="contact-info">
+                                <p class="mb-2 text-white-50">
+                                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                                    123 Fitness Street, Gym City
+                                </p>
+                                <p class="mb-2">
+                                    <i class="fas fa-phone me-2 text-danger"></i>
+                                    <a href="tel:+1234567890" class="text-white-50 text-decoration-none">
+                                        +1 (234) 567-890
+                                    </a>
+                                </p>
+                                <p class="mb-2">
+                                    <i class="fas fa-envelope me-2 text-danger"></i>
+                                    <a href="mailto:info@fitnessgym.com" class="text-white-50 text-decoration-none">
+                                        info@fitnessgym.com
+                                    </a>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-                @endif
-            </div>
+            @endif
             
+            <!-- Copyright Section -->
             <hr class="my-4 border-secondary">
             <div class="row">
                 <div class="col-md-12 text-center">
                     <p class="mb-0 text-white-50">
-                        &copy; {{ $copyright['year'] ?? date('Y') }} {{ config('app.name', 'Fitness Gym') }}. 
-                        @if(!empty($copyright['text']))
-                        {{ $copyright['text'] }}
-                        @endif
+                        &copy; {{ date('Y') }} {{ config('app.name', 'Fitness Gym') }}. All rights reserved.
                     </p>
                 </div>
             </div>

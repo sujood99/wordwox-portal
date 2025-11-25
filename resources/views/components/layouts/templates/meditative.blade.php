@@ -69,100 +69,187 @@
 
     <!-- Footer -->
     @php
-        $footerData = \App\Services\CmsFooterService::getFooterData();
-        $quote = $footerData['quote'] ?? [];
-        $about = $footerData['about'] ?? [];
-        $classes = $footerData['classes'] ?? [];
-        $contact = $footerData['contact'] ?? [];
-        $hours = $footerData['hours'] ?? [];
-        $copyright = $footerData['copyright'] ?? [];
+        // Get dynamic footer blocks instead of static footer data
+        $footerBlocks = \App\Models\CmsSection::where('container', 'footer')
+            ->where('cms_page_id', null)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
     @endphp
     <footer class="ftco-footer ftco-section bg-light">
         <div class="container">
-            <div class="row d-flex">
-                @if(($about['is_active'] ?? true) && (!empty($about['title']) || !empty($about['description'])))
-                <div class="col-md">
-                    <div class="ftco-footer-widget mb-4">
-                        @if(!empty($about['title']))
-                        <h2 class="ftco-heading-2">{{ $about['title'] }}</h2>
-                        @endif
-                        @if(!empty($about['description']))
-                        <p>{{ $about['description'] }}</p>
-                        @endif
-                        @if(!empty($about['social_links']) && is_array($about['social_links']))
-                        <ul class="ftco-footer-social list-unstyled float-lft mt-3">
-                            @foreach($about['social_links'] as $social)
-                            <li class="ftco-animate">
-                                <a href="{{ $social['url'] ?? '#' }}">
-                                    <span class="{{ $social['icon'] ?? 'icon-instagram' }}"></span>
-                                </a>
-                            </li>
-                            @endforeach
-                        </ul>
-                        @endif
-                    </div>
+            @if($footerBlocks->count() > 0)
+                <!-- Dynamic Footer Blocks in 4-Column Grid -->
+                <div class="row d-flex">
+                    @foreach($footerBlocks->take(4) as $index => $block)
+                        <div class="col-md">
+                            <div class="ftco-footer-widget mb-4 {{ $index > 0 ? 'ml-md-4' : '' }}">
+                                @switch($block->type)
+                                    @case('heading')
+                                        @if($block->content)
+                                            <h2 class="ftco-heading-2">{{ $block->content }}</h2>
+                                        @endif
+                                        @break
+                                    
+                                    @case('text')
+                                        @if($block->name)
+                                            <h2 class="ftco-heading-2">{{ $block->name }}</h2>
+                                        @endif
+                                        @if($block->content)
+                                            <p>{{ $block->content }}</p>
+                                        @endif
+                                        @break
+                                    
+                                    @case('paragraph')
+                                        @if($block->name)
+                                            <h2 class="ftco-heading-2">{{ $block->name }}</h2>
+                                        @endif
+                                        @if($block->content)
+                                            <div>{!! $block->content !!}</div>
+                                        @endif
+                                        @break
+                                    
+                                    @case('html')
+                                        @if($block->content)
+                                            <div class="footer-html-content">
+                                                {!! $block->content !!}
+                                            </div>
+                                        @endif
+                                        @break
+                                    
+                                    @case('links')
+                                        @php
+                                            $links = [];
+                                            try {
+                                                if (is_string($block->content)) {
+                                                    $links = json_decode($block->content, true) ?? [];
+                                                } elseif (is_array($block->content)) {
+                                                    $links = $block->content;
+                                                }
+                                            } catch (\Exception $e) {
+                                                $links = [];
+                                            }
+                                        @endphp
+                                        @if($block->name)
+                                            <h2 class="ftco-heading-2">{{ $block->name }}</h2>
+                                        @endif
+                                        @if(is_array($links) && count($links) > 0)
+                                            <ul class="list-unstyled">
+                                                @foreach($links as $link)
+                                                    @if(is_array($link) && isset($link['label']) && isset($link['url']))
+                                                        <li><a href="{{ $link['url'] }}">{{ $link['label'] }}</a></li>
+                                                    @endif
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                        @break
+                                    
+                                    @case('contact')
+                                        @php
+                                            $contactData = is_array($block->data) ? $block->data : (json_decode($block->data ?? '{}', true) ?? []);
+                                        @endphp
+                                        @if($block->content)
+                                            <h2 class="ftco-heading-2">{{ $block->content }}</h2>
+                                        @endif
+                                        <div class="block-23 mb-3">
+                                            <ul>
+                                                @if(!empty($contactData['address']))
+                                                    <li><span class="icon icon-map-marker"></span><span class="text">{{ $contactData['address'] }}</span></li>
+                                                @endif
+                                                @if(!empty($contactData['phone']))
+                                                    <li><a href="tel:{{ $contactData['phone'] }}"><span class="icon icon-phone"></span><span class="text">{{ $contactData['phone'] }}</span></a></li>
+                                                @endif
+                                                @if(!empty($contactData['email']))
+                                                    <li><a href="mailto:{{ $contactData['email'] }}"><span class="icon icon-envelope"></span><span class="text">{{ $contactData['email'] }}</span></a></li>
+                                                @endif
+                                            </ul>
+                                        </div>
+                                        @break
+                                    
+                                    @case('image')
+                                        @php
+                                            $imageData = is_array($block->data) ? $block->data : (json_decode($block->data ?? '{}', true) ?? []);
+                                            $imageUrl = $imageData['url'] ?? $block->content ?? null;
+                                        @endphp
+                                        @if($imageUrl)
+                                            <div class="footer-image mb-3">
+                                                <img src="{{ $imageUrl }}" 
+                                                     alt="{{ $imageData['alt'] ?? 'Footer image' }}" 
+                                                     class="img-fluid rounded">
+                                                @if(!empty($imageData['caption']))
+                                                    <p class="small mt-2 mb-0">{{ $imageData['caption'] }}</p>
+                                                @endif
+                                            </div>
+                                        @endif
+                                        @break
+                                    
+                                    @case('spacer')
+                                        @php
+                                            $height = $block->content ?: 30;
+                                        @endphp
+                                        <div style="height: {{ $height }}px;"></div>
+                                        @break
+                                    
+                                    @default
+                                        @if($block->name)
+                                            <h2 class="ftco-heading-2">{{ $block->name }}</h2>
+                                        @endif
+                                        @if($block->content)
+                                            <div>{!! $block->content !!}</div>
+                                        @endif
+                                        @break
+                                @endswitch
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
-                @endif
-                
-                @if(($classes['is_active'] ?? true) && (!empty($classes['title']) || !empty($classes['items'])))
-                <div class="col-md">
-                    <div class="ftco-footer-widget mb-4 ml-md-4">
-                        @if(!empty($classes['title']))
-                        <h2 class="ftco-heading-2">{{ $classes['title'] }}</h2>
-                        @endif
-                        @if(!empty($classes['items']) && is_array($classes['items']))
-                        <ul class="list-unstyled">
-                            @foreach($classes['items'] as $item)
-                            <li><a href="#">{{ $item }}</a></li>
-                            @endforeach
-                        </ul>
-                        @endif
+            @else
+                <!-- Fallback: Default Footer Content when no blocks exist -->
+                <div class="row d-flex">
+                    <div class="col-md">
+                        <div class="ftco-footer-widget mb-4">
+                            <h2 class="ftco-heading-2">{{ config('app.name', 'Meditative') }}</h2>
+                            <p>Discover the perfect balance of strength and serenity. Our mindful approach to fitness nurtures both body and spirit.</p>
+                        </div>
                     </div>
-                </div>
-                @endif
-                
-                <div class="col-md">
-                    <div class="ftco-footer-widget mb-4">
-                        <h2 class="ftco-heading-2">Quick Links</h2>
-                        <ul class="list-unstyled">
-                            <li><a href="/site">Home</a></li>
-                            @if(isset($navigationPages) && $navigationPages->count() > 0)
-                                @foreach($navigationPages->take(4) as $navPage)
-                                <li><a href="/{{ $navPage->slug }}">{{ $navPage->title }}</a></li>
-                                @endforeach
-                            @endif
-                        </ul>
-                    </div>
-                </div>
-                
-                @if(($contact['is_active'] ?? true) && (!empty($contact['title']) || !empty($contact['address']) || !empty($contact['phone']) || !empty($contact['email'])))
-                <div class="col-md">
-                    <div class="ftco-footer-widget mb-4">
-                        <h2 class="ftco-heading-2">Have a Questions?</h2>
-                        <div class="block-23 mb-3">
-                            <ul>
-                                @if(!empty($contact['address']))
-                                <li><span class="icon icon-map-marker"></span><span class="text">{{ $contact['address'] }}</span></li>
-                                @endif
-                                @if(!empty($contact['phone']))
-                                <li><a href="tel:{{ $contact['phone'] }}"><span class="icon icon-phone"></span><span class="text">{{ $contact['phone'] }}</span></a></li>
-                                @endif
-                                @if(!empty($contact['email']))
-                                <li><a href="mailto:{{ $contact['email'] }}"><span class="icon icon-envelope"></span><span class="text">{{ $contact['email'] }}</span></a></li>
-                                @endif
+                    <div class="col-md">
+                        <div class="ftco-footer-widget mb-4 ml-md-4">
+                            <h2 class="ftco-heading-2">Quick Links</h2>
+                            <ul class="list-unstyled">
+                                <li><a href="/">Home</a></li>
+                                <li><a href="/about">About</a></li>
+                                <li><a href="/coaches">Coaches</a></li>
                             </ul>
                         </div>
                     </div>
+                    <div class="col-md">
+                        <div class="ftco-footer-widget mb-4">
+                            <h2 class="ftco-heading-2">Classes</h2>
+                            <ul class="list-unstyled">
+                                <li><a href="#">Yoga Flow</a></li>
+                                <li><a href="#">Meditation</a></li>
+                                <li><a href="#">Mindful Movement</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md">
+                        <div class="ftco-footer-widget mb-4">
+                            <h2 class="ftco-heading-2">Contact</h2>
+                            <div class="block-23 mb-3">
+                                <ul>
+                                    <li><span class="icon icon-map-marker"></span><span class="text">123 Serenity Lane</span></li>
+                                    <li><a href="tel:+1555123PEACE"><span class="icon icon-phone"></span><span class="text">+1 (555) 123-PEACE</span></a></li>
+                                    <li><a href="mailto:hello@meditative.com"><span class="icon icon-envelope"></span><span class="text">hello@meditative.com</span></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                @endif
-            </div>
+            @endif
             <div class="row">
                 <div class="col-md-12 text-center">
                     <p class="mb-0">
-                        Copyright &copy; {{ $copyright['year'] ?? date('Y') }} {{ config('app.name', 'Meditative') }}. 
-                        @if(!empty($copyright['text']))
-                        {{ $copyright['text'] }}
-                        @endif
+                        Copyright &copy; {{ date('Y') }} {{ config('app.name', 'Meditative') }}. All rights reserved.
                     </p>
                 </div>
             </div>
