@@ -21,26 +21,25 @@ class CmsFooterSettings extends Component
     
     /**
      * Get available block types for footer
-     * Matching edit page block types for consistency
+     * Simplified to 5 essential block types
      */
     public function getBlockTypesProperty()
     {
         return [
-            // Text and Content Blocks
-            'text' => ['name' => 'Text', 'icon' => 'document-text', 'description' => 'Simple text content', 'category' => 'content'],
-            'paragraph' => ['name' => 'Paragraph', 'icon' => 'document-text', 'description' => 'Rich text with formatting', 'category' => 'richtext'],
-            'html' => ['name' => 'HTML', 'icon' => 'code-bracket', 'description' => 'Custom HTML code', 'category' => 'content'],
+            // Rich Content Block
+            'paragraph' => ['name' => 'Paragraph', 'icon' => 'document-text', 'description' => 'Rich text with formatting', 'category' => 'content'],
             
-            // Link Blocks
+            // Heading Block  
+            'heading' => ['name' => 'Heading', 'icon' => 'h1', 'description' => 'Section heading', 'category' => 'content'],
+            
+            // Spacing Block
+            'spacer' => ['name' => 'Spacer', 'icon' => 'minus', 'description' => 'Vertical spacing', 'category' => 'layout'],
+            
+            // Navigation Block
             'links' => ['name' => 'Links', 'icon' => 'link', 'description' => 'List of links', 'category' => 'content'],
             
-            // Visual Blocks
-            'heading' => ['name' => 'Heading', 'icon' => 'h1', 'description' => 'Section heading', 'category' => 'structured'],
-            'image' => ['name' => 'Image', 'icon' => 'photo', 'description' => 'Image block', 'category' => 'structured'],
-            'spacer' => ['name' => 'Spacer', 'icon' => 'minus', 'description' => 'Vertical spacing', 'category' => 'structured'],
-            
-            // Information Blocks
-            'contact' => ['name' => 'Contact', 'icon' => 'envelope', 'description' => 'Contact details', 'category' => 'structured'],
+            // Contact Information Block  
+            'contact' => ['name' => 'Contact', 'icon' => 'envelope', 'description' => 'Contact details', 'category' => 'content'],
         ];
     }
     
@@ -162,17 +161,14 @@ class CmsFooterSettings extends Component
     private function getDefaultContent($type)
     {
         return match($type) {
-            'text' => 'Enter your text content here...',
-            'html' => '<div>Enter your HTML content here...</div>',
+            'paragraph' => '<p>Enter your paragraph content here...</p>',
+            'heading' => 'Section Heading',
+            'spacer' => '30',
             'links' => json_encode([
                 ['label' => 'Home', 'url' => '/'],
                 ['label' => 'About', 'url' => '/about'],
             ]),
-            'paragraph' => '<p>Enter your paragraph content here...</p>',
-            'heading' => 'Section Heading',
-            'image' => '',
             'contact' => 'Contact Us',
-            'spacer' => '',
             default => '',
         };
     }
@@ -183,14 +179,11 @@ class CmsFooterSettings extends Component
     private function getDefaultName($type)
     {
         return match($type) {
-            'text' => 'Text Block',
-            'html' => 'HTML Block',
-            'links' => 'Links Block',
-            'paragraph' => 'Paragraph Block',
-            'heading' => 'Heading Block',
-            'image' => 'Image Block',
-            'contact' => 'Contact Block',
-            'spacer' => 'Spacer Block',
+            'paragraph' => 'Content Block',
+            'heading' => 'Section Heading',
+            'spacer' => 'Spacer',
+            'links' => 'Quick Links',
+            'contact' => 'Contact Info',
             default => 'New Block',
         };
     }
@@ -210,11 +203,6 @@ class CmsFooterSettings extends Component
                 'phone' => '',
                 'address' => '',
             ],
-            'image' => [
-                'url' => '',
-                'alt' => '',
-                'caption' => '',
-            ],
             default => [],
         };
     }
@@ -228,10 +216,6 @@ class CmsFooterSettings extends Component
             'heading' => [
                 'level' => 'h3',
                 'alignment' => 'left',
-            ],
-            'image' => [
-                'width' => 'full',
-                'alignment' => 'center',
             ],
             'spacer' => [
                 'height' => 'md',
@@ -347,6 +331,128 @@ class CmsFooterSettings extends Component
         if ($block) {
             $block->update(['is_active' => !($block->is_active ?? true)]);
             $this->loadFooterBlocks();
+        }
+    }
+
+    /**
+     * Update a specific link within a links block
+     */
+    public function updateLinkInBlock($blockId, $linkIndex, $field, $value)
+    {
+        try {
+            $block = CmsSection::findOrFail($blockId);
+            
+            // Get current links
+            $links = [];
+            if (is_string($block->content)) {
+                $links = json_decode($block->content, true) ?? [];
+            } elseif (is_array($block->content)) {
+                $links = $block->content;
+            }
+            
+            // Update the specific link field
+            if (!isset($links[$linkIndex])) {
+                $links[$linkIndex] = ['label' => '', 'url' => ''];
+            }
+            $links[$linkIndex][$field] = $value;
+            
+            // Save back to database
+            $block->content = json_encode($links);
+            $block->save();
+            
+            // Reload blocks
+            $this->loadFooterBlocks();
+            
+        } catch (\Exception $e) {
+            Flux::toast(
+                text: 'Error updating link: ' . $e->getMessage(),
+                variant: 'error',
+                duration: 3000
+            );
+        }
+    }
+    
+    /**
+     * Add a new link to a links block
+     */
+    public function addLinkToBlock($blockId)
+    {
+        try {
+            $block = CmsSection::findOrFail($blockId);
+            
+            // Get current links
+            $links = [];
+            if (is_string($block->content)) {
+                $links = json_decode($block->content, true) ?? [];
+            } elseif (is_array($block->content)) {
+                $links = $block->content;
+            }
+            
+            // Add new empty link
+            $links[] = ['label' => '', 'url' => ''];
+            
+            // Save back to database
+            $block->content = json_encode($links);
+            $block->save();
+            
+            // Reload blocks
+            $this->loadFooterBlocks();
+            
+            Flux::toast(
+                text: 'New link added successfully',
+                variant: 'success',
+                duration: 2000
+            );
+            
+        } catch (\Exception $e) {
+            Flux::toast(
+                text: 'Error adding link: ' . $e->getMessage(),
+                variant: 'error',
+                duration: 3000
+            );
+        }
+    }
+    
+    /**
+     * Remove a link from a links block
+     */
+    public function removeLinkFromBlock($blockId, $linkIndex)
+    {
+        try {
+            $block = CmsSection::findOrFail($blockId);
+            
+            // Get current links
+            $links = [];
+            if (is_string($block->content)) {
+                $links = json_decode($block->content, true) ?? [];
+            } elseif (is_array($block->content)) {
+                $links = $block->content;
+            }
+            
+            // Remove the link at specified index
+            if (isset($links[$linkIndex])) {
+                array_splice($links, $linkIndex, 1);
+            }
+            
+            // Save back to database
+            $block->content = json_encode($links);
+            $block->save();
+            
+            // Reload blocks
+            $this->loadFooterBlocks();
+            
+            Flux::toast(
+                text: 'Link removed successfully',
+                variant: 'success',
+                duration: 2000
+            );
+            
+        } catch (\Exception $e) {
+            Flux::toast(
+                text: 'Error removing link: ' . $e->getMessage(),
+                variant: 'error',
+                duration: 3000
+            );
         }
     }
 

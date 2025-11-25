@@ -26,11 +26,11 @@
         <div class="flex-1 overflow-y-auto bg-white dark:bg-zinc-800">
             <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
                 <!-- Footer Title -->
-                <div class="bg-white dark:bg-white/10 border border-zinc-200 dark:border-white/10 rounded-xl p-6 mb-8">
+                <div class="bg-white dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-600 rounded-xl p-6 mb-8 shadow-sm dark:shadow-none">
                     <flux:input 
                         value="Footer Content"
                         readonly
-                        class="text-3xl font-bold border-none p-0 focus:ring-0 bg-transparent shadow-none"
+                        class="text-3xl font-bold border-none p-0 focus:ring-0 bg-transparent shadow-none text-zinc-900 dark:text-white"
                         style="font-size: 2rem; line-height: 2.5rem;"
                     />
                 </div>
@@ -183,15 +183,74 @@
                                             </flux:field>
                                         
                                 @elseif($block['type'] === 'links')
-                                    <flux:field>
-                                        <flux:label>Links (JSON format)</flux:label>
-                                        <flux:textarea 
-                                            wire:model.lazy="footerBlocks.{{ $blockIndex }}.content"
-                                            rows="6"
-                                            placeholder='[{"label": "Home", "url": "/"}, {"label": "About", "url": "/about"}]'
-                                            class="font-mono text-sm"
-                                        />
-                                    </flux:field>                                @elseif($block['type'] === 'image')
+                                    @php
+                                        $links = [];
+                                        try {
+                                            if (is_string($block['content'])) {
+                                                $links = json_decode($block['content'], true) ?? [];
+                                            } elseif (is_array($block['content'])) {
+                                                $links = $block['content'];
+                                            }
+                                        } catch (\Exception $e) {
+                                            $links = [];
+                                        }
+                                        
+                                        // Ensure we have at least 3 empty link slots
+                                        while (count($links) < 3) {
+                                            $links[] = ['label' => '', 'url' => ''];
+                                        }
+                                    @endphp
+                                    
+                                        <div class="space-y-4">
+                                        <div class="text-sm font-medium text-zinc-800 dark:text-white">Navigation Links</div>                                        @foreach($links as $linkIndex => $link)
+                                            <div class="p-4 border border-zinc-200 dark:border-zinc-600 rounded-lg bg-zinc-50 dark:bg-zinc-800/70 hover:bg-zinc-100 dark:hover:bg-zinc-800/90 transition-colors">
+                                                <div class="flex items-center justify-between mb-3">
+                                                    <div class="text-sm font-semibold text-zinc-700 dark:text-white">
+                                                        Link {{ $linkIndex + 1 }}
+                                                    </div>
+                                                    @if($linkIndex >= 2)
+                                                        <button 
+                                                            type="button"
+                                                            wire:click="removeLinkFromBlock({{ $block['id'] }}, {{ $linkIndex }})"
+                                                            class="text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    <flux:field>
+                                                        <flux:label>Link Name</flux:label>
+                                                        <flux:input 
+                                                            wire:change="updateLinkInBlock({{ $block['id'] }}, {{ $linkIndex }}, 'label', $event.target.value)"
+                                                            value="{{ $link['label'] ?? '' }}"
+                                                            placeholder="Home"
+                                                        />
+                                                    </flux:field>
+                                                    
+                                                    <flux:field>
+                                                        <flux:label>Link URL</flux:label>
+                                                        <flux:input 
+                                                            wire:change="updateLinkInBlock({{ $block['id'] }}, {{ $linkIndex }}, 'url', $event.target.value)"
+                                                            value="{{ $link['url'] ?? '' }}"
+                                                            placeholder="/"
+                                                        />
+                                                    </flux:field>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                        
+                                        <flux:button 
+                                            wire:click="addLinkToBlock({{ $block['id'] }})"
+                                            variant="outline"
+                                            size="sm"
+                                            icon="plus"
+                                            class="w-full"
+                                        >
+                                            Add Another Link
+                                        </flux:button>
+                                    </div>                                @elseif($block['type'] === 'image')
                                     @php
                                         $imageData = is_array($block['data']) ? $block['data'] : (json_decode($block['data'] ?? '{}', true) ?? []);
                                         $imageUrl = $imageData['url'] ?? $imageData['image_url'] ?? $block['content'] ?? null;
