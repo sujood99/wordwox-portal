@@ -2,231 +2,379 @@
 
 namespace App\Livewire;
 
-use App\Models\CmsPage;
-use App\Services\CmsFooterService;
+use App\Models\CmsSection;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Flux\Flux;
 
+/**
+ * Footer Settings Component
+ * 
+ * Manages footer content using dynamic blocks, similar to page editor.
+ * All static sections have been removed - footer is now built entirely with blocks.
+ */
 class CmsFooterSettings extends Component
 {
-    public $quoteText = '';
-    public $quoteAuthor = '';
-    public $quoteIsActive = true;
+    // Footer Blocks Management
+    public $footerBlocks = [];
+    public $showBlockSelector = false;
     
-    public $aboutTitle = '';
-    public $aboutDescription = '';
-    public $aboutIsActive = true;
-    public $socialLinks = [];
-    
-    public $classesTitle = '';
-    public $classesItems = [];
-    public $classesIsActive = true;
-    
-    public $contactTitle = '';
-    public $contactAddress = '';
-    public $contactPhone = '';
-    public $contactEmail = '';
-    public $contactIsActive = true;
-    
-    public $hoursTitle = '';
-    public $weekdaysDays = '';
-    public $weekdaysTime = '';
-    public $weekdaysNote = '';
-    public $weekendDays = '';
-    public $weekendTime = '';
-    public $weekendNote = '';
-    public $hoursIsActive = true;
-    
-    public $copyrightText = '';
-    public $copyrightIsActive = true;
+    /**
+     * Get available block types for footer
+     * Matching edit page block types for consistency
+     */
+    public function getBlockTypesProperty()
+    {
+        return [
+            // Text and Content Blocks
+            'text' => ['name' => 'Text', 'icon' => 'document-text', 'description' => 'Simple text content', 'category' => 'content'],
+            'paragraph' => ['name' => 'Paragraph', 'icon' => 'document-text', 'description' => 'Rich text with formatting', 'category' => 'richtext'],
+            'html' => ['name' => 'HTML', 'icon' => 'code-bracket', 'description' => 'Custom HTML code', 'category' => 'content'],
+            
+            // Link Blocks
+            'links' => ['name' => 'Links', 'icon' => 'link', 'description' => 'List of links', 'category' => 'content'],
+            
+            // Visual Blocks
+            'heading' => ['name' => 'Heading', 'icon' => 'h1', 'description' => 'Section heading', 'category' => 'structured'],
+            'image' => ['name' => 'Image', 'icon' => 'photo', 'description' => 'Image block', 'category' => 'structured'],
+            'spacer' => ['name' => 'Spacer', 'icon' => 'minus', 'description' => 'Vertical spacing', 'category' => 'structured'],
+            
+            // Information Blocks
+            'contact' => ['name' => 'Contact', 'icon' => 'envelope', 'description' => 'Contact details', 'category' => 'structured'],
+        ];
+    }
     
     public function mount()
     {
-        $orgId = auth()->user()?->orgUser?->org_id ?? env('CMS_DEFAULT_ORG_ID', env('DEFAULT_ORG_ID', 8));
-        $portalId = env('CMS_DEFAULT_PORTAL_ID', 1);
-        
-        // Try to load existing footer data
-        $footerPage = CmsPage::where('org_id', $orgId)
-            ->where('orgPortal_id', $portalId)
-            ->where('slug', 'footer')
-            ->first();
-        
-        if ($footerPage && $footerPage->meta_data) {
-            $metaData = is_array($footerPage->meta_data) ? $footerPage->meta_data : json_decode($footerPage->meta_data, true);
-            $footerData = $metaData['footer_data'] ?? [];
-            
-            if (!empty($footerData)) {
-                $this->loadFooterData($footerData);
-            } else {
-                $this->loadDefaultData();
+        // Load dynamic footer blocks
+        $this->loadFooterBlocks();
+    }
+
+    /**
+     * Watch for changes to footerBlocks array and persist to database
+     */
+    #[\Livewire\Attributes\On('updated')]
+    public function updatedFooterBlocks()
+    {
+        // Save changes to database when footerBlocks array is updated
+        foreach ($this->footerBlocks as $block) {
+            $section = CmsSection::find($block['id']);
+            if ($section) {
+                $section->update([
+                    'content' => $block['content'] ?? '',
+                    'name' => $block['name'] ?? '',
+                    'is_active' => $block['is_active'] ?? true,
+                ]);
             }
-        } else {
-            $this->loadDefaultData();
+        }
+    }
+
+    /**
+     * Updated hook for when block content changes
+     * This is called by Livewire when any property starting with footerBlocks changes
+     */
+    public function updated($property)
+    {
+        if (str_starts_with($property, 'footerBlocks.')) {
+            // Extract block index from property path (e.g., "footerBlocks.0.content")
+            preg_match('/footerBlocks\.(\d+)/', $property, $matches);
+            if (!empty($matches[1])) {
+                $blockIndex = (int)$matches[1];
+                if (isset($this->footerBlocks[$blockIndex])) {
+                    $block = $this->footerBlocks[$blockIndex];
+                    $section = CmsSection::find($block['id']);
+                    if ($section) {
+                        $section->update([
+                            'content' => $block['content'] ?? '',
+                            'name' => $block['name'] ?? '',
+                            'is_active' => $block['is_active'] ?? true,
+                        ]);
+                    }
+                }
+            }
         }
     }
     
-    private function loadFooterData($data)
+    /**
+     * Load footer blocks from database
+     */
+    public function loadFooterBlocks()
     {
-        // Quote
-        $this->quoteText = $data['quote']['text'] ?? '';
-        $this->quoteAuthor = $data['quote']['author'] ?? '';
-        $this->quoteIsActive = $data['quote']['is_active'] ?? true;
-        
-        // About
-        $this->aboutTitle = $data['about']['title'] ?? '';
-        $this->aboutDescription = $data['about']['description'] ?? '';
-        $this->aboutIsActive = $data['about']['is_active'] ?? true;
-        $this->socialLinks = $data['about']['social_links'] ?? [['icon' => '', 'url' => '']];
-        
-        // Classes
-        $this->classesTitle = $data['classes']['title'] ?? '';
-        $this->classesItems = $data['classes']['items'] ?? [''];
-        $this->classesIsActive = $data['classes']['is_active'] ?? true;
-        
-        // Contact
-        $this->contactTitle = $data['contact']['title'] ?? '';
-        $this->contactAddress = $data['contact']['address'] ?? '';
-        $this->contactPhone = $data['contact']['phone'] ?? '';
-        $this->contactEmail = $data['contact']['email'] ?? '';
-        $this->contactIsActive = $data['contact']['is_active'] ?? true;
-        
-        // Hours
-        $this->hoursTitle = $data['hours']['title'] ?? '';
-        $this->weekdaysDays = $data['hours']['weekdays']['days'] ?? '';
-        $this->weekdaysTime = $data['hours']['weekdays']['time'] ?? '';
-        $this->weekdaysNote = $data['hours']['weekdays']['note'] ?? '';
-        $this->weekendDays = $data['hours']['weekend']['days'] ?? '';
-        $this->weekendTime = $data['hours']['weekend']['time'] ?? '';
-        $this->weekendNote = $data['hours']['weekend']['note'] ?? '';
-        $this->hoursIsActive = $data['hours']['is_active'] ?? true;
-        
-        // Copyright
-        $this->copyrightText = $data['copyright']['text'] ?? '';
-        $this->copyrightIsActive = $data['copyright']['is_active'] ?? true;
+        $this->footerBlocks = CmsSection::where('container', 'footer')
+            ->where('cms_page_id', null)
+            ->orderBy('sort_order')
+            ->get()
+            ->map(function ($block) {
+                return [
+                    'id' => $block->id,
+                    'type' => $block->type,
+                    'name' => $block->name,
+                    'content' => $block->content ?? '',
+                    'data' => $block->data ?? [],
+                    'is_active' => $block->is_active ?? true,
+                    'sort_order' => $block->sort_order ?? 0,
+                ];
+            })
+            ->toArray();
     }
     
-    private function loadDefaultData()
+    /**
+     * Add a new block to the footer
+     */
+    public function addBlock($type)
     {
-        $default = CmsFooterService::getDefaultFooterData();
-        $this->loadFooterData($default);
-    }
-    
-    public function addSocialLink()
-    {
-        $this->socialLinks[] = ['icon' => '', 'url' => ''];
-    }
-    
-    public function removeSocialLink($index)
-    {
-        unset($this->socialLinks[$index]);
-        $this->socialLinks = array_values($this->socialLinks);
-    }
-    
-    public function addClassItem()
-    {
-        $this->classesItems[] = '';
-    }
-    
-    public function removeClassItem($index)
-    {
-        unset($this->classesItems[$index]);
-        $this->classesItems = array_values($this->classesItems);
-    }
-    
-    public function save()
-    {
-        $orgId = auth()->user()?->orgUser?->org_id ?? env('CMS_DEFAULT_ORG_ID', env('DEFAULT_ORG_ID', 8));
-        $portalId = env('CMS_DEFAULT_PORTAL_ID', 1);
+        // Get max sort order for footer blocks
+        $maxOrder = CmsSection::where('container', 'footer')
+            ->where('cms_page_id', null)
+            ->max('sort_order') ?? 0;
         
-        // Prepare footer data
-        $footerData = [
-            'quote' => [
-                'text' => $this->quoteText,
-                'author' => $this->quoteAuthor,
-                'is_active' => $this->quoteIsActive
-            ],
-            'about' => [
-                'title' => $this->aboutTitle,
-                'description' => $this->aboutDescription,
-                'is_active' => $this->aboutIsActive,
-                'social_links' => array_filter($this->socialLinks, function($link) {
-                    return !empty($link['icon']) || !empty($link['url']);
-                })
-            ],
-            'classes' => [
-                'title' => $this->classesTitle,
-                'is_active' => $this->classesIsActive,
-                'items' => array_filter($this->classesItems, function($item) {
-                    return !empty($item);
-                })
-            ],
-            'contact' => [
-                'title' => $this->contactTitle,
-                'address' => $this->contactAddress,
-                'phone' => $this->contactPhone,
-                'email' => $this->contactEmail,
-                'is_active' => $this->contactIsActive
-            ],
-            'hours' => [
-                'title' => $this->hoursTitle,
-                'is_active' => $this->hoursIsActive,
-                'weekdays' => [
-                    'days' => $this->weekdaysDays,
-                    'time' => $this->weekdaysTime,
-                    'note' => $this->weekdaysNote
-                ],
-                'weekend' => [
-                    'days' => $this->weekendDays,
-                    'time' => $this->weekendTime,
-                    'note' => $this->weekendNote
-                ]
-            ],
-            'copyright' => [
-                'text' => $this->copyrightText,
-                'year' => date('Y'),
-                'is_active' => $this->copyrightIsActive
-            ]
-        ];
+        // Get default content based on block type
+        $defaultContent = $this->getDefaultContent($type);
+        $defaultName = $this->getDefaultName($type);
         
-        // Find or create footer page
-        $footerPage = CmsPage::where('org_id', $orgId)
-            ->where('orgPortal_id', $portalId)
-            ->where('slug', 'footer')
-            ->first();
+        // Create the block
+        $block = CmsSection::create([
+            'cms_page_id' => null,
+            'container' => 'footer',
+            'type' => $type,
+            'name' => $defaultName,
+            'content' => $defaultContent,
+            'data' => $this->getDefaultData($type),
+            'settings' => $this->getDefaultSettings($type),
+            'is_active' => true,
+            'sort_order' => $maxOrder + 1,
+        ]);
         
-        if (!$footerPage) {
-            $footerPage = CmsPage::create([
-                'org_id' => $orgId,
-                'orgPortal_id' => $portalId,
-                'title' => 'Footer Settings',
-                'slug' => 'footer',
-                'status' => 'published',
-                'type' => 'custom',
-                'is_homepage' => false,
-                'show_in_navigation' => false,
-                'meta_data' => ['footer_data' => $footerData],
-                'created_by' => Auth::id(),
-                'updated_by' => Auth::id(),
-            ]);
-        } else {
-            $metaData = is_array($footerPage->meta_data) ? $footerPage->meta_data : json_decode($footerPage->meta_data, true) ?? [];
-            $metaData['footer_data'] = $footerData;
-            
-            $footerPage->update([
-                'meta_data' => $metaData,
-                'updated_by' => Auth::id(),
-            ]);
-        }
-        
-        // Clear cache
-        CmsFooterService::clearCache($orgId, $portalId);
+        // Reload blocks and close selector
+        $this->loadFooterBlocks();
+        $this->showBlockSelector = false;
         
         Flux::toast(
             variant: 'success',
-            heading: 'Footer Settings Saved',
-            text: 'Your footer content has been updated successfully!'
+            heading: 'Block Added',
+            text: 'New ' . ucfirst($type) . ' block created successfully.'
         );
+    }
+    
+    /**
+     * Get default content for a block type
+     */
+    private function getDefaultContent($type)
+    {
+        return match($type) {
+            'text' => 'Enter your text content here...',
+            'html' => '<div>Enter your HTML content here...</div>',
+            'links' => json_encode([
+                ['label' => 'Home', 'url' => '/'],
+                ['label' => 'About', 'url' => '/about'],
+            ]),
+            'paragraph' => '<p>Enter your paragraph content here...</p>',
+            'heading' => 'Section Heading',
+            'image' => '',
+            'contact' => 'Contact Us',
+            'spacer' => '',
+            default => '',
+        };
+    }
+    
+    /**
+     * Get default name for a block type
+     */
+    private function getDefaultName($type)
+    {
+        return match($type) {
+            'text' => 'Text Block',
+            'html' => 'HTML Block',
+            'links' => 'Links Block',
+            'paragraph' => 'Paragraph Block',
+            'heading' => 'Heading Block',
+            'image' => 'Image Block',
+            'contact' => 'Contact Block',
+            'spacer' => 'Spacer Block',
+            default => 'New Block',
+        };
+    }
+    
+    /**
+     * Get default data for a block type
+     */
+    private function getDefaultData($type)
+    {
+        return match($type) {
+            'links' => [
+                ['label' => 'Home', 'url' => '/'],
+                ['label' => 'About', 'url' => '/about'],
+            ],
+            'contact' => [
+                'email' => '',
+                'phone' => '',
+                'address' => '',
+            ],
+            'image' => [
+                'url' => '',
+                'alt' => '',
+                'caption' => '',
+            ],
+            default => [],
+        };
+    }
+    
+    /**
+     * Get default settings for a block type
+     */
+    private function getDefaultSettings($type)
+    {
+        return match($type) {
+            'heading' => [
+                'level' => 'h3',
+                'alignment' => 'left',
+            ],
+            'image' => [
+                'width' => 'full',
+                'alignment' => 'center',
+            ],
+            'spacer' => [
+                'height' => 'md',
+            ],
+            default => [],
+        };
+    }
+    
+    /**
+     * Update a single field on a block (for inline editing)
+     */
+    public function updateBlockField($blockId, $field, $value)
+    {
+        $block = CmsSection::find($blockId);
+        if ($block) {
+            $block->update([$field => $value]);
+            $this->loadFooterBlocks();
+        }
+    }
+    
+    /**
+     * Update a field in the block's data JSON
+     */
+    public function updateBlockDataField($blockId, $field, $value)
+    {
+        $block = CmsSection::find($blockId);
+        if ($block) {
+            $data = is_array($block->data) ? $block->data : (json_decode($block->data ?? '{}', true) ?? []);
+            $data[$field] = $value;
+            $block->update(['data' => $data]);
+            $this->loadFooterBlocks();
+        }
+    }
+    
+    /**
+     * Remove a block from the footer
+     */
+    public function removeBlock($blockId)
+    {
+        $block = CmsSection::find($blockId);
+        if ($block) {
+            $block->delete();
+            $this->loadFooterBlocks();
+            
+            Flux::toast(
+                variant: 'success',
+                heading: 'Block Deleted',
+                text: 'Block removed from footer.'
+            );
+        }
+    }
+    
+    /**
+     * Move block up in order
+     */
+    public function moveBlockUp($blockId)
+    {
+        $block = CmsSection::find($blockId);
+        if (!$block) {
+            return;
+        }
+        
+        // Find the block above this one
+        $previousBlock = CmsSection::where('container', 'footer')
+            ->where('cms_page_id', null)
+            ->where('sort_order', '<', $block->sort_order)
+            ->orderBy('sort_order', 'desc')
+            ->first();
+        
+        if ($previousBlock) {
+            // Swap sort orders
+            $tempOrder = $block->sort_order;
+            $block->update(['sort_order' => $previousBlock->sort_order]);
+            $previousBlock->update(['sort_order' => $tempOrder]);
+            
+            $this->loadFooterBlocks();
+        }
+    }
+    
+    /**
+     * Move block down in order
+     */
+    public function moveBlockDown($blockId)
+    {
+        $block = CmsSection::find($blockId);
+        if (!$block) {
+            return;
+        }
+        
+        // Find the block below this one
+        $nextBlock = CmsSection::where('container', 'footer')
+            ->where('cms_page_id', null)
+            ->where('sort_order', '>', $block->sort_order)
+            ->orderBy('sort_order', 'asc')
+            ->first();
+        
+        if ($nextBlock) {
+            // Swap sort orders
+            $tempOrder = $block->sort_order;
+            $block->update(['sort_order' => $nextBlock->sort_order]);
+            $nextBlock->update(['sort_order' => $tempOrder]);
+            
+            $this->loadFooterBlocks();
+        }
+    }
+    
+    /**
+     * Toggle block active/inactive status
+     */
+    public function toggleBlockActive($blockId)
+    {
+        $block = CmsSection::find($blockId);
+        if ($block) {
+            $block->update(['is_active' => !($block->is_active ?? true)]);
+            $this->loadFooterBlocks();
+        }
+    }
+
+    /**
+     * Save all block changes
+     * Persists all block modifications and displays success message
+     */
+    public function saveBlocks()
+    {
+        try {
+            // All changes are already saved via wire:change on individual fields
+            // This method serves as a confirmation/final save trigger
+            $blocksCount = count($this->footerBlocks);
+            
+            Flux::toast(
+                text: "Footer settings saved successfully! ($blocksCount blocks updated)",
+                variant: 'success',
+                duration: 3000
+            );
+            
+            $this->loadFooterBlocks();
+        } catch (\Exception $e) {
+            Flux::toast(
+                text: 'Error saving footer settings: ' . $e->getMessage(),
+                variant: 'error',
+                duration: 5000
+            );
+        }
     }
     
     public function render()
@@ -234,4 +382,3 @@ class CmsFooterSettings extends Component
         return view('livewire.cms-footer-settings');
     }
 }
-

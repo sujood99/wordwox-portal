@@ -31,6 +31,8 @@ return new class extends Migration
             $table->string('template')->default('default');
             $table->string('css_classes')->nullable();
             $table->json('styles')->nullable(); // Custom CSS properties
+            // Container type (e.g., footer, header, main)
+            $table->string('container')->nullable();
             
             // Position and visibility
             $table->integer('sort_order')->default(0);

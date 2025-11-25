@@ -29,6 +29,7 @@ class CmsSection extends BaseWWModel
         'is_active',
         'is_visible',
         'responsive_settings',
+        'container',
     ];
 
     protected $casts = [
@@ -68,6 +69,8 @@ class CmsSection extends BaseWWModel
 
     /**
      * Get the page this section belongs to
+     * 
+     * Note: cms_page_id can be null for footer sections (container='footer')
      */
     public function cmsPage(): BelongsTo
     {
@@ -143,5 +146,41 @@ class CmsSection extends BaseWWModel
         // This could be extended to support different content rendering
         // based on section type (markdown, HTML, etc.)
         return $this->content ?? '';
+    }
+
+    /**
+     * Override delete to use Laravel's SoftDeletes directly
+     * This avoids BaseWWModel's isDeleted column which doesn't exist on cms_sections
+     */
+    public function delete()
+    {
+        // Perform a soft delete by setting deleted_at timestamp
+        $this->deleted_at = $this->freshTimestamp();
+        return $this->save();
+    }
+
+    /**
+     * Override setAttribute to prevent BaseWWModel from setting isDeleted
+     */
+    public function setAttribute($key, $value)
+    {
+        // Skip isDeleted attribute for CmsSection
+        if ($key === 'isDeleted') {
+            return;
+        }
+        return parent::setAttribute($key, $value);
+    }
+
+    /**
+     * Override setDeletedAtAttribute to prevent isDeleted from being set
+     */
+    public function setDeletedAtAttribute($value)
+    {
+        // Just set deleted_at without setting isDeleted
+        if ($value === null) {
+            $this->attributes['deleted_at'] = null;
+        } else {
+            $this->attributes['deleted_at'] = $this->fromDateTime($value);
+        }
     }
 }

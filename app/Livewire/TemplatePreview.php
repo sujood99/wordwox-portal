@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\CmsPage;
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
+use Flux\Flux;
 
 class TemplatePreview extends Component
 {
@@ -125,27 +126,30 @@ class TemplatePreview extends Component
                 $this->successMessage = 'Template "' . $this->availableTemplates[$this->selectedTemplate]['name'] . 
                     '" applied successfully to all ' . $updatedCount . ' page(s) in your organization!';
                 
-                // Dispatch toast notification
-                $this->dispatch('show-toast', [
-                    'type' => 'success',
-                    'message' => $this->successMessage
-                ]);
+                // Show success toast notification
+                Flux::toast(
+                    variant: 'success',
+                    heading: 'Template Applied',
+                    text: $this->successMessage
+                );
             } else {
                 Log::warning('No pages found to update template for');
                 $this->errorMessage = 'No pages found to apply template to. Please create some pages first.';
-                $this->dispatch('show-toast', [
-                    'type' => 'error',
-                    'message' => $this->errorMessage
-                ]);
+                Flux::toast(
+                    variant: 'danger',
+                    heading: 'No Pages Found',
+                    text: $this->errorMessage
+                );
             }
             
         } catch (\Exception $e) {
             Log::error('Error applying template to all pages: ' . $e->getMessage());
             $this->errorMessage = 'Error applying template: ' . $e->getMessage();
-            $this->dispatch('show-toast', [
-                'type' => 'error',
-                'message' => $this->errorMessage
-            ]);
+            Flux::toast(
+                variant: 'danger',
+                heading: 'Error',
+                text: $this->errorMessage
+            );
         }
     }
 
@@ -156,7 +160,8 @@ class TemplatePreview extends Component
             ('/' . ($this->previewPage->slug === 'home' ? '' : $this->previewPage->slug) . '?preview_template=' . $template) :
             '/?preview_template=' . $template;
             
-        $this->dispatch('open-preview', url: $url);
+        // Dispatch event with URL as first parameter for Livewire 3 compatibility
+        $this->dispatch('open-preview', $url);
     }
 
     public function render()

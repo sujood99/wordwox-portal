@@ -226,56 +226,27 @@
         </div>
     </div>
     @endif
-</div>
 
-<script>
-    document.addEventListener('livewire:init', () => {
-        Livewire.on('open-preview', (event) => {
-            window.open(event.url, '_blank');
+    <!-- Flux Toast Component -->
+    <flux:toast position="top end" />
+
+    <script>
+        document.addEventListener('livewire:init', () => {
+            // Handle preview template in new tab
+            Livewire.on('open-preview', (...params) => {
+                // In Livewire 3, event data can be passed as named parameters
+                let url = '/';
+                if (params.length > 0) {
+                    if (typeof params[0] === 'string') {
+                        url = params[0];
+                    } else if (params[0] && params[0].url) {
+                        url = params[0].url;
+                    } else if (Array.isArray(params[0]) && params[0].length > 0) {
+                        url = params[0][0];
+                    }
+                }
+                window.open(url, '_blank');
+            });
         });
-        
-        Livewire.on('show-toast', (event) => {
-            // Create toast notification
-            const toast = document.createElement('div');
-            toast.className = `fixed top-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg transition-all duration-500 transform translate-x-full opacity-0 ${
-                event.type === 'success' 
-                    ? 'bg-green-50 border border-green-200 text-green-800'
-                    : 'bg-red-50 border border-red-200 text-red-800'
-            }`;
-            
-            toast.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <div class="flex-shrink-0">
-                        ${
-                            event.type === 'success'
-                                ? '<svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'
-                                : '<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>'
-                        }
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium">${event.message}</p>
-                    </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 ml-2 text-gray-400 hover:text-gray-600">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </div>
-            `;
-            
-            document.body.appendChild(toast);
-            
-            // Animate in
-            setTimeout(() => {
-                toast.classList.remove('translate-x-full', 'opacity-0');
-                toast.classList.add('translate-x-0', 'opacity-100');
-            }, 100);
-            
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-                toast.classList.add('translate-x-full', 'opacity-0');
-                setTimeout(() => toast.remove(), 500);
-            }, 5000);
-        });
-    });
-</script>
+    </script>
+</div>
