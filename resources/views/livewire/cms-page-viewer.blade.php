@@ -564,66 +564,183 @@
                                             $faxNumbers = [];
                                         }
                                     @endphp
-                                    @if($section->title)
-                                        <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">{{ $section->title }}</h2>
-                                    @endif
-                                    @if($section->subtitle)
-                                        <p class="text-xl text-gray-600 mb-8 text-center">{{ $section->subtitle }}</p>
-                                    @endif
-                                            
-                                            <div class="max-w-4xl mx-auto">
-                                                <div class="grid md:grid-cols-2 gap-8">
-                                                    <!-- Contact Information -->
-                                                    <div class="bg-white rounded-lg shadow-lg p-8">
-                                                        <h3 class="text-2xl font-semibold text-gray-900 mb-6">Get in Touch</h3>
-                                                        
-                                                        @if($section->content)
-                                                            <div class="prose text-gray-600 mb-6">
-                                                                {!! $section->content !!}
-                                                            </div>
-                                                        @endif
-                                                        
-                                                        <div class="space-y-4">
-                                                            @if($email)
-                                                                <div class="flex items-center space-x-3">
-                                                                    <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                                                    </svg>
-                                                                    <a href="mailto:{{ $email }}" class="text-gray-700 hover:text-blue-600">{{ $email }}</a>
-                                                                </div>
-                                                            @endif
-                                                            
-                                                            @if($phone)
-                                                                <div class="flex items-center space-x-3">
-                                                                    <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                                                    </svg>
-                                                                    <a href="tel:{{ $phone }}" class="text-gray-700 hover:text-blue-600">{{ $phone }}</a>
-                                                                </div>
-                                                            @endif
-                                                            
-                                                            @if(count($faxNumbers) > 0)
-                                                                @foreach($faxNumbers as $fax)
-                                                                    @if($fax)
-                                                                        <div class="flex items-center space-x-3">
-                                                                            <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V3a1 1 0 011 1v1M7 4V3a1 1 0 011-1m0 0V2m0 0h8" />
-                                                                            </svg>
-                                                                            <span class="text-gray-700">{{ $fax }} (Fax)</span>
-                                                                        </div>
-                                                                    @endif
-                                                                @endforeach
+                                    
+                                    @if($template === 'fitness')
+                                        <!-- Fitness Template Contact Section -->
+                                        <section class="contact-section py-5 bg-light">
+                                            <div class="container">
+                                                <!-- Contact Header -->
+                                                @if($section->title)
+                                                    <div class="row">
+                                                        <div class="col-12 text-center mb-5">
+                                                            <h2 class="display-5 fw-bold mb-4 text-primary">{{ $section->title }}</h2>
+                                                            @if($section->subtitle)
+                                                                <p class="lead text-muted mx-auto" style="max-width: 600px;">{{ $section->subtitle }}</p>
                                                             @endif
                                                         </div>
                                                     </div>
-                                                    
+                                                @endif
+
+                                                <div class="row g-4">
+                                                    <!-- Contact Information -->
+                                                    <div class="col-lg-6">
+                                                        <div class="card h-100 border-0 shadow-sm">
+                                                            <div class="card-body p-4">
+                                                                <h3 class="h4 fw-bold text-primary mb-4">
+                                                                    <i class="fas fa-info-circle me-2"></i>Get in Touch
+                                                                </h3>
+                                                                
+                                                                @if($section->content)
+                                                                    <div class="mb-4 text-muted">
+                                                                        {!! $section->content !!}
+                                                                    </div>
+                                                                @endif
+                                                                
+                                                                <div class="contact-info">
+                                                                    @if($email)
+                                                                        <div class="contact-item mb-3">
+                                                                            <div class="d-flex align-items-center">
+                                                                                <div class="contact-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                                                    <i class="fas fa-envelope"></i>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <h6 class="fw-semibold mb-1">Email Us</h6>
+                                                                                    <a href="mailto:{{ $email }}" class="text-decoration-none text-muted">{{ $email }}</a>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endif
+                                                                    
+                                                                    @if($phone)
+                                                                        <div class="contact-item mb-3">
+                                                                            <div class="d-flex align-items-center">
+                                                                                <div class="contact-icon bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                                                    <i class="fas fa-phone"></i>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <h6 class="fw-semibold mb-1">Call Us</h6>
+                                                                                    <a href="tel:{{ $phone }}" class="text-decoration-none text-muted">{{ $phone }}</a>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endif
+                                                                    
+                                                                    @if(count($faxNumbers) > 0)
+                                                                        @foreach($faxNumbers as $fax)
+                                                                            @if($fax)
+                                                                                <div class="contact-item mb-3">
+                                                                                    <div class="d-flex align-items-center">
+                                                                                        <div class="contact-icon bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                                                            <i class="fas fa-fax"></i>
+                                                                                        </div>
+                                                                                        <div>
+                                                                                            <h6 class="fw-semibold mb-1">Fax</h6>
+                                                                                            <span class="text-muted">{{ $fax }}</span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            @endif
+                                                                        @endforeach
+                                                                    @endif
+                                                                    
+                                                                    @if(!empty($contactData['location']))
+                                                                        <!-- Location -->
+                                                                        <div class="contact-item mb-3">
+                                                                            <div class="d-flex align-items-start">
+                                                                                <div class="contact-icon bg-danger text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                                                    <i class="fas fa-map-marker-alt"></i>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <h6 class="fw-semibold mb-1">Our Location</h6>
+                                                                                    <p class="text-muted mb-0 small">
+                                                                                        {!! nl2br(e($contactData['location'])) !!}
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                     <!-- Contact Form -->
-                                                    <div class="bg-white rounded-lg shadow-lg p-8">
-                                                        <h3 class="text-2xl font-semibold text-gray-900 mb-6">Send us a Message</h3>
-                                                        @livewire('contact-form')
+                                                    <div class="col-lg-6">
+                                                        <div class="card h-100 border-0 shadow-sm">
+                                                            <div class="card-body p-4">
+                                                                <h3 class="h4 fw-bold text-primary mb-4">
+                                                                    <i class="fas fa-paper-plane me-2"></i>Send us a Message
+                                                                </h3>
+                                                                @livewire('contact-form', ['template' => 'fitness'])
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                        </section>
+                                    @else
+                                        <!-- Default/Other Templates -->
+                                        @if($section->title)
+                                            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">{{ $section->title }}</h2>
+                                        @endif
+                                        @if($section->subtitle)
+                                            <p class="text-xl text-gray-600 mb-8 text-center">{{ $section->subtitle }}</p>
+                                        @endif
+                                                
+                                        <div class="max-w-4xl mx-auto">
+                                            <div class="grid md:grid-cols-2 gap-8">
+                                                <!-- Contact Information -->
+                                                <div class="bg-white rounded-lg shadow-lg p-8">
+                                                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">Get in Touch</h3>
+                                                    
+                                                    @if($section->content)
+                                                        <div class="prose text-gray-600 mb-6">
+                                                            {!! $section->content !!}
+                                                        </div>
+                                                    @endif
+                                                    
+                                                    <div class="space-y-4">
+                                                        @if($email)
+                                                            <div class="flex items-center space-x-3">
+                                                                <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                                </svg>
+                                                                <a href="mailto:{{ $email }}" class="text-gray-700 hover:text-blue-600">{{ $email }}</a>
+                                                            </div>
+                                                        @endif
+                                                        
+                                                        @if($phone)
+                                                            <div class="flex items-center space-x-3">
+                                                                <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                                                </svg>
+                                                                <a href="tel:{{ $phone }}" class="text-gray-700 hover:text-blue-600">{{ $phone }}</a>
+                                                            </div>
+                                                        @endif
+                                                        
+                                                        @if(count($faxNumbers) > 0)
+                                                            @foreach($faxNumbers as $fax)
+                                                                @if($fax)
+                                                                    <div class="flex items-center space-x-3">
+                                                                        <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V3a1 1 0 011 1v1M7 4V3a1 1 0 011-1m0 0V2m0 0h8" />
+                                                                        </svg>
+                                                                        <span class="text-gray-700">{{ $fax }} (Fax)</span>
+                                                                    </div>
+                                                                @endif
+                                                            @endforeach
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Contact Form -->
+                                                <div class="bg-white rounded-lg shadow-lg p-8">
+                                                    <h3 class="text-2xl font-semibold text-gray-900 mb-6">Send us a Message</h3>
+                                                    @livewire('contact-form')
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
                                     @break
 
                                 @case('video')
@@ -1001,6 +1118,11 @@
                                         };
                                     @endphp
                                     
+                                    @if($template === 'fitness')
+                                        <section class="coaches-section py-5">
+                                            <div class="container">
+                                    @endif
+                                    
                                     @if($section->title)
                                         @if($isMeditative)
                                             <div class="row justify-content-center mb-5 pb-3">
@@ -1008,6 +1130,15 @@
                                                     <h2 class="mb-1">{{ $section->title }}</h2>
                                                     @if($section->subtitle)
                                                     <p class="text-gray-600">{{ $section->subtitle }}</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @elseif($template === 'fitness')
+                                            <div class="row">
+                                                <div class="col-12 text-center mb-5">
+                                                    <h2 class="display-5 fw-bold mb-4 text-primary">{{ $section->title }}</h2>
+                                                    @if($section->subtitle)
+                                                        <p class="lead text-muted mx-auto" style="max-width: 600px;">{{ $section->subtitle }}</p>
                                                     @endif
                                                 </div>
                                             </div>
@@ -1063,7 +1194,149 @@
                                                     </div>
                                                 @endforeach
                                             </div>
+                                        @elseif($template === 'fitness')
+                                            {{-- Fitness Template: Use Bootstrap 5 with coach cards --}}
+                                            @if($layout === 'grid')
+                                                <div class="row g-4">
+                                                    @foreach($coaches as $coach)
+                                                        @php
+                                                            $colClass = match($columns) {
+                                                                2 => 'col-lg-6',
+                                                                4 => 'col-lg-3 col-md-6',
+                                                                default => 'col-lg-4 col-md-6'
+                                                            };
+                                                        @endphp
+                                                        <div class="{{ $colClass }}">
+                                                            <div class="card coach-card h-100 border-0 shadow-sm">
+                                                                @if($showPhoto)
+                                                                    @php
+                                                                        // Handle different photo path formats
+                                                                        $photoUrl = null;
+                                                                        if ($coach->photoFilePath) {
+                                                                            if (filter_var($coach->photoFilePath, FILTER_VALIDATE_URL)) {
+                                                                                $photoUrl = $coach->photoFilePath;
+                                                                            } elseif (file_exists(public_path('storage/' . $coach->photoFilePath))) {
+                                                                                $photoUrl = asset('storage/' . $coach->photoFilePath);
+                                                                            } elseif (file_exists(storage_path('app/public/' . $coach->photoFilePath))) {
+                                                                                $photoUrl = asset('storage/' . $coach->photoFilePath);
+                                                                            } elseif (file_exists(public_path($coach->photoFilePath))) {
+                                                                                $photoUrl = asset($coach->photoFilePath);
+                                                                            }
+                                                                        }
+                                                                    @endphp
+                                                                    
+                                                                    <div class="coach-image-wrapper position-relative">
+                                                                        @if($photoUrl)
+                                                                            <div class="coach-image" style="background-image: url('{{ $photoUrl }}');"></div>
+                                                                        @else
+                                                                            <div class="coach-image bg-light d-flex align-items-center justify-content-center">
+                                                                                <i class="fas fa-user fa-3x text-muted"></i>
+                                                                            </div>
+                                                                        @endif
+                                                                    </div>
+                                                                @endif
+                                                                
+                                                                <div class="card-body p-4">
+                                                                    <h5 class="card-title fw-bold mb-3 text-center">{{ $coach->fullName }}</h5>
+                                                                    
+                                                                    @if($showBio)
+                                                                        @php
+                                                                            $bio = null;
+                                                                            try {
+                                                                                if (method_exists($coach, 'orgUserProfileCoach') && $coach->orgUserProfileCoach) {
+                                                                                    $bio = $coach->orgUserProfileCoach->bio ?? null;
+                                                                                }
+                                                                            } catch (\Exception $e) {}
+                                                                        @endphp
+                                                                        @if($bio)
+                                                                            <p class="text-muted small mb-3">
+                                                                                {{ Str::limit($bio, 120) }}
+                                                                            </p>
+                                                                        @endif
+                                                                    @endif
+                                                                    
+                                                                    <div class="mt-auto">
+                                                                        <a href="/coach/view?id={{ $coach->uuid ?? $coach->id }}" 
+                                                                           class="btn btn-fitness btn-sm w-100">
+                                                                            <i class="fas fa-eye me-2"></i>{{ $viewProfileText }}
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                {{-- List Layout for Fitness Template --}}
+                                                <div class="row g-4">
+                                                    @foreach($coaches as $coach)
+                                                        <div class="col-12">
+                                                            <div class="card coach-card-horizontal border-0 shadow-sm">
+                                                                <div class="row g-0">
+                                                                    @if($showPhoto)
+                                                                        @php
+                                                                            $photoUrl = null;
+                                                                            if ($coach->photoFilePath) {
+                                                                                if (filter_var($coach->photoFilePath, FILTER_VALIDATE_URL)) {
+                                                                                    $photoUrl = $coach->photoFilePath;
+                                                                                } elseif (file_exists(public_path('storage/' . $coach->photoFilePath))) {
+                                                                                    $photoUrl = asset('storage/' . $coach->photoFilePath);
+                                                                                } elseif (file_exists(storage_path('app/public/' . $coach->photoFilePath))) {
+                                                                                    $photoUrl = asset('storage/' . $coach->photoFilePath);
+                                                                                } elseif (file_exists(public_path($coach->photoFilePath))) {
+                                                                                    $photoUrl = asset($coach->photoFilePath);
+                                                                                }
+                                                                            }
+                                                                        @endphp
+                                                                        <div class="col-md-3">
+                                                                            @if($photoUrl)
+                                                                                <div class="coach-image-horizontal" style="background-image: url('{{ $photoUrl }}');"></div>
+                                                                            @else
+                                                                                <div class="coach-image-horizontal bg-light d-flex align-items-center justify-content-center">
+                                                                                    <i class="fas fa-user fa-2x text-muted"></i>
+                                                                                </div>
+                                                                            @endif
+                                                                        </div>
+                                                                        <div class="col-md-9">
+                                                                    @else
+                                                                        <div class="col-12">
+                                                                    @endif
+                                                                            <div class="card-body p-4">
+                                                                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                                                                    <div>
+                                                                                        <h5 class="card-title fw-bold mb-2">{{ $coach->fullName }}</h5>
+                                                                                    </div>
+                                                                                    <a href="/coach/view?id={{ $coach->uuid ?? $coach->id }}" 
+                                                                                       class="btn btn-fitness btn-sm">
+                                                                                        <i class="fas fa-eye me-2"></i>{{ $viewProfileText }}
+                                                                                    </a>
+                                                                                </div>
+                                                                                
+                                                                                @if($showBio)
+                                                                                    @php
+                                                                                        $bio = null;
+                                                                                        try {
+                                                                                            if (method_exists($coach, 'orgUserProfileCoach') && $coach->orgUserProfileCoach) {
+                                                                                                $bio = $coach->orgUserProfileCoach->bio ?? null;
+                                                                                            }
+                                                                                        } catch (\Exception $e) {}
+                                                                                    @endphp
+                                                                                    @if($bio)
+                                                                                        <p class="text-muted mb-0">
+                                                                                            {{ Str::limit($bio, 200) }}
+                                                                                        </p>
+                                                                                    @endif
+                                                                                @endif
+                                                                            </div>
+                                                                        </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
                                         @else
+                                            {{-- Default/Other Templates --}}
                                             @if($layout === 'grid')
                                             <div class="grid grid-cols-1 {{ $gridCols }} gap-6">
                                                 @foreach($coaches as $coach)
@@ -1207,11 +1480,23 @@
                                         <div class="text-center py-12">
                                             <p class="text-gray-600">No coaches available at this time.</p>
                                         </div>
+                                        @elseif($template === 'fitness')
+                                        <div class="text-center py-5">
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                <strong>No coaches available at this time.</strong>
+                                            </div>
+                                        </div>
                                         @else
                                         <div class="text-center py-12 bg-gray-50 rounded-lg">
                                             <p class="text-gray-600">No coaches available at this time.</p>
                                         </div>
                                         @endif
+                                    @endif
+                                    
+                                    @if($template === 'fitness')
+                                            </div>
+                                        </section>
                                     @endif
                                     @break
 

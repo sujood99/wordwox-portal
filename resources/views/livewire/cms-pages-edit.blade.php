@@ -961,6 +961,16 @@
                                     </flux:field>
 
                                     <flux:field>
+                                        <flux:label>Location Address</flux:label>
+                                        <flux:input 
+                                            value="{{ $contactData['location'] ?? '' }}"
+                                            wire:change="updateContactField({{ $index }}, 'location', $event.target.value)"
+                                            placeholder="123 Main Street, City, State 12345" 
+                                        />
+                                        <flux:description>Physical address or location for contact</flux:description>
+                                    </flux:field>
+
+                                    <flux:field>
                                         <flux:label>Fax Numbers</flux:label>
                                         @php
                                             $faxNumbers = $contactData['fax'] ?? [];
@@ -1251,17 +1261,15 @@
                                         <flux:field>
                                             <flux:checkbox 
                                                 checked="{{ ($coachesData['show_photo'] ?? true) ? 'true' : 'false' }}"
-                                                wire:change="updateCoachesField({{ $index }}, 'show_photo', $event.target.checked)">
-                                                Show coach photos
-                                            </flux:checkbox>
+                                                wire:change="updateCoachesField({{ $index }}, 'show_photo', $event.target.checked)"
+                                                label="Show coach photos" />
                                         </flux:field>
 
                                         <flux:field>
                                             <flux:checkbox 
                                                 checked="{{ ($coachesData['show_bio'] ?? true) ? 'true' : 'false' }}"
-                                                wire:change="updateCoachesField({{ $index }}, 'show_bio', $event.target.checked)">
-                                                Show coach bio
-                                            </flux:checkbox>
+                                                wire:change="updateCoachesField({{ $index }}, 'show_bio', $event.target.checked)"
+                                                label="Show coach bio" />
                                         </flux:field>
 
                                         <flux:field>
@@ -1329,17 +1337,15 @@
                                         <flux:field>
                                             <flux:checkbox 
                                                 checked="{{ ($scheduleData['show_date_navigation'] ?? true) ? 'true' : 'false' }}"
-                                                wire:change="updateScheduleField({{ $index }}, 'show_date_navigation', $event.target.checked)">
-                                                Show date navigation (Previous/Next/Today buttons)
-                                            </flux:checkbox>
+                                                wire:change="updateScheduleField({{ $index }}, 'show_date_navigation', $event.target.checked)"
+                                                label="Show date navigation (Previous/Next/Today buttons)" />
                                         </flux:field>
 
                                         <flux:field>
                                             <flux:checkbox 
                                                 checked="{{ ($scheduleData['show_drop_in_button'] ?? true) ? 'true' : 'false' }}"
-                                                wire:change="updateScheduleField({{ $index }}, 'show_drop_in_button', $event.target.checked)">
-                                                Show "Drop In" button on events
-                                            </flux:checkbox>
+                                                wire:change="updateScheduleField({{ $index }}, 'show_drop_in_button', $event.target.checked)"
+                                                label="Show \"Drop In\" button on events" />
                                         </flux:field>
 
                                         <flux:field>
@@ -1723,16 +1729,16 @@
                         </flux:field>
 
                         <flux:field>
-                            <flux:checkbox wire:model="is_homepage">
-                                Set as homepage
-                            </flux:checkbox>
+                            <flux:checkbox 
+                                wire:model="is_homepage"
+                                label="Set as homepage" />
                             <flux:description>Make this page the default homepage for your website</flux:description>
                         </flux:field>
 
                         <flux:field>
-                            <flux:checkbox wire:model="show_in_navigation">
-                                Show in navigation
-                            </flux:checkbox>
+                            <flux:checkbox 
+                                wire:model="show_in_navigation"
+                                label="Show in navigation" />
                             <flux:description>Display this page in the main navigation menu</flux:description>
                         </flux:field>
 

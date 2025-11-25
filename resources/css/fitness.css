@@ -9833,3 +9833,334 @@ textarea.form-control {
   100% {
     stroke-dasharray: 89, 200;
     stroke-dashoffset: -136px; } }
+
+/* Coach Cards for Fitness Template */
+.coach-card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.coach-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.coach-image {
+  height: 250px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  overflow: hidden;
+}
+
+.coach-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.8), rgba(255, 107, 107, 0.8));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coach-card:hover .coach-overlay {
+  opacity: 1;
+}
+
+.coach-social {
+  text-align: center;
+}
+
+.coach-social .btn {
+  margin: 0 5px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+
+/* Horizontal Coach Cards for List Layout */
+.coach-card-horizontal {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.coach-card-horizontal:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.coach-image-horizontal {
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 12px 0 0 12px;
+}
+
+@media (max-width: 768px) {
+  .coach-image-horizontal {
+    height: 250px;
+    border-radius: 12px 12px 0 0;
+  }
+}
+
+/* Badge styling for coaches */
+.coach-card .badge.bg-danger {
+  background: linear-gradient(135deg, #dc3545, #ff6b6b) !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Coach card body */
+.coach-card .card-body h5 {
+  color: #2c3e50;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.coach-card .card-body p.text-muted {
+  color: #6c757d;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Fitness button specific styling for coach cards */
+.coach-card .btn-fitness {
+  background: linear-gradient(135deg, #dc3545 0%, #ff6b6b 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  border-radius: 25px;
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.coach-card .btn-fitness:hover {
+  background: linear-gradient(135deg, #c82333 0%, #e55a5a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  color: white;
+}
+
+/* Contact Section Styling for Fitness Template */
+.contact-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 60px 0;
+}
+
+.contact-section .card {
+  transition: all 0.3s ease;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(220, 53, 69, 0.1);
+}
+
+.contact-section .card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(220, 53, 69, 0.15);
+}
+
+.contact-section .contact-info {
+  padding: 0.5rem 0;
+  background: #ffffff;
+}
+
+.contact-section .contact-item {
+  padding: 1rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  margin-bottom: 0.75rem !important;
+}
+
+.contact-section .contact-item:hover {
+  background: rgba(220, 53, 69, 0.05);
+  transform: translateX(5px);
+}
+
+.contact-section .contact-icon {
+  min-width: 40px;
+  min-height: 40px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.contact-section .contact-item:hover .contact-icon {
+  transform: scale(1.15) rotate(5deg);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.contact-section .contact-item h6 {
+  color: #2c3e50;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.contact-section .contact-item a {
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.contact-section .contact-item a:hover {
+  color: #dc3545 !important;
+  text-decoration: underline !important;
+}
+
+.contact-section .contact-item .text-muted {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.contact-section .contact-item strong {
+  color: #495057;
+  font-weight: 600;
+}
+
+.contact-section .text-primary {
+  color: #dc3545 !important;
+}
+
+.contact-section .bg-primary {
+  background: linear-gradient(135deg, #dc3545, #ff6b6b) !important;
+}
+
+.contact-section .bg-success {
+  background: linear-gradient(135deg, #28a745, #5cb85c) !important;
+}
+
+.contact-section .bg-warning {
+  background: linear-gradient(135deg, #ffc107, #ffed4a) !important;
+}
+
+.contact-section .bg-info {
+  background: linear-gradient(135deg, #17a2b8, #5bc0de) !important;
+}
+
+.contact-section .bg-danger {
+  background: linear-gradient(135deg, #dc3545, #e74c3c) !important;
+}
+
+/* Special styling for contact success message */
+.contact-section .text-success {
+  color: #28a745 !important;
+  font-weight: 600;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+/* Contact form specific styling */
+.contact-section .form-control {
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+  padding: 12px 15px;
+}
+
+.contact-section .form-control:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.contact-section .btn-primary {
+  background: linear-gradient(135deg, #dc3545, #ff6b6b);
+  border: none;
+  border-radius: 10px;
+  padding: 12px 30px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.contact-section .btn-primary:hover {
+  background: linear-gradient(135deg, #c82333, #e55a5a);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+}
+
+/* Coach Image Wrapper and Overlay */
+.coach-image-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 15px 15px 0 0;
+}
+
+/* Coach card title styling */
+.coach-card .card-title {
+  color: #2c3e50;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+/* Optional subtle hover effect on image only */
+.coach-image-wrapper:hover .coach-image {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+/* Enhanced coach section styling */
+.coaches-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 60px 0;
+}
+
+.coaches-section .text-primary {
+  color: #dc3545 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .coach-image {
+    height: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .coach-image {
+    height: 200px;
+  }
+  
+  .coach-card .card-body {
+    padding: 1.5rem 1rem;
+  }
+  
+  .contact-section .card {
+    margin-bottom: 2rem;
+  }
+  
+  .contact-section .contact-icon {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .coach-overlay-content {
+    padding: 1rem;
+  }
+  
+  .coach-overlay h4 {
+    font-size: 1rem;
+  }
+}
