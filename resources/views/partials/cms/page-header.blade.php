@@ -15,29 +15,7 @@
             </div>
         </section>
     @elseif($isFitness)
-        {{-- Fitness Template Hero Header --}}
-        <section class="hero-section" style="background: linear-gradient(rgba(255,107,107,0.8), rgba(78,205,196,0.8)), url('{{ asset('images/fitness-bg.jpg') }}') center/cover;">
-            <div class="container">
-                <div class="row align-items-center justify-content-center text-center" style="min-height: 400px;">
-                    <div class="col-lg-8">
-                        <h1 class="display-4 fw-bold text-white mb-4">{{ $page->title }}</h1>
-                        @if($page->description)
-                        <p class="lead text-white mb-4">{{ $page->description }}</p>
-                        @endif
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb justify-content-center bg-transparent">
-                                <li class="breadcrumb-item">
-                                    <a href="/" class="text-white text-decoration-none">
-                                        <i class="fas fa-home me-1"></i>Home
-                                    </a>
-                                </li>
-                                <li class="breadcrumb-item active text-white-50">{{ $page->title }}</li>
-                            </ol>
-                        </nav>
-                    </div>
-                </div>
-            </div>
-        </section>
+        {{-- Fitness Template Hero Header - Removed --}}
     @else
         {{-- Default Template Header --}}
         <div class="page-header bg-gray-50 py-16">

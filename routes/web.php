@@ -24,10 +24,15 @@ Route::get('cms/{slug?}', \App\Livewire\CmsPageViewer::class)
 Route::get('portal', \App\Livewire\CmsPageViewer::class)
     ->name('portal.home');
 
+// Contact form submission route (POST only)
+// Note: GET requests to /contact or /contact-us are handled by the catch-all route below
+Route::post('contact', [\App\Http\Controllers\ContactController::class, 'submit'])->name('contact.submit');
+
 // Main website routes (clean URLs without /cms/)
 Route::get('/', \App\Livewire\CmsPageViewer::class)
     ->name('home');
 
+// Catch-all route for CMS pages (GET requests)
 Route::get('{slug}', \App\Livewire\CmsPageViewer::class)
     ->where('slug', '^(?!dashboard|login|register|cms-admin|portal|cms).*$')
     ->name('page.view');

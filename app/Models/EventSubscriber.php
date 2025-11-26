@@ -7,15 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-  // Booking statuses
-const STATUS_BOOKED = 1;
-const STATUS_CHECKED_IN = 2;
-const STATUS_COMPLETED = 3;
-const STATUS_CANCELLED = 4;
-const STATUS_NO_SHOW = 5;
-  
 class EventSubscriber extends Model
 {
+    // Booking statuses
+    const STATUS_BOOKED = 1;
+    const STATUS_CHECKED_IN = 2;
+    const STATUS_COMPLETED = 3;
+    const STATUS_CANCELLED = 4;
+    const STATUS_NO_SHOW = 5;
     use HasFactory, Tenantable, SoftDeletes;
 
     protected $table = 'eventSubscriber';

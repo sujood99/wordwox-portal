@@ -46,7 +46,7 @@
                 <!-- Dynamic Contact Form -->
                 <div class="card shadow-lg border-0">
                     <div class="card-body p-5">
-                        @livewire('contact-form', ['template' => 'fitness'])
+                        @include('partials.cms.sections.contact-form-traditional', ['page' => $page])
                     </div>
                 </div>
             </div>
@@ -72,7 +72,7 @@
                 <div class="col-md-6 pr-md-5">
                     {{-- Dynamic Contact Form --}}
                     <div class="bg-light p-5 contact-form">
-                        @livewire('contact-form', ['template' => 'meditative'])
+                        @include('partials.cms.sections.contact-form-traditional', ['page' => $page])
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -160,7 +160,7 @@
             @endif
                 {{-- Dynamic Contact Form --}}
                 <div class="bg-white rounded-2xl shadow-xl p-8">
-                    @livewire('contact-form', ['template' => 'modern'])
+                    @include('partials.cms.sections.contact-form-traditional', ['page' => $page])
                 </div>
             </div>
         </div>

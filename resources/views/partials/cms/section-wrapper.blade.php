@@ -258,18 +258,83 @@
                         // Get organization ID from page or default
                         $orgId = $page->org_id ?? env('CMS_DEFAULT_ORG_ID', 8);
                         
-                        // Get current week date range
-                        $startOfWeek = now()->startOfWeek(); // Monday
-                        $endOfWeek = now()->endOfWeek(); // Sunday
-                        
-                        // Fetch upcoming events (classes) from organization for the current week
-                        $weeklyEvents = \App\Models\Event::where('org_id', $orgId)
+                        // Get recurring schedules from the schedule table
+                        $schedules = \DB::table('schedule')
+                            ->where('org_id', $orgId)
                             ->where('isDeleted', false)
-                            ->where('isCanceled', false)
-                            ->whereBetween('startDateTime', [$startOfWeek, $endOfWeek])
-                            ->with(['program', 'orgLocation'])
-                            ->orderBy('startDateTime', 'asc')
+                            ->where('status', 1) // Active schedules
                             ->get();
+                        
+                        // Generate events for the next 7 days based on recurring schedules
+                        $weeklyEvents = collect();
+                        $startDate = now()->startOfDay();
+                        
+                        for ($i = 0; $i < 7; $i++) {
+                            $date = $startDate->copy()->addDays($i);
+                            $dayOfWeek = strtolower($date->format('D')); // mon, tue, wed, etc.
+                            
+                            foreach ($schedules as $schedule) {
+                                // Check if this schedule runs on this day
+                                if (!$schedule->$dayOfWeek) {
+                                    continue;
+                                }
+                                
+                                // Create event object from schedule
+                                $event = new \stdClass();
+                                $event->id = $schedule->id . '_' . $date->format('Y-m-d');
+                                $event->schedule_id = $schedule->id;
+                                $event->name = $schedule->name;
+                                $event->note = $schedule->note;
+                                
+                                // Parse time and create datetime
+                                if ($schedule->localStartTime && $schedule->localEndTime) {
+                                    $event->startDateTime = \Carbon\Carbon::parse($date->format('Y-m-d') . ' ' . $schedule->localStartTime);
+                                    $event->endDateTime = \Carbon\Carbon::parse($date->format('Y-m-d') . ' ' . $schedule->localEndTime);
+                                } else {
+                                    continue; // Skip if no time set
+                                }
+                                
+                                // Get capacity for this day
+                                $capacityField = 'capacity' . ucfirst($dayOfWeek);
+                                $event->capacity = $schedule->$capacityField ?? null;
+                                
+                                // Load program
+                                if ($schedule->program_id) {
+                                    $program = \App\Models\Program::find($schedule->program_id);
+                                    $event->program = $program;
+                                }
+                                
+                                // Load location
+                                if ($schedule->orgLocation_id) {
+                                    $event->orgLocation = \App\Models\OrgLocation::find($schedule->orgLocation_id);
+                                }
+                                
+                                // Load instructor from scheduleAssignment
+                                // Note: scheduleAssignment table doesn't have a role column
+                                // Always set instructor property, even if null
+                                $instructor = \DB::table('scheduleAssignment')
+                                    ->join('orgUser', 'scheduleAssignment.orgUser_id', '=', 'orgUser.id')
+                                    ->where('scheduleAssignment.schedule_id', $schedule->id)
+                                    ->where('scheduleAssignment.isDeleted', false)
+                                    ->select('orgUser.*')
+                                    ->first();
+                                
+                                if ($instructor) {
+                                    $event->instructor = (object)[
+                                        'id' => $instructor->id,
+                                        'fullName' => trim(($instructor->fname ?? '') . ' ' . ($instructor->lname ?? '')),
+                                        'email' => $instructor->email ?? '',
+                                    ];
+                                } else {
+                                    $event->instructor = null;
+                                }
+                                
+                                $weeklyEvents->push($event);
+                            }
+                        }
+                        
+                        // Sort by start time
+                        $weeklyEvents = $weeklyEvents->sortBy('startDateTime')->values();
                         
                         // Group events by day of the week
                         $scheduleByDay = [];

@@ -115,6 +115,28 @@ class Event extends Model
     }
 
     /**
+     * Get the instructor/coach for this event.
+     * Instructor is stored in eventAssignment table
+     */
+    public function instructor()
+    {
+        return $this->belongsToMany(OrgUser::class, 'eventAssignment', 'event_id', 'orgUser_id')
+                    ->wherePivot('isDeleted', false)
+                    ->wherePivot('role', 1) // Role 1 = instructor
+                    ->first();
+    }
+
+    /**
+     * Get all instructors for this event
+     */
+    public function instructors()
+    {
+        return $this->belongsToMany(OrgUser::class, 'eventAssignment', 'event_id', 'orgUser_id')
+                    ->wherePivot('isDeleted', false)
+                    ->wherePivot('role', 1);
+    }
+
+    /**
      * Get the formatted class name (start time - program name).
      */
     public function getFormattedClassNameAttribute()

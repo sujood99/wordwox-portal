@@ -49,12 +49,27 @@
                                             @endif
                                             @if($showCapacity && $event->capacity)
                                                 @php
-                                                    $bookedCount = \App\Models\EventSubscriber::where('event_id', $event->id)
-                                                        ->where('booking_status', \App\Models\EventSubscriber::STATUS_BOOKED)
-                                                        ->count();
-                                                    $availableSpots = $event->capacity - $bookedCount;
+                                                    // For schedule-generated events, we can't count bookings from event_id
+                                                    // since they don't exist in the event table yet
+                                                    // Only count for actual events that exist in the database
+                                                    $bookedCount = 0;
+                                                    if (isset($event->isActualEvent) && $event->isActualEvent && isset($event->id)) {
+                                                        // Use status field and STATUS_BOOKED constant
+                                                        $bookedCount = \App\Models\EventSubscriber::where('event_id', $event->id)
+                                                            ->where('status', \App\Models\EventSubscriber::STATUS_BOOKED)
+                                                            ->where('isDeleted', false)
+                                                            ->count();
+                                                    }
+                                                    $availableSpots = $event->capacity ? ($event->capacity - $bookedCount) : null;
                                                 @endphp
-                                                <p class="text-muted mb-3"><i class="fas fa-users me-2"></i>{{ $bookedCount }}/{{ $event->capacity }} booked ({{ $availableSpots }} spots left)</p>
+                                                @if($event->capacity)
+                                                    <p class="text-muted mb-3">
+                                                        <i class="fas fa-users me-2"></i>{{ $bookedCount }}/{{ $event->capacity }} booked
+                                                        @if($availableSpots !== null)
+                                                            ({{ $availableSpots }} spots left)
+                                                        @endif
+                                                    </p>
+                                                @endif
                                             @endif
                                             @if($event->note)
                                                 <p class="card-text small mb-3">{{ Str::limit($event->note, 120) }}</p>
