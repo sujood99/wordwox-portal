@@ -52,12 +52,7 @@ class AddCmsPagesWithoutBlocks extends Command
             'type' => 'contact',
             'sort_order' => 4,
         ],
-        'services' => [
-            'title' => 'Our Services',
-            'slug' => 'services',
-            'type' => 'page',
-            'sort_order' => 3,
-        ],
+     
         'schedule' => [
             'title' => 'Schedule',
             'slug' => 'schedule',

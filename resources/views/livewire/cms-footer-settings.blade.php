@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-white dark:bg-zinc-900">
+<div class="min-h-screen bg-white dark:bg-zinc-800 ">
     <!-- Header -->
     <div class="bg-white dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

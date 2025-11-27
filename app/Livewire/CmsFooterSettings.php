@@ -29,12 +29,6 @@ class CmsFooterSettings extends Component
             // Rich Content Block
             'paragraph' => ['name' => 'Paragraph', 'icon' => 'document-text', 'description' => 'Rich text with formatting', 'category' => 'content'],
             
-            // Heading Block  
-            'heading' => ['name' => 'Heading', 'icon' => 'h1', 'description' => 'Section heading', 'category' => 'content'],
-            
-            // Spacing Block
-            'spacer' => ['name' => 'Spacer', 'icon' => 'minus', 'description' => 'Vertical spacing', 'category' => 'layout'],
-            
             // Navigation Block
             'links' => ['name' => 'Links', 'icon' => 'link', 'description' => 'List of links', 'category' => 'content'],
             
