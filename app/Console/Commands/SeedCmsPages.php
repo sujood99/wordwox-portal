@@ -69,7 +69,6 @@ class SeedCmsPages extends Command
         
         // Show created pages
         $pages = CmsPage::where('org_id', $orgId)
-                       ->where('orgPortal_id', $portalId)
                        ->get();
                        
         $this->info("Created {$pages->count()} pages:");
@@ -84,7 +83,6 @@ class SeedCmsPages extends Command
     {
         $page = CmsPage::create([
             'org_id' => $orgId,
-            'orgPortal_id' => $portalId,
             'title' => 'Home',
             'slug' => 'home',
             'description' => 'Welcome to our portal',
@@ -142,7 +140,6 @@ class SeedCmsPages extends Command
     {
         $page = CmsPage::create([
             'org_id' => $orgId,
-            'orgPortal_id' => $portalId,
             'title' => 'About Us',
             'slug' => 'about',
             'description' => 'Learn more about our organization',
@@ -172,7 +169,6 @@ class SeedCmsPages extends Command
     {
         $page = CmsPage::create([
             'org_id' => $orgId,
-            'orgPortal_id' => $portalId,
             'title' => 'Contact Us',
             'slug' => 'contact',
             'description' => 'Get in touch with us',
@@ -207,7 +203,6 @@ class SeedCmsPages extends Command
     {
         $page = CmsPage::create([
             'org_id' => $orgId,
-            'orgPortal_id' => $portalId,
             'title' => 'Our Services',
             'slug' => 'services',
             'description' => 'Discover our range of services',

@@ -96,17 +96,6 @@ class CmsSection extends BaseWWModel
     }
 
     /**
-     * Scope sections by organization and portal through page relationship
-     */
-    public function scopeForOrgAndPortal($query, $orgId, $portalId)
-    {
-        return $query->whereHas('cmsPage', function($q) use ($orgId, $portalId) {
-            $q->where('org_id', $orgId)
-              ->where('orgPortal_id', $portalId);
-        });
-    }
-
-    /**
      * Scope for active sections
      */
     public function scopeActive($query)

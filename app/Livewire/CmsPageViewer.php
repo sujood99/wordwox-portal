@@ -26,7 +26,6 @@ class CmsPageViewer extends Component
     public function loadNavigationPages()
     {
         $this->navigationPages = CmsPage::where('org_id', $this->orgId)
-            ->where('orgPortal_id', $this->portalId)
             ->where('status', 'published')
             ->where('show_in_navigation', true)
             ->where('is_homepage', false) // Exclude homepage from navigation (it's shown separately)
@@ -38,7 +37,6 @@ class CmsPageViewer extends Component
     public function loadPage()
     {
         $query = CmsPage::where('org_id', $this->orgId)
-            ->where('orgPortal_id', $this->portalId)
             ->where('status', 'published')
             ->with(['sections' => function($query) {
                 $query->where('is_active', true)

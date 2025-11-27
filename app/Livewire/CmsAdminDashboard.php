@@ -28,24 +28,20 @@ class CmsAdminDashboard extends Component
     {
         $this->stats = [
             'total_pages' => CmsPage::where('org_id', $this->orgId)
-                ->where('orgPortal_id', $this->portalId)
                 ->count(),
             'published_pages' => CmsPage::where('org_id', $this->orgId)
-                ->where('orgPortal_id', $this->portalId)
                 ->where('status', 'published')
                 ->count(),
             'draft_pages' => CmsPage::where('org_id', $this->orgId)
-                ->where('orgPortal_id', $this->portalId)
                 ->where('status', 'draft')
                 ->count(),
-            'total_sections' => CmsSection::forOrgAndPortal($this->orgId, $this->portalId)->count(),
+            'total_sections' => CmsSection::forOrg($this->orgId)->count(),
         ];
     }
 
     public function loadRecentPages()
     {
         $this->recentPages = CmsPage::where('org_id', $this->orgId)
-            ->where('orgPortal_id', $this->portalId)
             ->orderBy('updated_at', 'desc')
             ->limit(5)
             ->get();

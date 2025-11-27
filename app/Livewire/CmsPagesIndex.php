@@ -55,7 +55,6 @@ class CmsPagesIndex extends Component
     {
         $page = CmsPage::where('id', $pageId)
             ->where('org_id', $this->orgId)
-            ->where('orgPortal_id', $this->portalId)
             ->first();
 
         if ($page) {
@@ -68,7 +67,6 @@ class CmsPagesIndex extends Component
     {
         $page = CmsPage::where('id', $pageId)
             ->where('org_id', $this->orgId)
-            ->where('orgPortal_id', $this->portalId)
             ->with('sections')
             ->first();
 
@@ -94,7 +92,6 @@ class CmsPagesIndex extends Component
     public function render()
     {
         $query = CmsPage::where('org_id', $this->orgId)
-            ->where('orgPortal_id', $this->portalId)
             ->where('slug', '!=', 'footer'); // Exclude footer settings page from listing
 
         if ($this->search) {

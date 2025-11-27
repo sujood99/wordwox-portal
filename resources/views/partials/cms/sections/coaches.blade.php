@@ -1,6 +1,6 @@
 {{-- Coaches Section Partial --}}
 @if($isFitness)
-    <div class="container my-5">
+    <div class="container my-5 coaches-section">
         @if($section->title)
         <div class="text-center mb-5">
             <h2 class="section-heading">{{ $section->title }}</h2>
@@ -19,109 +19,87 @@
                 // Get layout setting from section data (default to grid)
                 $layoutMode = $layout ?? 'grid';
                 
-                // Calculate Bootstrap column classes (only for grid layout)
-                if ($layoutMode === 'grid') {
-                    $gridCols = match((int)($columns ?? 3)) {
-                        2 => 'row-cols-1 row-cols-md-2',
-                        4 => 'row-cols-1 row-cols-md-2 row-cols-lg-4',
-                        default => 'row-cols-1 row-cols-md-2 row-cols-lg-3'
-                    };
+                // Calculate Bootstrap column classes for both grid and list layouts
+                // Convert columns to integer (handles both string "3" and integer 3)
+                // Ensure we have a valid integer value
+                $columnsValue = $columns ?? 3;
+                if (is_string($columnsValue)) {
+                    $columnsValue = (int)$columnsValue;
                 }
+                $columnsInt = (int)$columnsValue;
+                
+                // Generate Bootstrap column classes based on columns setting
+                // Using explicit col-* classes instead of row-cols-* for better compatibility
+                $colClasses = match($columnsInt) {
+                    2 => 'col-12 col-md-6',
+                    4 => 'col-12 col-md-6 col-lg-3',
+                    default => 'col-12 col-md-6 col-lg-4' // 3 columns default
+                };
             @endphp
             @if($layoutMode === 'list')
-                {{-- List Layout --}}
+                {{-- List Layout - Simple view with just image and name (same as grid) --}}
                 <div class="row g-4">
                     @foreach($coaches as $coach)
-                        <div class="col-12">
-                            <div class="card border-0 shadow-lg coach-card coach-card-horizontal">
-                                <div class="row g-0">
-                                    @if($showPhoto)
-                                        <div class="col-md-4">
-                                            @if($coach->photoFilePath)
-                                                <div class="coach-image-horizontal" style="background-image: url({{ asset('storage/' . $coach->photoFilePath) }});"></div>
-                                            @elseif($coach->portraitFilePath)
-                                                <div class="coach-image-horizontal" style="background-image: url({{ asset('storage/' . $coach->portraitFilePath) }});"></div>
-                                            @else
-                                                <div class="coach-image-horizontal d-flex align-items-center justify-content-center bg-light">
-                                                    <i class="fas fa-user-tie fa-3x text-muted"></i>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endif
-                                    <div class="{{ $showPhoto ? 'col-md-8' : 'col-12' }}">
-                                        <div class="card-body p-4">
-                                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                                <h5 class="card-title mb-0 fw-bold">{{ $coach->fullName }}</h5>
-                                                <div class="coach-certifications">
-                                                    <span class="badge bg-primary me-1">Coach</span>
-                                                    @if($coach->isStaff)
-                                                        <span class="badge bg-secondary">Staff</span>
-                                                    @endif
-                                                </div>
+                        <div class="{{ $colClasses }}">
+                            <div class="card border-0 h-100 coach-card text-center">
+                                @if($showPhoto)
+                                    <div class="coach-img-container position-relative overflow-hidden">
+                                        @if($coach->profileImageUrl)
+                                            <img src="{{ $coach->profileImageUrl }}" 
+                                                 class="card-img-top coach-img" 
+                                                 alt="Coach {{ $coach->fullName }}" 
+                                                 style="height: 300px; object-fit: cover; width: 100%;">
+                                        @elseif($coach->portraitImageUrl)
+                                            <img src="{{ $coach->portraitImageUrl }}" 
+                                                 class="card-img-top coach-img" 
+                                                 alt="Coach {{ $coach->fullName }}" 
+                                                 style="height: 300px; object-fit: cover; width: 100%;">
+                                        @else
+                                            <div class="card-img-top coach-img d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
+                                                <i class="fas fa-user-tie fa-4x text-muted"></i>
                                             </div>
-                                            @if($coach->email)
-                                                <p class="text-muted mb-2">{{ $coach->email }}</p>
-                                            @endif
-                                            @if($showBio && $coach->address)
-                                                <p class="card-text small mb-3">{{ Str::limit($coach->address, 200) }}</p>
-                                            @endif
-                                            <div class="social-links">
-                                                <a href="#" class="social-link me-2"><i class="fab fa-facebook-f"></i></a>
-                                                <a href="#" class="social-link me-2"><i class="fab fa-instagram"></i></a>
-                                                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
-                                            </div>
-                                        </div>
+                                        @endif
                                     </div>
+                                @endif
+                                <div class="card-body p-4">
+                                    <h5 class="card-title mb-0 fw-bold">{{ $coach->fullName }}</h5>
                                 </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
             @else
-                {{-- Grid Layout --}}
-                <div class="row g-4 {{ $gridCols }}">
+                {{-- Grid Layout - Simple view with just image and name (like Yii project) --}}
+                <div class="row g-4">
                     @foreach($coaches as $coach)
-                        <div class="col">
-                            <div class="card border-0 shadow-lg h-100 coach-card">
-                            @if($showPhoto)
-                                <div class="coach-img-container position-relative overflow-hidden">
-                                    @if($coach->photoFilePath)
-                                        <img src="{{ asset('storage/' . $coach->photoFilePath) }}" class="card-img-top coach-img" alt="Coach {{ $coach->fullName }}" height="300">
-                                    @elseif($coach->portraitFilePath)
-                                        <img src="{{ asset('storage/' . $coach->portraitFilePath) }}" class="card-img-top coach-img" alt="Coach {{ $coach->fullName }}" height="300">
-                                    @else
-                                        <div class="card-img-top coach-img d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
-                                            <i class="fas fa-user-tie fa-4x text-muted"></i>
-                                        </div>
-                                    @endif
-                                    <div class="coach-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
-                                        <div class="social-links">
-                                            <a href="#" class="social-link me-2"><i class="fab fa-facebook-f"></i></a>
-                                            <a href="#" class="social-link me-2"><i class="fab fa-instagram"></i></a>
-                                            <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
-                                        </div>
+                        <div class="{{ $colClasses }}">
+                            <div class="card border-0 h-100 coach-card text-center">
+                                @if($showPhoto)
+                                    <div class="coach-img-container position-relative overflow-hidden">
+                                        @if($coach->profileImageUrl)
+                                            <img src="{{ $coach->profileImageUrl }}" 
+                                                 class="card-img-top coach-img" 
+                                                 alt="Coach {{ $coach->fullName }}" 
+                                                 style="height: 300px; object-fit: cover; width: 100%;">
+                                        @elseif($coach->portraitImageUrl)
+                                            <img src="{{ $coach->portraitImageUrl }}" 
+                                                 class="card-img-top coach-img" 
+                                                 alt="Coach {{ $coach->fullName }}" 
+                                                 style="height: 300px; object-fit: cover; width: 100%;">
+                                        @else
+                                            <div class="card-img-top coach-img d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
+                                                <i class="fas fa-user-tie fa-4x text-muted"></i>
+                                            </div>
+                                        @endif
                                     </div>
-                                </div>
-                            @endif
-                            <div class="card-body text-center p-4">
-                                <h5 class="card-title mb-2 fw-bold">{{ $coach->fullName }}</h5>
-                                @if($coach->email)
-                                    <p class="text-muted mb-3">{{ $coach->email }}</p>
                                 @endif
-                                @if($showBio && $coach->address)
-                                    <p class="card-text small">{{ Str::limit($coach->address, 150) }}</p>
-                                @endif
-                                <div class="coach-certifications">
-                                    <span class="badge bg-primary me-1">Coach</span>
-                                    @if($coach->isStaff)
-                                        <span class="badge bg-secondary">Staff</span>
-                                    @endif
+                                <div class="card-body p-4">
+                                    <h5 class="card-title mb-0 fw-bold">{{ $coach->fullName }}</h5>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
-            </div>
+                    @endforeach
+                </div>
             @endif
         @else
             <div class="text-center py-12 bg-light rounded">
@@ -132,6 +110,23 @@
     </div>
 
     <style>
+        .coaches-section {
+            /* background: linear-gradient(135deg, #ffffff, #e9ecef); */
+            padding: 80px 29px;
+        }
+        
+        /* Ensure the row properly wraps columns */
+        .coaches-section .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        /* Ensure columns can wrap properly */
+        .coaches-section .row > .col {
+            flex: 0 0 auto;
+            width: 100%;
+        }
+        
         .coach-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -212,15 +207,28 @@
                 </div>
             </div>
             @if(isset($coaches) && $coaches->count() > 0)
+                @php
+                    // Calculate Bootstrap column classes based on columns setting
+                    $columnsValue = $columns ?? 3;
+                    if (is_string($columnsValue)) {
+                        $columnsValue = (int)$columnsValue;
+                    }
+                    $columnsInt = (int)$columnsValue;
+                    $meditativeCols = match($columnsInt) {
+                        2 => 'col-12 col-md-6',
+                        4 => 'col-12 col-md-6 col-lg-3',
+                        default => 'col-12 col-md-6 col-lg-4' // 3 columns default
+                    };
+                @endphp
                 <div class="row">
                     @foreach($coaches as $coach)
-                        <div class="col-lg-3 col-md-6 d-flex mb-sm-4 ftco-animate">
+                        <div class="{{ $meditativeCols }} d-flex mb-sm-4 ftco-animate">
                             <div class="staff">
                                 @if($showPhoto)
-                                    @if($coach->photoFilePath)
-                                        <div class="img mb-4" style="background-image: url({{ asset('storage/' . $coach->photoFilePath) }});"></div>
-                                    @elseif($coach->portraitFilePath)
-                                        <div class="img mb-4" style="background-image: url({{ asset('storage/' . $coach->portraitFilePath) }});"></div>
+                                    @if($coach->profileImageUrl)
+                                        <div class="img mb-4" style="background-image: url({{ $coach->profileImageUrl }});"></div>
+                                    @elseif($coach->portraitImageUrl)
+                                        <div class="img mb-4" style="background-image: url({{ $coach->portraitImageUrl }});"></div>
                                     @else
                                         <div class="img mb-4 d-flex align-items-center justify-content-center bg-light">
                                             <i class="fas fa-user-tie fa-3x text-muted"></i>
@@ -228,24 +236,7 @@
                                     @endif
                                 @endif
                                 <div class="info text-center">
-                                    <h3><a href="#">{{ $coach->fullName }}</a></h3>
-                                    @if($coach->email)
-                                        <span class="position">{{ $coach->email }}</span>
-                                    @endif
-                                    @if($showBio)
-                                        <div class="text">
-                                            @if($coach->address)
-                                                <p>{{ Str::limit($coach->address, 150) }}</p>
-                                            @else
-                                                <p>Dedicated coach ready to help you achieve your fitness goals.</p>
-                                            @endif
-                                            <ul class="ftco-social">
-                                                <li class="ftco-animate"><a href="#"><span class="icon-twitter"></span></a></li>
-                                                <li class="ftco-animate"><a href="#"><span class="icon-facebook"></span></a></li>
-                                                <li class="ftco-animate"><a href="#"><span class="icon-instagram"></span></a></li>
-                                            </ul>
-                                        </div>
-                                    @endif
+                                    <h3>{{ $coach->fullName }}</h3>
                                 </div>
                             </div>
                         </div>
@@ -282,28 +273,22 @@
                 // Get layout setting (default to grid) 
                 $layoutMode = $layout ?? 'grid';
                 
-                if ($layoutMode === 'grid') {
-                    $gridCols = match((int)($columns ?? 3)) {
-                        2 => 'md:grid-cols-2',
-                        4 => 'md:grid-cols-4',
-                        default => 'md:grid-cols-3'
-                    };
-                }
+                // Calculate grid columns for both list and grid (they use the same layout)
+                $gridCols = match((int)($columns ?? 3)) {
+                    2 => 'md:grid-cols-2',
+                    4 => 'md:grid-cols-4',
+                    default => 'md:grid-cols-3'
+                };
             @endphp
-            @if($layoutMode === 'list')
-                {{-- List Layout --}}
-                <div class="space-y-6">
-            @else
-                {{-- Grid Layout --}}
-                <div class="grid grid-cols-1 {{ $gridCols }} gap-8">
-            @endif
+            {{-- Both list and grid use the same simple layout with grid columns from settings --}}
+            <div class="grid grid-cols-1 {{ $gridCols }} gap-8">
                 @foreach($coaches as $coach)
-                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                    <div class="bg-white rounded-lg overflow-hidden transition-shadow text-center">
                         @if($showPhoto)
-                            @if($coach->photoFilePath)
-                                <img src="{{ asset('storage/' . $coach->photoFilePath) }}" alt="Coach {{ $coach->fullName }}" class="w-full h-64 object-cover" height="256">
-                            @elseif($coach->portraitFilePath)
-                                <img src="{{ asset('storage/' . $coach->portraitFilePath) }}" alt="Coach {{ $coach->fullName }}" class="w-full h-64 object-cover" height="256">
+                            @if($coach->profileImageUrl)
+                                <img src="{{ $coach->profileImageUrl }}" alt="Coach {{ $coach->fullName }}" class="w-full h-64 object-cover" height="256">
+                            @elseif($coach->portraitImageUrl)
+                                <img src="{{ $coach->portraitImageUrl }}" alt="Coach {{ $coach->fullName }}" class="w-full h-64 object-cover" height="256">
                             @else
                                 <div class="w-full h-64 bg-gray-200 flex items-center justify-center">
                                     <i class="fas fa-user-tie text-4xl text-gray-400"></i>
@@ -311,24 +296,7 @@
                             @endif
                         @endif
                         <div class="p-6">
-                            <h3 class="text-xl font-bold mb-2">{{ $coach->fullName }}</h3>
-                            @if($coach->email)
-                                <p class="text-indigo-600 mb-3">{{ $coach->email }}</p>
-                            @endif
-                            @if($showBio && $coach->address)
-                                <p class="text-gray-600 mb-4">{{ Str::limit($coach->address, 150) }}</p>
-                            @endif
-                            <div class="flex space-x-3">
-                                <a href="#" class="text-gray-400 hover:text-indigo-600">
-                                    <i class="fab fa-facebook-f"></i>
-                                </a>
-                                <a href="#" class="text-gray-400 hover:text-indigo-600">
-                                    <i class="fab fa-instagram"></i>
-                                </a>
-                                <a href="#" class="text-gray-400 hover:text-indigo-600">
-                                    <i class="fab fa-linkedin"></i>
-                                </a>
-                            </div>
+                            <h3 class="text-xl font-bold">{{ $coach->fullName }}</h3>
                         </div>
                     </div>
                 @endforeach

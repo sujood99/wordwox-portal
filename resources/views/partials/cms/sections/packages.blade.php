@@ -1,6 +1,11 @@
 {{-- Packages Section Partial --}}
+<style>
+        .packages-section {
+            background-color: #f2f4f6;            padding: 80px 29px!important;
+        }
+    </style>
 @if($isFitness)
-    <div class="container my-5">
+    <div class="container my-5 packages-section">
         @if($section->title)
         <div class="text-center mb-5">
             <h2 class="section-heading">{{ $section->title }}</h2>
@@ -40,7 +45,7 @@
                             $isPopular = $index === 1;
                         @endphp
                         <div class="col-12">
-                            <div class="card h-100 shadow-lg border-0" style="border-left: 4px solid {{ $color }};">
+                            <div class="card h-100 border-0" style="border-left: 4px solid {{ $color }};">
                                 <div class="row g-0">
                                     <div class="col-md-4 d-flex align-items-center justify-content-center p-4" style="background: linear-gradient(135deg, {{ $color }}20, {{ $color }}10);">
                                         <div class="text-center">
@@ -91,7 +96,7 @@
                             $isPopular = $index === 1; // Make second plan popular
                         @endphp
                         <div class="{{ $fitnessBootstrapCols }}">
-                            <div class="card h-100 shadow-lg border-0" style="border-top: 4px solid {{ $color }};">
+                            <div class="card h-100 border-0" style="border-top: 4px solid {{ $color }};">
                                 <div class="card-body text-center p-5">
                                 <h4 class="card-title mb-3">{{ $plan->name }}</h4>
                                 <div class="price mb-4">
@@ -138,6 +143,8 @@
             </div>
         @endif
     </div>
+
+   
 @elseif($isMeditative)
     <section class="ftco-section">
         <div class="container">
@@ -224,7 +231,7 @@
                         $planUuid = $plan->uuid ?? $plan->id;
                         $canSellOnline = true;
                     @endphp
-                    <div class="bg-white rounded-lg shadow-lg p-8 border-2 {{ $isPopular ? 'border-indigo-500 transform scale-105' : 'border-gray-200 hover:border-indigo-500' }} transition-colors {{ $isPopular ? 'relative' : '' }}">
+                    <div class="bg-white rounded-lg p-8 border-2 {{ $isPopular ? 'border-indigo-500 transform scale-105' : 'border-gray-200 hover:border-indigo-500' }} transition-colors {{ $isPopular ? 'relative' : '' }}">
                         @if($isPopular)
                             <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
                                 <span class="bg-indigo-500 text-white px-4 py-2 rounded-full text-sm font-semibold">POPULAR</span>

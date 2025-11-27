@@ -46,7 +46,6 @@ class Dashboard extends Component
 
         // Get current template from any published page
         $this->currentTemplate = CmsPage::where('org_id', $this->orgId)
-            ->where('orgPortal_id', $this->portalId)
             ->where('status', 'published')
             ->whereNotNull('template')
             ->value('template') ?? env('CMS_DEFAULT_THEME', 'modern');

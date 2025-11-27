@@ -30,33 +30,8 @@ class OrgPortal extends Model
         return $this->belongsTo(Org::class);
     }
 
-    /**
-     * Get the CMS pages for this portal
-     */
-    public function cmsPages(): HasMany
-    {
-        return $this->hasMany(CmsPage::class, 'orgPortal_id');
-    }
-
-    /**
-     * Get published CMS pages for this portal
-     */
-    public function publishedPages(): HasMany
-    {
-        return $this->hasMany(CmsPage::class, 'orgPortal_id')
-                    ->published()
-                    ->orderBy('sort_order');
-    }
-
-    /**
-     * Get navigation pages for this portal
-     */
-    public function navigationPages(): HasMany
-    {
-        return $this->hasMany(CmsPage::class, 'orgPortal_id')
-                    ->published()
-                    ->inNavigation();
-    }
+    // Note: CMS pages no longer have orgPortal_id, so these relationships are removed
+    // Pages are now only associated with organizations (org_id)
 
     /**
      * Scope for active portals

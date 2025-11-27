@@ -21,7 +21,6 @@ class CmsFooterService
         return Cache::remember($cacheKey, 3600, function () use ($orgId, $portalId) {
             // Try to get footer data from a special CMS page
             $footerPage = CmsPage::where('org_id', $orgId)
-                ->where('orgPortal_id', $portalId)
                 ->where('slug', 'footer')
                 ->where('status', 'published')
                 ->first();

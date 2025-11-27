@@ -19,7 +19,6 @@ class TemplatePreview extends Component
     {
         // Get a sample page for preview (preferably homepage)
         $this->previewPage = CmsPage::where('org_id', env('CMS_DEFAULT_ORG_ID', 8))
-            ->where('orgPortal_id', env('CMS_DEFAULT_PORTAL_ID', 1))
             ->where('status', 'published')
             ->where('is_homepage', true)
             ->with(['sections' => function($query) {
@@ -32,7 +31,6 @@ class TemplatePreview extends Component
         // If no homepage, get any published page
         if (!$this->previewPage) {
             $this->previewPage = CmsPage::where('org_id', env('CMS_DEFAULT_ORG_ID', 8))
-                ->where('orgPortal_id', env('CMS_DEFAULT_PORTAL_ID', 1))
                 ->where('status', 'published')
                 ->with(['sections' => function($query) {
                     $query->where('is_active', true)
@@ -106,7 +104,6 @@ class TemplatePreview extends Component
 
             // Update template for all pages in the organization
             $updatedCount = CmsPage::where('org_id', $orgId)
-                ->where('orgPortal_id', $portalId)
                 ->update(['template' => $this->selectedTemplate]);
             
             if ($updatedCount > 0) {
