@@ -25,13 +25,31 @@
     @stack('head')
 
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+        }
         body {
             font-family: 'Poppins', sans-serif;
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #ffffff;
         }
         
         .fitness-template {
-            min-height: 100vh;
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+            background-color: #ffffff;
+        }
+        
+        main.fitness-content {
+            flex: 1 0 auto;
+            background-color: #ffffff;
         }
         
         .hero-section {
@@ -79,7 +97,42 @@
         .footer-fitness {
             background: #2c3e50;
             color: white;
-            padding: 50px 0 20px 0;
+            padding: 40px 0 0 0;
+            margin: 0;
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+        .footer-fitness .container {
+            padding-bottom: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        .footer-fitness hr { 
+            margin-top: 1.5rem; 
+            margin-bottom: 0.5rem; 
+        }
+        .footer-fitness p { 
+            margin-bottom: 0 !important; 
+            padding-bottom: 0 !important;
+        }
+        .footer-fitness .row:last-child {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        .footer-fitness .row:last-child p {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        .footer-fitness .row:last-child .col-md-12 {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        body {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        html {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
         }
         
         @php
@@ -391,10 +444,10 @@
             @endif
             
             <!-- Copyright Section -->
-            <hr class="my-4 border-secondary">
-            <div class="row">
+            <hr class="border-secondary" style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
+            <div class="row" style="margin-bottom: 0; padding-bottom: 0;">
                 <div class="col-md-12 text-center">
-                    <p class="mb-0 text-white-50">
+                    <p class="mb-0 text-white-50" style="margin-bottom: 0 !important; padding-bottom: 0;">
                         &copy; {{ date('Y') }} {{ config('app.name', 'Fitness Gym') }}. All rights reserved.
                     </p>
                 </div>
