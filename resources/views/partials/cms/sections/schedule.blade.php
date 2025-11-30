@@ -129,19 +129,19 @@
         }
         
         .schedule-nav-link.active {
-            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+            background: var(--fitness-gradient, linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%));
             border: none;
-            color: white;
+            color: var(--fitness-text-light, white);
         }
         
         .schedule-nav-link:not(.active) {
-            background: #f8f9fa;
-            color: #666;
+            background: var(--fitness-bg-light, #f8f9fa);
+            color: var(--fitness-text-gray, #666);
         }
         
         .schedule-nav-link:not(.active):hover {
-            background: #e9ecef;
-            color: #333;
+            background: var(--fitness-bg-lighter, #e9ecef);
+            color: var(--fitness-text-base, #333);
         }
         
         /* Schedule Cards */

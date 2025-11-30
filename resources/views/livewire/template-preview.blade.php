@@ -76,6 +76,286 @@
     </div>
     @endif
 
+    <!-- Theme Color Customization (Fitness Template Only) -->
+    @if($selectedTemplate === 'fitness' && !empty($themeColors))
+    <div class="mt-8 p-6 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h3 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                    </svg>
+                    Customize Theme Colors
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Customize the color scheme for the Fitness template
+                </p>
+            </div>
+            <button 
+                wire:click="toggleColorCustomization"
+                class="px-4 py-2 text-sm font-medium {{ $showColorCustomization ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-200' }} rounded-lg transition-colors"
+            >
+                {{ $showColorCustomization ? 'Hide Colors' : 'Show Colors' }}
+            </button>
+        </div>
+
+        @if($showColorCustomization)
+        <div class="mt-6 space-y-6">
+            <!-- Primary Brand Colors -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Primary Brand Colors</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primary Color</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.primary_color"
+                                class="w-16 h-16 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.primary_color"
+                                class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                                placeholder="#ff6b6b"
+                            >
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Secondary Color</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.secondary_color"
+                                class="w-16 h-16 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.secondary_color"
+                                class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                                placeholder="#4ecdc4"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text Colors -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Text Colors</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dark Text</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.text_dark"
+                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.text_dark"
+                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                            >
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Gray Text</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.text_gray"
+                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.text_gray"
+                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                            >
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Base Text</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.text_base"
+                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.text_base"
+                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                            >
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Light Text</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.text_light"
+                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.text_light"
+                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Background Colors -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Background Colors</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">White</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.bg_white"
+                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.bg_white"
+                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                            >
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Light</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.bg_light"
+                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.bg_light"
+                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                            >
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lighter</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.bg_lighter"
+                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.bg_lighter"
+                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                            >
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Packages BG</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.bg_packages"
+                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.bg_packages"
+                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                            >
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Footer BG</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.bg_footer"
+                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.bg_footer"
+                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hover Colors -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Hover Colors</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primary Hover</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.primary_hover"
+                                class="w-16 h-16 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.primary_hover"
+                                class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                                placeholder="#ff5252"
+                            >
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Secondary Hover</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.secondary_hover"
+                                class="w-16 h-16 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.secondary_hover"
+                                class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                                placeholder="#3db8a8"
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button 
+                    wire:click="resetThemeColors"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 rounded-lg transition-colors"
+                >
+                    Reset to Defaults
+                </button>
+                <button 
+                    wire:click="saveThemeColors"
+                    wire:loading.attr="disabled"
+                    class="px-6 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                    <span wire:loading.remove wire:target="saveThemeColors">Save Colors</span>
+                    <span wire:loading wire:target="saveThemeColors" class="flex items-center gap-2">
+                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Saving...
+                    </span>
+                </button>
+            </div>
+        </div>
+        @endif
+    </div>
+    @endif
+
     <!-- Apply Template Button -->
     <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
         <div class="flex items-center justify-between">

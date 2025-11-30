@@ -24,12 +24,82 @@
 
     @stack('head')
 
+    @php
+        // Load custom theme colors from database
+        $orgId = env('CMS_DEFAULT_ORG_ID', 8);
+        $themeColor = \App\Models\TemplateThemeColor::where('org_id', $orgId)
+            ->where('template', 'fitness')
+            ->first();
+        
+        // Use custom colors if available, otherwise use defaults
+        $primaryColor = $themeColor?->primary_color ?? '#ff6b6b';
+        $secondaryColor = $themeColor?->secondary_color ?? '#4ecdc4';
+        $textDark = $themeColor?->text_dark ?? '#2c3e50';
+        $textGray = $themeColor?->text_gray ?? '#6c757d';
+        $textBase = $themeColor?->text_base ?? '#333';
+        $textLight = $themeColor?->text_light ?? '#ffffff';
+        $bgWhite = $themeColor?->bg_white ?? '#ffffff';
+        $bgLight = $themeColor?->bg_light ?? '#f8f9fa';
+        $bgLighter = $themeColor?->bg_lighter ?? '#e9ecef';
+        $bgPackages = $themeColor?->bg_packages ?? '#f2f4f6';
+        $bgFooter = $themeColor?->bg_footer ?? '#2c3e50';
+        $primaryHover = $themeColor?->primary_hover ?? '#ff5252';
+        $secondaryHover = $themeColor?->secondary_hover ?? '#3db8a8';
+        
+        // Convert hex to rgba for opacity variants
+        function hexToRgb($hex) {
+            $hex = str_replace('#', '', $hex);
+            $r = hexdec(substr($hex, 0, 2));
+            $g = hexdec(substr($hex, 2, 2));
+            $b = hexdec(substr($hex, 4, 2));
+            return "$r, $g, $b";
+        }
+        $primaryRgb = hexToRgb($primaryColor);
+    @endphp
+    
     <style>
+        /* Fitness Template Theme Colors - CSS Variables */
+        :root {
+            /* Primary Brand Colors */
+            --fitness-primary: {{ $primaryColor }};
+            --fitness-secondary: {{ $secondaryColor }};
+            --fitness-gradient: linear-gradient(135deg, var(--fitness-primary) 0%, var(--fitness-secondary) 100%);
+            
+            /* Text Colors */
+            --fitness-text-dark: {{ $textDark }};
+            --fitness-text-gray: {{ $textGray }};
+            --fitness-text-base: {{ $textBase }};
+            --fitness-text-light: {{ $textLight }};
+            
+            /* Background Colors */
+            --fitness-bg-white: {{ $bgWhite }};
+            --fitness-bg-light: {{ $bgLight }};
+            --fitness-bg-lighter: {{ $bgLighter }};
+            --fitness-bg-packages: {{ $bgPackages }};
+            --fitness-bg-footer: {{ $bgFooter }};
+            
+            /* Interactive Colors */
+            --fitness-primary-hover: {{ $primaryHover }};
+            --fitness-secondary-hover: {{ $secondaryHover }};
+            --fitness-primary-light: rgba({{ $primaryRgb }}, 0.1);
+            --fitness-primary-shadow: rgba({{ $primaryRgb }}, 0.25);
+            
+            /* Border & Shadow Colors */
+            --fitness-border-light: rgba(0, 0, 0, 0.1);
+            --fitness-shadow: rgba(0, 0, 0, 0.1);
+            --fitness-shadow-lg: rgba(0, 0, 0, 0.15);
+            
+            /* Navbar Colors */
+            --fitness-navbar-bg: rgba(255, 255, 255, 0.95);
+            --fitness-navbar-bg-scroll: rgba(255, 255, 255, 0.98);
+            --fitness-navbar-shadow: rgba(0, 0, 0, 0.1);
+        }
+        
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            background-color: #ffffff;
+            background-color: var(--fitness-bg-white);
         }
         body {
             font-family: 'Poppins', sans-serif;
@@ -37,26 +107,26 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background-color: #ffffff;
+            background-color: var(--fitness-bg-white);
         }
         
         .fitness-template {
             flex: 1 0 auto;
             display: flex;
             flex-direction: column;
-            background-color: #ffffff;
+            background-color: var(--fitness-bg-white);
         }
         
         main.fitness-content {
             flex: 1 0 auto;
-            background-color: #ffffff;
+            background-color: var(--fitness-bg-white);
         }
         
         /* Responsive Navbar */
         .navbar-fitness {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--fitness-navbar-bg);
             backdrop-filter: blur(10px);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 20px var(--fitness-navbar-shadow);
             padding: 0.75rem 0;
             transition: all 0.3s ease;
         }
@@ -95,10 +165,10 @@
         /* Mobile Menu Collapse */
         .navbar-collapse {
             margin-top: 1rem;
-            background: rgba(255, 255, 255, 0.98);
+            background: var(--fitness-navbar-bg-scroll);
             border-radius: 10px;
             padding: 1rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px var(--fitness-shadow);
         }
         
         @media (min-width: 992px) {
@@ -117,7 +187,7 @@
         }
         
         .nav-link {
-            color: #333 !important;
+            color: var(--fitness-text-base) !important;
             font-weight: 500;
             padding: 0.75rem 1rem !important;
             border-radius: 8px;
@@ -127,20 +197,20 @@
         }
         
         .nav-link:hover {
-            background-color: rgba(255, 107, 107, 0.1);
-            color: #ff6b6b !important;
+            background-color: var(--fitness-primary-light);
+            color: var(--fitness-primary) !important;
             transform: translateX(5px);
         }
         
         .nav-link.active {
-            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
-            color: white !important;
+            background: var(--fitness-gradient);
+            color: var(--fitness-text-light) !important;
             font-weight: 600;
         }
         
         .nav-link.active:hover {
-            background: linear-gradient(135deg, #ff5252 0%, #3db8a8 100%);
-            color: white !important;
+            background: linear-gradient(135deg, var(--fitness-primary-hover) 0%, var(--fitness-secondary-hover) 100%);
+            color: var(--fitness-text-light) !important;
             transform: translateX(0);
         }
         
@@ -170,8 +240,8 @@
         
         /* Responsive Hero Section */
         .hero-section {
-            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
-            color: white;
+            background: var(--fitness-gradient);
+            color: var(--fitness-text-light);
             padding: 60px 0;
         }
         
@@ -228,7 +298,7 @@
         
         /* Responsive Page Header */
         .page-header-fitness {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, var(--fitness-bg-light) 0%, var(--fitness-bg-lighter) 100%);
             padding: 40px 0;
             margin-bottom: 0;
         }
@@ -236,13 +306,13 @@
         .page-title-fitness {
             font-size: 2rem;
             font-weight: 700;
-            color: #2c3e50;
+            color: var(--fitness-text-dark);
             line-height: 1.2;
         }
         
         .page-description-fitness {
             font-size: 1rem;
-            color: #6c757d;
+            color: var(--fitness-text-gray);
             line-height: 1.6;
             margin: 0;
         }
@@ -292,7 +362,7 @@
         .content-section {
             font-size: 1rem;
             line-height: 1.8;
-            color: #333;
+            color: var(--fitness-text-base);
         }
         
         .content-section h1,
@@ -363,7 +433,7 @@
         .section-heading {
             font-size: 2rem;
             font-weight: 700;
-            color: #2c3e50;
+            color: var(--fitness-text-dark);
             margin-bottom: 0.5rem;
         }
         
@@ -381,24 +451,24 @@
         
         /* Responsive Quote Block */
         .blockquote-fitness {
-            border-left: 4px solid #ff6b6b;
+            border-left: 4px solid var(--fitness-primary);
             padding: 1.5rem;
             margin: 2rem 0;
-            background: #f8f9fa;
+            background: var(--fitness-bg-light);
             border-radius: 8px;
         }
         
         .quote-text-fitness {
             font-size: 1.25rem;
             font-style: italic;
-            color: #2c3e50;
+            color: var(--fitness-text-dark);
             margin-bottom: 0.5rem;
             line-height: 1.6;
         }
         
         .quote-cite-fitness {
             font-size: 1rem;
-            color: #6c757d;
+            color: var(--fitness-text-gray);
             display: block;
             margin-top: 0.5rem;
         }
@@ -439,7 +509,7 @@
         
         .list-item-fitness::before {
             content: "•";
-            color: #ff6b6b;
+            color: var(--fitness-primary);
             font-weight: bold;
             position: absolute;
             left: 0.5rem;
@@ -472,18 +542,18 @@
         }
         
         .btn-secondary-fitness {
-            background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+            background: linear-gradient(135deg, var(--fitness-text-gray) 0%, #495057 100%) !important;
         }
         
         .btn-outline-fitness {
             background: transparent !important;
-            border: 2px solid #ff6b6b;
-            color: #ff6b6b !important;
+            border: 2px solid var(--fitness-primary);
+            color: var(--fitness-primary) !important;
         }
         
         .btn-outline-fitness:hover {
-            background: #ff6b6b !important;
-            color: white !important;
+            background: var(--fitness-primary) !important;
+            color: var(--fitness-text-light) !important;
         }
         
         @media (min-width: 768px) {
@@ -511,7 +581,7 @@
         
         .contact-form-label {
             font-weight: 600;
-            color: #2c3e50;
+            color: var(--fitness-text-dark);
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
             display: block;
@@ -521,7 +591,7 @@
         .contact-form-textarea {
             font-size: 0.95rem;
             padding: 0.7rem 0.9rem;
-            border: 2px solid #e9ecef;
+            border: 2px solid var(--fitness-bg-lighter);
             border-radius: 8px;
             transition: all 0.3s ease;
             width: 100%;
@@ -529,8 +599,8 @@
         
         .contact-form-input:focus,
         .contact-form-textarea:focus {
-            border-color: #ff6b6b;
-            box-shadow: 0 0 0 0.2rem rgba(255, 107, 107, 0.25);
+            border-color: var(--fitness-primary);
+            box-shadow: 0 0 0 0.2rem var(--fitness-primary-shadow);
             outline: none;
         }
         
@@ -589,13 +659,13 @@
         
         /* Contact Information Card */
         .contact-info-card-fitness {
-            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
-            color: white;
+            background: var(--fitness-gradient);
+            color: var(--fitness-text-light);
             border-radius: 15px;
         }
         
         .contact-info-title-fitness {
-            color: white;
+            color: var(--fitness-text-light);
             font-weight: 600;
             font-size: 1.1rem;
             margin-bottom: 1.5rem;
@@ -614,14 +684,14 @@
         }
         
         .contact-info-link-fitness {
-            color: white;
+            color: var(--fitness-text-light);
             text-decoration: none;
             transition: opacity 0.3s ease;
             word-break: break-all;
         }
         
         .contact-info-link-fitness:hover {
-            color: white;
+            color: var(--fitness-text-light);
             opacity: 0.9;
             text-decoration: underline;
         }
@@ -769,9 +839,9 @@
         
         /* Responsive Buttons */
         .btn-fitness {
-            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+            background: var(--fitness-gradient);
             border: none;
-            color: white;
+            color: var(--fitness-text-light);
             padding: 10px 24px;
             border-radius: 25px;
             font-weight: 600;
@@ -779,7 +849,7 @@
             transition: transform 0.3s ease;
         }
         
-        @media (min-width: 768px) {
+        @media (min-width: 576px) {
             .btn-fitness {
                 padding: 12px 30px;
                 font-size: 1rem;
@@ -788,7 +858,8 @@
         
         .btn-fitness:hover {
             transform: translateY(-2px);
-            color: white;
+            color: var(--fitness-text-light);
+            background: linear-gradient(135deg, var(--fitness-primary-hover) 0%, var(--fitness-secondary-hover) 100%);
         }
         
         /* Responsive Cards */
@@ -805,8 +876,8 @@
         
         /* Responsive Footer */
         .footer-fitness {
-            background: #2c3e50;
-            color: white;
+            background: var(--fitness-bg-footer);
+            color: var(--fitness-text-light);
             padding: 30px 0 0 0;
             margin: 0;
             margin-top: auto;
@@ -1275,10 +1346,11 @@
         // Navbar background on scroll
         window.addEventListener('scroll', function() {
             const navbar = document.querySelector('.navbar-fitness');
+            const root = document.documentElement;
             if (window.scrollY > 50) {
-                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+                navbar.style.background = getComputedStyle(root).getPropertyValue('--fitness-navbar-bg-scroll') || 'rgba(255, 255, 255, 0.98)';
             } else {
-                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+                navbar.style.background = getComputedStyle(root).getPropertyValue('--fitness-navbar-bg') || 'rgba(255, 255, 255, 0.95)';
             }
         });
         

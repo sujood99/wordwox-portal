@@ -168,6 +168,7 @@
         
         .coach-overlay {
             background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(78, 205, 196, 0.9) 100%);
+            background: linear-gradient(135deg, color-mix(in srgb, var(--fitness-primary, #ff6b6b) 90%, transparent) 0%, color-mix(in srgb, var(--fitness-secondary, #4ecdc4) 90%, transparent) 100%);
             opacity: 0;
             transition: opacity 0.3s ease;
         }

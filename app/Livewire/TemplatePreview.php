@@ -3,8 +3,10 @@
 namespace App\Livewire;
 
 use App\Models\CmsPage;
+use App\Models\TemplateThemeColor;
 use Livewire\Component;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Flux\Flux;
 
 class TemplatePreview extends Component
@@ -14,6 +16,10 @@ class TemplatePreview extends Component
     public $availableTemplates = [];
     public $successMessage = '';
     public $errorMessage = '';
+    
+    // Theme color customization (for fitness template)
+    public $showColorCustomization = false;
+    public $themeColors = [];
 
     public function mount()
     {
@@ -50,6 +56,35 @@ class TemplatePreview extends Component
         } else {
             $this->selectedTemplate = '';
         }
+        
+        // Load theme colors if fitness template is selected
+        $this->loadThemeColors();
+    }
+    
+    public function loadThemeColors()
+    {
+        if ($this->selectedTemplate === 'fitness') {
+            $orgId = Auth::user()->orgUser->org_id ?? env('CMS_DEFAULT_ORG_ID', 8);
+            $themeColor = TemplateThemeColor::getOrCreateForOrg($orgId, 'fitness');
+            
+            $this->themeColors = [
+                'primary_color' => $themeColor->primary_color,
+                'secondary_color' => $themeColor->secondary_color,
+                'text_dark' => $themeColor->text_dark,
+                'text_gray' => $themeColor->text_gray,
+                'text_base' => $themeColor->text_base,
+                'text_light' => $themeColor->text_light,
+                'bg_white' => $themeColor->bg_white,
+                'bg_light' => $themeColor->bg_light,
+                'bg_lighter' => $themeColor->bg_lighter,
+                'bg_packages' => $themeColor->bg_packages,
+                'bg_footer' => $themeColor->bg_footer,
+                'primary_hover' => $themeColor->primary_hover,
+                'secondary_hover' => $themeColor->secondary_hover,
+            ];
+        } else {
+            $this->themeColors = [];
+        }
     }
 
     public function loadAvailableTemplates()
@@ -82,6 +117,64 @@ class TemplatePreview extends Component
     public function selectTemplate($template)
     {
         $this->selectedTemplate = $template;
+        $this->loadThemeColors();
+        $this->showColorCustomization = ($template === 'fitness');
+    }
+    
+    public function toggleColorCustomization()
+    {
+        $this->showColorCustomization = !$this->showColorCustomization;
+    }
+    
+    public function saveThemeColors()
+    {
+        try {
+            if ($this->selectedTemplate !== 'fitness') {
+                $this->errorMessage = 'Theme colors can only be customized for the Fitness template.';
+                return;
+            }
+            
+            $orgId = Auth::user()->orgUser->org_id ?? env('CMS_DEFAULT_ORG_ID', 8);
+            $themeColor = TemplateThemeColor::getOrCreateForOrg($orgId, 'fitness');
+            
+            $themeColor->update([
+                'primary_color' => $this->themeColors['primary_color'] ?? '#ff6b6b',
+                'secondary_color' => $this->themeColors['secondary_color'] ?? '#4ecdc4',
+                'text_dark' => $this->themeColors['text_dark'] ?? '#2c3e50',
+                'text_gray' => $this->themeColors['text_gray'] ?? '#6c757d',
+                'text_base' => $this->themeColors['text_base'] ?? '#333',
+                'text_light' => $this->themeColors['text_light'] ?? '#ffffff',
+                'bg_white' => $this->themeColors['bg_white'] ?? '#ffffff',
+                'bg_light' => $this->themeColors['bg_light'] ?? '#f8f9fa',
+                'bg_lighter' => $this->themeColors['bg_lighter'] ?? '#e9ecef',
+                'bg_packages' => $this->themeColors['bg_packages'] ?? '#f2f4f6',
+                'bg_footer' => $this->themeColors['bg_footer'] ?? '#2c3e50',
+                'primary_hover' => $this->themeColors['primary_hover'] ?? '#ff5252',
+                'secondary_hover' => $this->themeColors['secondary_hover'] ?? '#3db8a8',
+            ]);
+            
+            $this->successMessage = 'Theme colors saved successfully!';
+            Flux::toast(
+                variant: 'success',
+                heading: 'Colors Saved',
+                text: 'Your theme colors have been updated successfully.'
+            );
+            
+        } catch (\Exception $e) {
+            Log::error('Error saving theme colors: ' . $e->getMessage());
+            $this->errorMessage = 'Error saving theme colors: ' . $e->getMessage();
+            Flux::toast(
+                variant: 'danger',
+                heading: 'Error',
+                text: $this->errorMessage
+            );
+        }
+    }
+    
+    public function resetThemeColors()
+    {
+        $defaults = TemplateThemeColor::getDefaults();
+        $this->themeColors = $defaults;
     }
 
     public function applyTemplate()

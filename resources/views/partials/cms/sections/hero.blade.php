@@ -27,13 +27,14 @@
         {{-- Fitness Template Hero Section --}}
         @php
             $settings = is_string($section->settings) ? json_decode($section->settings, true) : ($section->settings ?? []);
-            $bgColor = $settings['background_color'] ?? '#ff6b6b';
-            $textColor = $settings['text_color'] ?? '#ffffff';
+            // Use CSS variables for default colors, with fallbacks
+            $bgColor = $settings['background_color'] ?? 'var(--fitness-primary, #ff6b6b)';
+            $textColor = $settings['text_color'] ?? 'var(--fitness-text-light, #ffffff)';
             
             // Use gradient as default if no custom background is set
-            $useGradient = !isset($settings['background_color']) || $settings['background_color'] === '#ff6b6b';
+            $useGradient = !isset($settings['background_color']) || $settings['background_color'] === '#ff6b6b' || $settings['background_color'] === 'var(--fitness-primary, #ff6b6b)';
             $backgroundStyle = $useGradient 
-                ? 'background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);' 
+                ? 'background: var(--fitness-gradient, linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%));' 
                 : 'background-color: ' . $bgColor . ';';
         @endphp
         <section class="hero-section-custom" style="{{ $backgroundStyle }} color: {{ $textColor }};">

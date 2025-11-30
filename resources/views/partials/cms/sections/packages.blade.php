@@ -29,7 +29,15 @@
                     };
                 }
                 
-                $colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd'];
+                // Use theme colors with fallbacks
+                $colors = [
+                    'var(--fitness-primary, #ff6b6b)', 
+                    'var(--fitness-secondary, #4ecdc4)', 
+                    '#45b7d1', 
+                    '#96ceb4', 
+                    '#ffeaa7', 
+                    '#dda0dd'
+                ];
                 $icons = ['dumbbell', 'fire', 'crown', 'medal', 'star', 'trophy'];
             @endphp
             @if($layoutMode === 'list')
@@ -112,7 +120,7 @@
                                         $planUuid = $plan->uuid ?? $plan->id;
                                     @endphp
                                     @if($canSellOnline)
-                                        <a href="/org-plan/index?plan={{ $planUuid }}" class="btn {{ $isPopular ? 'btn-lg' : 'btn-outline-primary btn-lg' }} w-100 package-btn" {{ $isPopular ? 'style=background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%); border: none; color: white;' : '' }}>
+                                        <a href="/org-plan/index?plan={{ $planUuid }}" class="btn {{ $isPopular ? 'btn-lg' : 'btn-outline-primary btn-lg' }} w-100 package-btn" {{ $isPopular ? 'style=background: var(--fitness-gradient, linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%)); border: none; color: var(--fitness-text-light, white);' : '' }}>
                                             {{ $buyButtonText ?? 'Buy' }} <i class="fas fa-arrow-right ms-1"></i>
                                         </a>
                                     @else
@@ -143,7 +151,7 @@
     <style>
         /* Responsive Packages Section */
         .packages-section {
-            background-color: #f2f4f6;
+            background-color: var(--fitness-bg-packages, #f2f4f6);
             padding: 40px 15px !important;
         }
         
