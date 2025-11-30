@@ -1,51 +1,53 @@
 {{-- Contact Form Section Partial --}}
 @if($isFitness)
-    <div class="container my-5">
+    <div class="container my-4 my-md-5">
         <div class="row">
             {{-- Contact Information --}}
             @if($showContactInfo && ($orgContact['email'] || $orgContact['phone'] || $orgContact['address']))
-                <div class="col-lg-4 mb-5">
-                    <div class="card h-100 border-0 shadow-sm bg-primary text-white">
+                <div class="col-12 col-md-12 col-lg-4 mb-4 mb-lg-5 order-2 order-lg-1">
+                    <div class="card h-100 border-0 shadow-sm contact-info-card-fitness">
                         <div class="card-body p-4">
-                            <h3 class="h5 mb-4"><i class="fas fa-map-marker-alt me-2"></i>Contact Information</h3>
+                            <h3 class="h5 mb-4 contact-info-title-fitness">
+                                <i class="fas fa-map-marker-alt me-2"></i>Contact Information
+                            </h3>
                             @if($orgContact['address'])
-                                <div class="mb-3">
+                                <div class="mb-3 contact-info-item-fitness">
                                     <i class="fas fa-map-marker-alt me-2"></i>
                                     <span>{{ $orgContact['address'] }}</span>
                                 </div>
                             @endif
                             @if($orgContact['phone'])
-                                <div class="mb-3">
+                                <div class="mb-3 contact-info-item-fitness">
                                     <i class="fas fa-phone me-2"></i>
-                                    <a href="tel:{{ $orgContact['phone'] }}" class="text-white text-decoration-none">{{ $orgContact['phone'] }}</a>
+                                    <a href="tel:{{ $orgContact['phone'] }}" class="contact-info-link-fitness">{{ $orgContact['phone'] }}</a>
                                 </div>
                             @endif
                             @if($orgContact['email'])
-                                <div class="mb-3">
+                                <div class="mb-3 contact-info-item-fitness">
                                     <i class="fas fa-envelope me-2"></i>
-                                    <a href="mailto:{{ $orgContact['email'] }}" class="text-white text-decoration-none">{{ $orgContact['email'] }}</a>
+                                    <a href="mailto:{{ $orgContact['email'] }}" class="contact-info-link-fitness">{{ $orgContact['email'] }}</a>
                                 </div>
                             @endif
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-8">
+                <div class="col-12 col-lg-8 order-1 order-lg-2">
             @else
-                <div class="col-lg-8 mx-auto">
+                <div class="col-12 col-lg-8 mx-auto">
             @endif
                 @if($section->title)
-                <h2 class="section-heading text-center mb-4">{{ $section->title }}</h2>
+                <h2 class="section-heading text-center mb-3 mb-md-4">{{ $section->title }}</h2>
                 @endif
                 @if($section->subtitle)
-                <p class="text-center mb-5 text-muted">{{ $section->subtitle }}</p>
+                <p class="text-center mb-4 mb-md-5 text-muted contact-subtitle-fitness">{{ $section->subtitle }}</p>
                 @endif
                 @if($section->content)
-                <div class="text-center mb-5">{!! $section->content !!}</div>
+                <div class="text-center mb-4 mb-md-5 contact-content-fitness">{!! $section->content !!}</div>
                 @endif
 
                 <!-- Dynamic Contact Form -->
-                <div class="card shadow-lg border-0">
-                    <div class="card-body p-5">
+                <div class="card shadow-lg border-0 contact-form-card-fitness">
+                    <div class="card-body p-4 p-md-5">
                         @include('partials.cms.sections.contact-form-traditional', ['page' => $page])
                     </div>
                 </div>
@@ -55,13 +57,13 @@
 @elseif($isMeditative)
     <section class="ftco-section contact-section ftco-degree-bg">
         <div class="container">
-            <div class="row d-flex mb-5 contact-info">
-                <div class="col-md-12 mb-4">
+            <div class="row d-flex mb-4 mb-md-5 contact-info">
+                <div class="col-12 col-md-12 mb-3 mb-md-4">
                     @if($section->title)
-                    <h2 class="h4">{{ $section->title }}</h2>
+                    <h2 class="h4 h5-md">{{ $section->title }}</h2>
                     @endif
                     @if($section->subtitle)
-                    <p>{{ $section->subtitle }}</p>
+                    <p class="mb-2 mb-md-3">{{ $section->subtitle }}</p>
                     @endif
                     @if($section->content)
                     <div>{!! $section->content !!}</div>
@@ -69,38 +71,38 @@
                 </div>
             </div>
             <div class="row block-9">
-                <div class="col-md-6 pr-md-5">
+                <div class="col-12 col-md-6 mb-4 mb-md-0 pr-md-5">
                     {{-- Dynamic Contact Form --}}
-                    <div class="bg-light p-5 contact-form">
+                    <div class="bg-light p-4 p-md-5 contact-form">
                         @include('partials.cms.sections.contact-form-traditional', ['page' => $page])
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     {{-- Contact Information --}}
                     @if($showContactInfo && ($orgContact['email'] || $orgContact['phone'] || $orgContact['address']))
-                        <div class="contact-info bg-primary p-5 h-100">
-                            <h3 class="h4 text-white mb-4">Contact Information</h3>
+                        <div class="contact-info bg-primary p-4 p-md-5 h-100">
+                            <h3 class="h4 h5-md text-white mb-3 mb-md-4">Contact Information</h3>
                             @if($orgContact['address'])
-                                <p class="text-white-50 mb-3">
+                                <p class="text-white-50 mb-2 mb-md-3">
                                     <span class="text-white font-weight-bold">Address:</span><br>
                                     {{ $orgContact['address'] }}
                                 </p>
                             @endif
                             @if($orgContact['phone'])
-                                <p class="text-white-50 mb-3">
+                                <p class="text-white-50 mb-2 mb-md-3">
                                     <span class="text-white font-weight-bold">Phone:</span><br>
                                     <a href="tel:{{ $orgContact['phone'] }}" class="text-white">{{ $orgContact['phone'] }}</a>
                                 </p>
                             @endif
                             @if($orgContact['email'])
-                                <p class="text-white-50 mb-3">
+                                <p class="text-white-50 mb-2 mb-md-3">
                                     <span class="text-white font-weight-bold">Email:</span><br>
                                     <a href="mailto:{{ $orgContact['email'] }}" class="text-white">{{ $orgContact['email'] }}</a>
                                 </p>
                             @endif
                         </div>
                     @else
-                        <div id="map"></div>
+                        <div id="map" style="min-height: 300px; height: 100%;"></div>
                     @endif
                 </div>
             </div>

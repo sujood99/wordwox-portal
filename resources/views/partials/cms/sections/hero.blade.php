@@ -36,18 +36,18 @@
                 ? 'background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);' 
                 : 'background-color: ' . $bgColor . ';';
         @endphp
-        <section class="hero-section-custom" style="{{ $backgroundStyle }} color: {{ $textColor }}; padding: 100px 0;">
+        <section class="hero-section-custom" style="{{ $backgroundStyle }} color: {{ $textColor }};">
             <div class="container">
-                <div class="row align-items-center justify-content-center text-center" style="min-height: 600px;">
-                    <div class="col-lg-10">
+                <div class="row align-items-center justify-content-center text-center hero-content-row">
+                    <div class="col-12 col-md-10 col-lg-10">
                         @if($section->title)
-                        <h1 class="display-2 fw-bold mb-4" style="color: {{ $textColor }};">{{ $section->title }}</h1>
+                        <h1 class="display-2 fw-bold mb-3 mb-md-4" style="color: {{ $textColor }};">{{ $section->title }}</h1>
                         @endif
                         @if($section->subtitle)
-                        <h3 class="mb-4" style="color: {{ $textColor }};">{{ $section->subtitle }}</h3>
+                        <h3 class="mb-3 mb-md-4" style="color: {{ $textColor }};">{{ $section->subtitle }}</h3>
                         @endif
                         @if($section->content)
-                        <div class="lead mb-5" style="color: {{ $textColor }};">{!! $section->content !!}</div>
+                        <div class="lead mb-4 mb-md-5" style="color: {{ $textColor }};">{!! $section->content !!}</div>
                         @endif
                     </div>
                 </div>

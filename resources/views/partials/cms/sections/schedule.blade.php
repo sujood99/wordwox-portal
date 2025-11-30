@@ -1,26 +1,26 @@
 {{-- Schedule Section Partial --}}
 @if($isFitness)
-    <div class="container my-5">
+    <div class="container my-4 my-md-5 schedule-section">
         @if($section->title)
-        <div class="text-center mb-5">
+        <div class="text-center mb-4 mb-md-5">
             <h2 class="section-heading">{{ $section->title }}</h2>
             @if($section->subtitle)
-            <p class="text-muted">{{ $section->subtitle }}</p>
+            <p class="text-muted schedule-subtitle">{{ $section->subtitle }}</p>
             @endif
         </div>
         @endif
 
         @if($section->content)
-        <div class="text-center mb-5">{!! $section->content !!}</div>
+        <div class="text-center mb-4 mb-md-5 schedule-content">{!! $section->content !!}</div>
         @endif
 
         {{-- Dynamic Schedule Navigation --}}
-        <div class="row mb-4">
+        <div class="row mb-3 mb-md-4">
             <div class="col-12">
-                <ul class="nav nav-pills justify-content-center mb-4" id="schedule-tabs" role="tablist">
+                <ul class="nav nav-pills justify-content-center schedule-nav-pills" id="schedule-tabs" role="tablist">
                     @foreach($showDays as $index => $day)
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link {{ $index === 0 ? 'active' : '' }}" id="{{ $day }}-tab" data-bs-toggle="pill" data-bs-target="#{{ $day }}" type="button" role="tab">
+                            <button class="nav-link schedule-nav-link {{ $index === 0 ? 'active' : '' }}" id="{{ $day }}-tab" data-bs-toggle="pill" data-bs-target="#{{ $day }}" type="button" role="tab">
                                 {{ ucfirst($day) }}
                             </button>
                         </li>
@@ -34,18 +34,18 @@
             @foreach($showDays as $index => $day)
                 <div class="tab-pane fade {{ $index === 0 ? 'show active' : '' }}" id="{{ $day }}" role="tabpanel">
                     @if(isset($scheduleByDay[$day]) && $scheduleByDay[$day]->count() > 0)
-                        <div class="row g-3">
+                        <div class="row g-3 g-md-4">
                             @foreach($scheduleByDay[$day] as $event)
-                                <div class="col-md-6 col-lg-4">
+                                <div class="col-12 col-sm-6 col-lg-4">
                                     <div class="card schedule-card border-0 shadow-sm h-100">
-                                        <div class="card-body">
-                                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                                <h5 class="card-title mb-0">{{ $event->name ?: ($event->program ? $event->program->name : 'Class') }}</h5>
-                                                <span class="badge bg-primary">Class</span>
+                                        <div class="card-body p-3 p-md-4">
+                                            <div class="d-flex justify-content-between align-items-start mb-2 mb-md-3">
+                                                <h5 class="card-title mb-0 schedule-card-title">{{ $event->name ?: ($event->program ? $event->program->name : 'Class') }}</h5>
+                                                <span class="badge bg-primary schedule-badge">Class</span>
                                             </div>
-                                            <p class="text-muted mb-2"><i class="fas fa-clock me-2"></i>{{ $event->startDateTime->format('g:i A') }} - {{ $event->endDateTime->format('g:i A') }}</p>
+                                            <p class="text-muted mb-2 schedule-info"><i class="fas fa-clock me-2"></i>{{ $event->startDateTime->format('g:i A') }} - {{ $event->endDateTime->format('g:i A') }}</p>
                                             @if($showInstructor && $event->instructor)
-                                                <p class="text-muted mb-2"><i class="fas fa-user me-2"></i>{{ $event->instructor->fullName }}</p>
+                                                <p class="text-muted mb-2 schedule-info"><i class="fas fa-user me-2"></i>{{ $event->instructor->fullName }}</p>
                                             @endif
                                             @if($showCapacity && $event->capacity)
                                                 @php
@@ -55,15 +55,15 @@
                                                     $bookedCount = 0;
                                                     if (isset($event->isActualEvent) && $event->isActualEvent && isset($event->id)) {
                                                         // Use status field and STATUS_BOOKED constant
-                                                        $bookedCount = \App\Models\EventSubscriber::where('event_id', $event->id)
+                                                    $bookedCount = \App\Models\EventSubscriber::where('event_id', $event->id)
                                                             ->where('status', \App\Models\EventSubscriber::STATUS_BOOKED)
                                                             ->where('isDeleted', false)
-                                                            ->count();
+                                                        ->count();
                                                     }
                                                     $availableSpots = $event->capacity ? ($event->capacity - $bookedCount) : null;
                                                 @endphp
                                                 @if($event->capacity)
-                                                    <p class="text-muted mb-3">
+                                                    <p class="text-muted mb-2 mb-md-3 schedule-info">
                                                         <i class="fas fa-users me-2"></i>{{ $bookedCount }}/{{ $event->capacity }} booked
                                                         @if($availableSpots !== null)
                                                             ({{ $availableSpots }} spots left)
@@ -72,13 +72,13 @@
                                                 @endif
                                             @endif
                                             @if($event->note)
-                                                <p class="card-text small mb-3">{{ Str::limit($event->note, 120) }}</p>
+                                                <p class="card-text small mb-2 mb-md-3 schedule-note">{{ Str::limit($event->note, 120) }}</p>
                                             @endif
                                             @if($showBookButton)
                                                 @if($availableSpots > 0)
-                                                    <button class="btn btn-outline-primary btn-sm w-100">{{ $bookButtonText }}</button>
+                                                    <button class="btn btn-outline-primary btn-sm schedule-btn w-100">{{ $bookButtonText }}</button>
                                                 @else
-                                                    <button class="btn btn-outline-secondary btn-sm w-100" disabled>Fully Booked</button>
+                                                    <button class="btn btn-outline-secondary btn-sm schedule-btn w-100" disabled>Fully Booked</button>
                                                 @endif
                                             @endif
                                         </div>
@@ -87,9 +87,9 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="text-center py-5">
-                            <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">No classes scheduled for {{ ucfirst($day) }}.</p>
+                        <div class="text-center py-4 py-md-5 schedule-empty">
+                            <i class="fas fa-calendar-alt schedule-empty-icon text-muted mb-3"></i>
+                            <p class="text-muted schedule-empty-text">No classes scheduled for {{ ucfirst($day) }}.</p>
                         </div>
                     @endif
                 </div>
@@ -98,8 +98,56 @@
     </div>
 
     <style>
+        /* Responsive Schedule Section */
+        .schedule-section {
+            padding: 40px 15px;
+        }
+        
+        .schedule-subtitle {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .schedule-content {
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+        
+        /* Responsive Navigation Pills */
+        .schedule-nav-pills {
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .schedule-nav-link {
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .schedule-nav-link.active {
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+            border: none;
+            color: white;
+        }
+        
+        .schedule-nav-link:not(.active) {
+            background: #f8f9fa;
+            color: #666;
+        }
+        
+        .schedule-nav-link:not(.active):hover {
+            background: #e9ecef;
+            color: #333;
+        }
+        
+        /* Schedule Cards */
         .schedule-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 10px;
         }
         
         .schedule-card:hover {
@@ -107,26 +155,122 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.1)!important;
         }
         
-        .nav-pills .nav-link {
-            border-radius: 25px;
-            padding: 10px 20px;
-            margin: 0 5px;
-            transition: all 0.3s ease;
+        .schedule-card-title {
+            font-size: 1rem;
+            line-height: 1.3;
         }
         
-        .nav-pills .nav-link.active {
-            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
-            border: none;
+        .schedule-badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
         }
         
-        .nav-pills .nav-link:not(.active) {
-            background: #f8f9fa;
-            color: #666;
+        .schedule-info {
+            font-size: 0.85rem;
+            line-height: 1.5;
         }
         
-        .nav-pills .nav-link:not(.active):hover {
-            background: #e9ecef;
-            color: #333;
+        .schedule-note {
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+        
+        .schedule-btn {
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+        }
+        
+        /* Empty State */
+        .schedule-empty-icon {
+            font-size: 2.5rem;
+        }
+        
+        .schedule-empty-text {
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (min-width: 576px) {
+            .schedule-section {
+                padding: 50px 20px;
+            }
+            .schedule-subtitle {
+                font-size: 1rem;
+            }
+            .schedule-content {
+                font-size: 1rem;
+            }
+            .schedule-nav-link {
+                font-size: 0.9rem;
+                padding: 0.625rem 1.25rem;
+            }
+            .schedule-card-title {
+                font-size: 1.1rem;
+            }
+            .schedule-info {
+                font-size: 0.9rem;
+            }
+            .schedule-btn {
+                font-size: 0.9rem;
+            }
+            .schedule-empty-icon {
+                font-size: 3rem;
+            }
+            .schedule-empty-text {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .schedule-section {
+                padding: 60px 25px;
+            }
+            .schedule-subtitle {
+                font-size: 1.125rem;
+            }
+            .schedule-content {
+                font-size: 1.125rem;
+            }
+            .schedule-nav-link {
+                font-size: 1rem;
+                padding: 0.625rem 1.25rem;
+                margin: 0 0.3125rem;
+            }
+            .schedule-card-title {
+                font-size: 1.25rem;
+            }
+            .schedule-badge {
+                font-size: 0.75rem;
+                padding: 0.35rem 0.65rem;
+            }
+            .schedule-info {
+                font-size: 0.95rem;
+            }
+            .schedule-note {
+                font-size: 0.875rem;
+            }
+            .schedule-btn {
+                font-size: 0.95rem;
+                padding: 0.625rem 1.25rem;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .schedule-section {
+                padding: 80px 29px;
+            }
+        }
+        
+        /* Mobile-specific adjustments */
+        @media (max-width: 575px) {
+            .schedule-nav-pills {
+                justify-content: flex-start;
+            }
+            .schedule-nav-link {
+                font-size: 0.8rem;
+                padding: 0.45rem 0.85rem;
+                margin: 0.2rem;
+            }
         }
     </style>
 

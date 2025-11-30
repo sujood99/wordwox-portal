@@ -52,24 +52,738 @@
             background-color: #ffffff;
         }
         
+        /* Responsive Navbar */
+        .navbar-fitness {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            padding: 0.75rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand {
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand img {
+            height: 35px;
+            width: auto;
+        }
+        
+        /* Mobile Menu Toggler */
+        .navbar-toggler {
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 0.5rem 0.75rem;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.1);
+            outline: none;
+        }
+        
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2833, 37, 41, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            width: 1.5em;
+            height: 1.5em;
+        }
+        
+        /* Mobile Menu Collapse */
+        .navbar-collapse {
+            margin-top: 1rem;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        @media (min-width: 992px) {
+            .navbar-collapse {
+                margin-top: 0;
+                background: transparent;
+                border-radius: 0;
+                padding: 0;
+                box-shadow: none;
+            }
+        }
+        
+        /* Nav Links */
+        .navbar-nav {
+            gap: 0.5rem;
+        }
+        
+        .nav-link {
+            color: #333 !important;
+            font-weight: 500;
+            padding: 0.75rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: block;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b !important;
+            transform: translateX(5px);
+        }
+        
+        .nav-link.active {
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+            color: white !important;
+            font-weight: 600;
+        }
+        
+        .nav-link.active:hover {
+            background: linear-gradient(135deg, #ff5252 0%, #3db8a8 100%);
+            color: white !important;
+            transform: translateX(0);
+        }
+        
+        @media (min-width: 992px) {
+            .nav-link {
+                text-align: left;
+                padding: 0.5rem 1rem !important;
+            }
+            
+            .nav-link:hover {
+                transform: translateY(-2px);
+            }
+            
+            .nav-link.active:hover {
+                transform: translateY(-2px);
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+            .navbar-brand img {
+                height: 40px;
+            }
+        }
+        
+        /* Responsive Hero Section */
         .hero-section {
             background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
             color: white;
-            padding: 100px 0;
+            padding: 60px 0;
         }
         
+        .hero-section-custom {
+            padding: 60px 0 !important;
+        }
+        
+        .hero-content-row {
+            min-height: 400px;
+        }
+        
+        .hero-section-custom h1 {
+            font-size: 2rem;
+            line-height: 1.2;
+        }
+        
+        .hero-section-custom h3 {
+            font-size: 1.25rem;
+        }
+        
+        .hero-section-custom .lead {
+            font-size: 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            .hero-section {
+                padding: 80px 0;
+            }
+            .hero-section-custom {
+                padding: 100px 0 !important;
+            }
+            .hero-content-row {
+                min-height: 500px;
+            }
+            .hero-section-custom h1 {
+                font-size: 3rem;
+            }
+            .hero-section-custom h3 {
+                font-size: 1.5rem;
+            }
+            .hero-section-custom .lead {
+                font-size: 1.25rem;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .hero-content-row {
+                min-height: 600px;
+            }
+            .hero-section-custom h1 {
+                font-size: 4rem;
+            }
+        }
+        
+        /* Responsive Page Header */
+        .page-header-fitness {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 40px 0;
+            margin-bottom: 0;
+        }
+        
+        .page-title-fitness {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            line-height: 1.2;
+        }
+        
+        .page-description-fitness {
+            font-size: 1rem;
+            color: #6c757d;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        @media (min-width: 768px) {
+            .page-header-fitness {
+                padding: 60px 0;
+            }
+            .page-title-fitness {
+                font-size: 2.5rem;
+            }
+            .page-description-fitness {
+                font-size: 1.125rem;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .page-header-fitness {
+                padding: 80px 0;
+            }
+            .page-title-fitness {
+                font-size: 3rem;
+            }
+            .page-description-fitness {
+                font-size: 1.25rem;
+            }
+        }
+        
+        /* Responsive Section Padding */
+        .section-padding {
+            padding: 40px 0;
+        }
+        
+        @media (min-width: 768px) {
+            .section-padding {
+                padding: 60px 0;
+            }
+        }
+        
+        @media (min-width: 992px) {
         .section-padding {
             padding: 80px 0;
+            }
         }
         
+        /* Responsive Content Sections */
+        .content-section {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .content-section h1,
+        .content-section h2,
+        .content-section h3,
+        .content-section h4,
+        .content-section h5,
+        .content-section h6 {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .content-section h2 {
+            font-size: 1.75rem;
+        }
+        
+        .content-section h3 {
+            font-size: 1.5rem;
+        }
+        
+        .content-section p {
+            margin-bottom: 1rem;
+        }
+        
+        .content-section img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+        
+        .content-section ul,
+        .content-section ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        
+        .content-section li {
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .content-section {
+                font-size: 1.125rem;
+            }
+            .content-section h2 {
+                font-size: 2rem;
+            }
+            .content-section h3 {
+                font-size: 1.75rem;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .content-section {
+                font-size: 1.125rem;
+            }
+            .content-section h2 {
+                font-size: 2.25rem;
+            }
+            .content-section h3 {
+                font-size: 2rem;
+            }
+        }
+        
+        /* Section Heading */
+        .section-heading {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .section-heading {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .section-heading {
+                font-size: 3rem;
+            }
+        }
+        
+        /* Responsive Quote Block */
+        .blockquote-fitness {
+            border-left: 4px solid #ff6b6b;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .quote-text-fitness {
+            font-size: 1.25rem;
+            font-style: italic;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        .quote-cite-fitness {
+            font-size: 1rem;
+            color: #6c757d;
+            display: block;
+            margin-top: 0.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .blockquote-fitness {
+                padding: 2rem;
+            }
+            .quote-text-fitness {
+                font-size: 1.5rem;
+            }
+            .quote-cite-fitness {
+                font-size: 1.125rem;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .quote-text-fitness {
+                font-size: 1.75rem;
+            }
+        }
+        
+        /* Responsive List */
+        .list-fitness {
+            list-style: none;
+            padding-left: 0;
+            margin: 1.5rem 0;
+        }
+        
+        .list-item-fitness {
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .list-item-fitness::before {
+            content: "•";
+            color: #ff6b6b;
+            font-weight: bold;
+            position: absolute;
+            left: 0.5rem;
+            font-size: 1.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .list-item-fitness {
+                font-size: 1.125rem;
+                padding-left: 2.5rem;
+            }
+        }
+        
+        /* Responsive CTA Section */
+        .cta-section-fitness {
+            padding: 2rem 0;
+        }
+        
+        .cta-description-fitness {
+            font-size: 1rem;
+            color: #6c757d;
+            line-height: 1.6;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-buttons-fitness {
+            gap: 1rem;
+        }
+        
+        .btn-secondary-fitness {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+        }
+        
+        .btn-outline-fitness {
+            background: transparent !important;
+            border: 2px solid #ff6b6b;
+            color: #ff6b6b !important;
+        }
+        
+        .btn-outline-fitness:hover {
+            background: #ff6b6b !important;
+            color: white !important;
+        }
+        
+        @media (min-width: 768px) {
+            .cta-section-fitness {
+                padding: 3rem 0;
+            }
+            .cta-description-fitness {
+                font-size: 1.125rem;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .cta-section-fitness {
+                padding: 4rem 0;
+            }
+            .cta-description-fitness {
+                font-size: 1.25rem;
+            }
+        }
+        
+        /* Responsive Contact Form */
+        .contact-form-card-fitness {
+            border-radius: 15px;
+        }
+        
+        .contact-form-label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .contact-form-input,
+        .contact-form-textarea {
+            font-size: 0.95rem;
+            padding: 0.7rem 0.9rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .contact-form-input:focus,
+        .contact-form-textarea:focus {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 0.2rem rgba(255, 107, 107, 0.25);
+            outline: none;
+        }
+        
+        .contact-form-textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+        
+        .contact-submit-btn {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        @media (min-width: 576px) {
+            .contact-form-label {
+                font-size: 0.95rem;
+            }
+            .contact-form-input,
+            .contact-form-textarea {
+                font-size: 1rem;
+                padding: 0.75rem 1rem;
+            }
+            .contact-submit-btn {
+                font-size: 1rem;
+                padding: 0.75rem 2rem;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .contact-form-label {
+                font-size: 1rem;
+            }
+            .contact-form-input,
+            .contact-form-textarea {
+                font-size: 1.05rem;
+                padding: 0.875rem 1.125rem;
+            }
+            .contact-form-textarea {
+                min-height: 150px;
+            }
+            .contact-submit-btn {
+                width: auto;
+                min-width: 150px;
+            }
+        }
+        
+        /* Contact Information Card */
+        .contact-info-card-fitness {
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        
+        .contact-info-title-fitness {
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .contact-info-item-fitness {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            word-break: break-word;
+        }
+        
+        .contact-info-item-fitness i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .contact-info-link-fitness {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+            word-break: break-all;
+        }
+        
+        .contact-info-link-fitness:hover {
+            color: white;
+            opacity: 0.9;
+            text-decoration: underline;
+        }
+        
+        .contact-subtitle-fitness {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .contact-content-fitness {
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+        
+        @media (min-width: 576px) {
+            .contact-info-title-fitness {
+                font-size: 1.25rem;
+            }
+            .contact-info-item-fitness {
+                font-size: 0.95rem;
+            }
+            .contact-subtitle-fitness {
+                font-size: 1rem;
+            }
+            .contact-content-fitness {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .contact-info-title-fitness {
+                font-size: 1.5rem;
+            }
+            .contact-info-item-fitness {
+                font-size: 1rem;
+            }
+            .contact-subtitle-fitness {
+                font-size: 1.125rem;
+            }
+            .contact-content-fitness {
+                font-size: 1.125rem;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .contact-info-item-fitness {
+                font-size: 1.05rem;
+            }
+        }
+        
+        /* Responsive Alerts */
+        .alert {
+            font-size: 0.85rem;
+            padding: 0.7rem 0.9rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            word-wrap: break-word;
+        }
+        
+        .alert ul {
+            margin-bottom: 0;
+            padding-left: 1.1rem;
+        }
+        
+        .alert li {
+            margin-bottom: 0.25rem;
+            word-wrap: break-word;
+        }
+        
+        .alert .btn-close {
+            padding: 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        @media (min-width: 576px) {
+            .alert {
+                font-size: 0.9rem;
+                padding: 0.75rem 1rem;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .alert {
+                font-size: 1rem;
+                padding: 1rem 1.25rem;
+            }
+            .alert ul {
+                padding-left: 1.25rem;
+            }
+        }
+        
+        /* Contact Form Responsive Improvements */
+        .contact-form {
+            width: 100%;
+        }
+        
+        .invalid-feedback {
+            font-size: 0.85rem;
+            display: block;
+            margin-top: 0.25rem;
+        }
+        
+        @media (min-width: 576px) {
+            .invalid-feedback {
+                font-size: 0.875rem;
+            }
+        }
+        
+        @media (max-width: 575px) {
+            .contact-form-card-fitness .card-body {
+                padding: 1.25rem !important;
+            }
+            .contact-info-card-fitness .card-body {
+                padding: 1.25rem !important;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .contact-form-card-fitness .card-body {
+                padding: 1.5rem !important;
+            }
+        }
+        
+        /* Ensure form groups stack properly on mobile */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 575px) {
+            .form-group {
+                margin-bottom: 0.875rem;
+            }
+        }
+        
+        /* Responsive Main Content */
+        main.fitness-content {
+            margin-top: 70px;
+        }
+        
+        @media (min-width: 768px) {
+            main.fitness-content {
+                margin-top: 80px;
+            }
+        }
+        
+        /* Responsive Buttons */
         .btn-fitness {
             background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
             border: none;
             color: white;
-            padding: 12px 30px;
+            padding: 10px 24px;
             border-radius: 25px;
             font-weight: 600;
+            font-size: 0.9rem;
             transition: transform 0.3s ease;
+        }
+        
+        @media (min-width: 768px) {
+            .btn-fitness {
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
         }
         
         .btn-fitness:hover {
@@ -77,6 +791,7 @@
             color: white;
         }
         
+        /* Responsive Cards */
         .card-fitness {
             border: none;
             border-radius: 15px;
@@ -88,24 +803,48 @@
             transform: translateY(-5px);
         }
         
-        .navbar-fitness {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-        }
-        
+        /* Responsive Footer */
         .footer-fitness {
             background: #2c3e50;
             color: white;
-            padding: 40px 0 0 0;
+            padding: 30px 0 0 0;
             margin: 0;
             margin-top: auto;
             flex-shrink: 0;
         }
+        
         .footer-fitness .container {
             padding-bottom: 0 !important;
             margin-bottom: 0 !important;
         }
+        
+        .footer-fitness .footer-widget {
+            margin-bottom: 2rem;
+        }
+        
+        .footer-fitness h5 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-fitness p,
+        .footer-fitness .text-white-50 {
+            font-size: 0.9rem;
+        }
+        
+        @media (min-width: 768px) {
+            .footer-fitness {
+                padding: 40px 0 0 0;
+            }
+            .footer-fitness h5 {
+                font-size: 1.25rem;
+            }
+            .footer-fitness p,
+            .footer-fitness .text-white-50 {
+                font-size: 1rem;
+            }
+        }
+        
         .footer-fitness hr { 
             margin-top: 1.5rem; 
             margin-bottom: 0.5rem; 
@@ -126,6 +865,63 @@
             margin-bottom: 0 !important;
             padding-bottom: 0 !important;
         }
+        
+        /* Responsive Typography */
+        h1, .h1 {
+            font-size: 2rem;
+        }
+        
+        h2, .h2 {
+            font-size: 1.75rem;
+        }
+        
+        h3, .h3 {
+            font-size: 1.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            h1, .h1 {
+                font-size: 2.5rem;
+            }
+            h2, .h2 {
+                font-size: 2rem;
+            }
+            h3, .h3 {
+                font-size: 1.75rem;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            h1, .h1 {
+                font-size: 3rem;
+            }
+            h2, .h2 {
+                font-size: 2.5rem;
+            }
+            h3, .h3 {
+                font-size: 2rem;
+            }
+        }
+        
+        /* Responsive Images */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Responsive Container Padding */
+        .container {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        
+        @media (min-width: 576px) {
+            .container {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+        }
+        
         body {
             margin-bottom: 0 !important;
             padding-bottom: 0 !important;
@@ -160,13 +956,14 @@
                     $logoUrl = "https://{$bucket}.s3.{$region}.amazonaws.com/{$orgLogo}";
                 }
             @endphp
-            <a class="navbar-brand fw-bold fs-3" href="/">
+            <a class="navbar-brand fw-bold" href="/">
                 @if($logoUrl)
-                    <img src="{{ $logoUrl }}" alt="{{ $orgName }}" class="me-2" style="height: 40px; width: auto;">
+                    <img src="{{ $logoUrl }}" alt="{{ $orgName }}" class="me-2" style="height: 35px; width: auto; max-height: 40px;">
                 @else
-                    <i class="fas fa-dumbbell text-danger me-2"></i>
+                <i class="fas fa-dumbbell text-danger me-2"></i>
                 @endif
-                {{ $orgName }}
+                <span class="d-none d-md-inline">{{ $orgName }}</span>
+                <span class="d-md-none">{{ Str::limit($orgName, 15) }}</span>
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -196,7 +993,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="fitness-content" style="margin-top: 80px;">
+    <main class="fitness-content">
         @php
             // Add page-specific classes and styling based on page type
             $pageClasses = match($pageType) {
@@ -232,15 +1029,15 @@
                 <div class="row g-4">
                     @foreach($footerBlocks->take(4) as $index => $block)
                         <div class="col-lg-3 col-md-6 mb-4">
-                            <div class="footer-widget">
+                    <div class="footer-widget">
                                 @switch($block->type)
                                     @case('heading')
                                         @if($block->content)
                                             <h5 class="fw-bold mb-3 text-white">
-                                                <i class="fas fa-dumbbell text-danger me-2"></i>
+                            <i class="fas fa-dumbbell text-danger me-2"></i>
                                                 {{ $block->content }}
-                                            </h5>
-                                        @endif
+                        </h5>
+                        @endif
                                         @break
                                     
                                     @case('text')
@@ -248,23 +1045,23 @@
                                             <div class="text-white-50">
                                                 {{ $block->content }}
                                             </div>
-                                        @endif
+                        @endif
                                         @break
                                     
                                     @case('paragraph')
                                         @if($block->content)
                                             <div class="text-white-50">
                                                 {!! $block->content !!}
-                                            </div>
-                                        @endif
+                        </div>
+                        @endif
                                         @break
                                     
                                     @case('html')
                                         @if($block->content)
                                             <div class="footer-html-content">
                                                 {!! $block->content !!}
-                                            </div>
-                                        @endif
+                </div>
+                @endif
                                         @break
                                     
                                     @case('links')
@@ -281,18 +1078,18 @@
                                             }
                                         @endphp
                                         @if(is_array($links) && count($links) > 0)
-                                            <ul class="list-unstyled">
+                        <ul class="list-unstyled">
                                                 @foreach($links as $link)
                                                     @if(is_array($link) && isset($link['label']) && isset($link['url']))
-                                                        <li class="mb-2">
+                            <li class="mb-2">
                                                             <a href="{{ $link['url'] }}" class="text-white-50 text-decoration-none">
                                                                 <i class="fas fa-chevron-right me-2"></i>{{ $link['label'] }}
-                                                            </a>
-                                                        </li>
+                                </a>
+                            </li>
                                                     @endif
-                                                @endforeach
-                                            </ul>
-                                        @endif
+                            @endforeach
+                        </ul>
+                        @endif
                                         @break
                                     
                                     @case('contact')
@@ -358,7 +1155,7 @@
                                         @break
                                 @endswitch
                             </div>
-                        </div>
+                    </div>
                     @endforeach
                 </div>
             @else
@@ -374,14 +1171,14 @@
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="footer-widget">
+                    <div class="footer-widget">
                             <h5 class="fw-bold mb-3 text-white">Quick Links</h5>
-                            <ul class="list-unstyled">
-                                <li class="mb-2">
-                                    <a href="/" class="text-white-50 text-decoration-none">
-                                        <i class="fas fa-chevron-right me-2"></i>Home
-                                    </a>
-                                </li>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <a href="/" class="text-white-50 text-decoration-none">
+                                    <i class="fas fa-chevron-right me-2"></i>Home
+                                </a>
+                            </li>
                                 <li class="mb-2">
                                     <a href="/about" class="text-white-50 text-decoration-none">
                                         <i class="fas fa-chevron-right me-2"></i>About Us
@@ -392,9 +1189,9 @@
                                         <i class="fas fa-chevron-right me-2"></i>Our Coaches
                                     </a>
                                 </li>
-                            </ul>
-                        </div>
+                        </ul>
                     </div>
+                </div>
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="footer-widget">
                             <h5 class="fw-bold mb-3 text-white">Classes</h5>
@@ -417,31 +1214,31 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="footer-widget">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="footer-widget">
                             <h5 class="fw-bold mb-3 text-white">Contact Info</h5>
-                            <div class="contact-info">
+                        <div class="contact-info">
                                 <p class="mb-2 text-white-50">
-                                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                                <i class="fas fa-map-marker-alt me-2 text-danger"></i>
                                     123 Fitness Street, Gym City
-                                </p>
-                                <p class="mb-2">
-                                    <i class="fas fa-phone me-2 text-danger"></i>
+                            </p>
+                            <p class="mb-2">
+                                <i class="fas fa-phone me-2 text-danger"></i>
                                     <a href="tel:+1234567890" class="text-white-50 text-decoration-none">
                                         +1 (234) 567-890
-                                    </a>
-                                </p>
-                                <p class="mb-2">
-                                    <i class="fas fa-envelope me-2 text-danger"></i>
+                                </a>
+                            </p>
+                            <p class="mb-2">
+                                <i class="fas fa-envelope me-2 text-danger"></i>
                                     <a href="mailto:info@fitnessgym.com" class="text-white-50 text-decoration-none">
                                         info@fitnessgym.com
-                                    </a>
-                                </p>
+                                </a>
+                            </p>
                             </div>
                         </div>
                     </div>
                 </div>
-            @endif
+                @endif
             
             <!-- Copyright Section -->
             <hr class="border-secondary" style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
@@ -483,6 +1280,35 @@
             } else {
                 navbar.style.background = 'rgba(255, 255, 255, 0.95)';
             }
+        });
+        
+        // Close mobile menu when clicking on a nav link
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            const navbarCollapse = document.querySelector('#navbarNav');
+            const navbarToggler = document.querySelector('.navbar-toggler');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    // Check if menu is open (mobile view)
+                    if (window.innerWidth < 992 && navbarCollapse && navbarCollapse.classList.contains('show')) {
+                        // Use Bootstrap's collapse method to hide
+                        if (typeof bootstrap !== 'undefined' && bootstrap.Collapse) {
+                            const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse) || new bootstrap.Collapse(navbarCollapse, {
+                                toggle: false
+                            });
+                            bsCollapse.hide();
+                        } else {
+                            // Fallback: manually hide
+                            navbarCollapse.classList.remove('show');
+                            if (navbarToggler) {
+                                navbarToggler.setAttribute('aria-expanded', 'false');
+                                navbarToggler.classList.add('collapsed');
+                            }
+                        }
+                    }
+                });
+            });
         });
     </script>
 </body>

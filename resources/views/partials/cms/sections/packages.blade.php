@@ -1,22 +1,17 @@
 {{-- Packages Section Partial --}}
-<style>
-        .packages-section {
-            background-color: #f2f4f6;            padding: 80px 29px!important;
-        }
-    </style>
 @if($isFitness)
-    <div class="container my-5 packages-section">
+    <div class="container my-4 my-md-5 packages-section">
         @if($section->title)
-        <div class="text-center mb-5">
+        <div class="text-center mb-4 mb-md-5">
             <h2 class="section-heading">{{ $section->title }}</h2>
             @if($section->subtitle)
-            <p class="text-muted">{{ $section->subtitle }}</p>
+            <p class="text-muted packages-subtitle">{{ $section->subtitle }}</p>
             @endif
         </div>
         @endif
 
         @if($section->content)
-        <div class="text-center mb-5">{!! $section->content !!}</div>
+        <div class="text-center mb-4 mb-md-5 packages-content">{!! $section->content !!}</div>
         @endif
 
         @if(isset($plans) && $plans->count() > 0)
@@ -25,11 +20,12 @@
                 $layoutMode = $layout ?? 'grid';
                 
                 // Calculate Bootstrap 5 column class based on columns setting (only for grid layout)
+                // Mobile: 1 column, Tablet: 2 columns, Desktop: based on setting
                 if ($layoutMode === 'grid') {
                     $fitnessBootstrapCols = match((int)($columns ?? 3)) {
-                        2 => 'col-lg-6 col-md-6',
-                        4 => 'col-lg-3 col-md-6',
-                        default => 'col-lg-4 col-md-6' // 3 columns default
+                        2 => 'col-12 col-sm-6 col-md-6 col-lg-6',
+                        4 => 'col-12 col-sm-6 col-md-4 col-lg-3',
+                        default => 'col-12 col-sm-6 col-md-6 col-lg-4' // 3 columns default
                     };
                 }
                 
@@ -38,44 +34,44 @@
             @endphp
             @if($layoutMode === 'list')
                 {{-- List Layout --}}
-                <div class="row g-4">
+                <div class="row g-3 g-md-4">
                     @foreach($plans as $index => $plan)
                         @php
                             $color = $colors[$index % count($colors)];
                             $isPopular = $index === 1;
                         @endphp
                         <div class="col-12">
-                            <div class="card h-100 border-0" style="border-left: 4px solid {{ $color }};">
+                            <div class="card h-100 border-0 package-card-list" style="border-left: 4px solid {{ $color }};">
                                 <div class="row g-0">
-                                    <div class="col-md-4 d-flex align-items-center justify-content-center p-4" style="background: linear-gradient(135deg, {{ $color }}20, {{ $color }}10);">
+                                    <div class="col-12 col-md-4 d-flex align-items-center justify-content-center p-3 p-md-4 package-price-col" style="background: linear-gradient(135deg, {{ $color }}20, {{ $color }}10);">
                                         <div class="text-center">
                                             <div class="price mb-2">
-                                                <span class="display-4">${{ number_format($plan->price, 2) }}</span>
+                                                <span class="package-price-display">${{ number_format($plan->price, 2) }}</span>
                                             </div>
-                                            <span class="text-muted">/{{ $plan->duration_text }}</span>
+                                            <span class="text-muted package-duration">/{{ $plan->duration_text }}</span>
                                         </div>
                                     </div>
-                                    <div class="col-md-8">
-                                        <div class="card-body p-4">
-                                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                                <h4 class="card-title">{{ $plan->name }}</h4>
+                                    <div class="col-12 col-md-8">
+                                        <div class="card-body p-3 p-md-4">
+                                            <div class="d-flex justify-content-between align-items-start mb-2 mb-md-3">
+                                                <h4 class="card-title package-name">{{ $plan->name }}</h4>
                                                 @if($showPrograms)
-                                                    <span class="badge bg-primary">{{ $plan->type_label ?? 'Standard Plan' }}</span>
+                                                    <span class="badge bg-primary package-badge">{{ $plan->type_label ?? 'Standard Plan' }}</span>
                                                 @endif
                                             </div>
                                             @if($showDescription && $plan->description)
-                                                <p class="card-text mb-3">{{ Str::limit($plan->description, 150) }}</p>
+                                                <p class="card-text mb-2 mb-md-3 package-description">{{ Str::limit($plan->description, 150) }}</p>
                                             @endif
                                             @php
                                                 $canSellOnline = true;
                                                 $planUuid = $plan->uuid ?? $plan->id;
                                             @endphp
                                             @if($canSellOnline)
-                                                <a href="/org-plan/index?plan={{ $planUuid }}" class="btn btn-outline-primary">
+                                                <a href="/org-plan/index?plan={{ $planUuid }}" class="btn btn-outline-primary package-btn">
                                                     {{ $buyButtonText ?? 'Buy' }} <i class="fas fa-arrow-right ms-1"></i>
                                                 </a>
                                             @else
-                                                <button class="btn btn-outline-secondary" disabled>
+                                                <button class="btn btn-outline-secondary package-btn" disabled>
                                                     {{ $purchaseAtGymText ?? 'Purchase at the Gym' }}
                                                 </button>
                                             @endif
@@ -88,7 +84,7 @@
                 </div>
             @else
                 {{-- Grid Layout --}}
-                <div class="row g-4">
+                <div class="row g-3 g-md-4">
                     @foreach($plans as $index => $plan)
                         @php
                             $color = $colors[$index % count($colors)];
@@ -96,53 +92,217 @@
                             $isPopular = $index === 1; // Make second plan popular
                         @endphp
                         <div class="{{ $fitnessBootstrapCols }}">
-                            <div class="card h-100 border-0" style="border-top: 4px solid {{ $color }};">
-                                <div class="card-body text-center p-5">
-                                <h4 class="card-title mb-3">{{ $plan->name }}</h4>
-                                <div class="price mb-4">
-                                    <span class="display-4">${{ number_format($plan->price, 2) }}</span>
-                                    <span class="text-muted">/{{ $plan->duration_text }}</span>
-                                </div>
-                                @if($showDescription && $plan->description)
-                                    <p class="card-text mb-4">{{ Str::limit($plan->description, 120) }}</p>
-                                @endif
-                                @if($showPrograms)
-                                    <div class="mb-3">
-                                        <span class="badge bg-primary">{{ $plan->type_label ?? 'Standard Plan' }}</span>
+                            <div class="card h-100 border-0 package-card-grid" style="border-top: 4px solid {{ $color }};">
+                                <div class="card-body text-center p-4 p-md-5">
+                                    <h4 class="card-title mb-2 mb-md-3 package-name">{{ $plan->name }}</h4>
+                                    <div class="price mb-3 mb-md-4">
+                                        <span class="package-price-display">${{ number_format($plan->price, 2) }}</span>
+                                        <span class="text-muted package-duration">/{{ $plan->duration_text }}</span>
                                     </div>
-                                @endif
-                                @php
-                                    $canSellOnline = true;
-                                    $planUuid = $plan->uuid ?? $plan->id;
-                                @endphp
-                                @if($canSellOnline)
-                                    <a href="/org-plan/index?plan={{ $planUuid }}" class="btn {{ $isPopular ? 'btn-lg' : 'btn-outline-primary btn-lg' }} w-100" {{ $isPopular ? 'style=background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%); border: none; color: white;' : '' }}>
-                                        {{ $buyButtonText ?? 'Buy' }} <i class="fas fa-arrow-right ms-1"></i>
-                                    </a>
-                                @else
-                                    <button class="btn btn-outline-secondary btn-lg w-100" disabled>
-                                        {{ $purchaseAtGymText ?? 'Purchase at the Gym' }}
-                                    </button>
-                                @endif
+                                    @if($showDescription && $plan->description)
+                                        <p class="card-text mb-3 mb-md-4 package-description">{{ Str::limit($plan->description, 120) }}</p>
+                                    @endif
+                                    @if($showPrograms)
+                                        <div class="mb-2 mb-md-3">
+                                            <span class="badge bg-primary package-badge">{{ $plan->type_label ?? 'Standard Plan' }}</span>
+                                        </div>
+                                    @endif
+                                    @php
+                                        $canSellOnline = true;
+                                        $planUuid = $plan->uuid ?? $plan->id;
+                                    @endphp
+                                    @if($canSellOnline)
+                                        <a href="/org-plan/index?plan={{ $planUuid }}" class="btn {{ $isPopular ? 'btn-lg' : 'btn-outline-primary btn-lg' }} w-100 package-btn" {{ $isPopular ? 'style=background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%); border: none; color: white;' : '' }}>
+                                            {{ $buyButtonText ?? 'Buy' }} <i class="fas fa-arrow-right ms-1"></i>
+                                        </a>
+                                    @else
+                                        <button class="btn btn-outline-secondary btn-lg w-100 package-btn" disabled>
+                                            {{ $purchaseAtGymText ?? 'Purchase at the Gym' }}
+                                        </button>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
                         </div>
                     @endforeach
                 </div>
             @endif
         @else
             {{-- No Plans Available --}}
-            <div class="text-center py-5">
+            <div class="text-center py-4 py-md-5">
                 <div class="card card-fitness">
-                    <div class="card-body p-5">
-                        <i class="fas fa-dumbbell fs-1 text-muted mb-3"></i>
-                        <h4 class="fw-bold text-muted">No packages available at this time.</h4>
-                        <p class="text-muted">Check back soon for our fitness packages!</p>
+                    <div class="card-body p-4 p-md-5">
+                        <i class="fas fa-dumbbell packages-empty-icon text-muted mb-3"></i>
+                        <h4 class="fw-bold text-muted packages-empty-title">No packages available at this time.</h4>
+                        <p class="text-muted packages-empty-text">Check back soon for our fitness packages!</p>
                     </div>
                 </div>
             </div>
         @endif
     </div>
+
+    <style>
+        /* Responsive Packages Section */
+        .packages-section {
+            background-color: #f2f4f6;
+            padding: 40px 15px !important;
+        }
+        
+        .packages-subtitle {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .packages-content {
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+        
+        /* Package Cards */
+        .package-card-grid,
+        .package-card-list {
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .package-card-grid:hover,
+        .package-card-list:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+        }
+        
+        .package-name {
+            font-size: 1.1rem;
+            line-height: 1.3;
+        }
+        
+        .package-price-display {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .package-duration {
+            font-size: 0.9rem;
+        }
+        
+        .package-description {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        .package-badge {
+            font-size: 0.75rem;
+            padding: 0.35rem 0.65rem;
+        }
+        
+        .package-btn {
+            font-size: 0.9rem;
+            padding: 0.625rem 1.25rem;
+        }
+        
+        .package-price-col {
+            min-height: 120px;
+        }
+        
+        /* Empty State */
+        .packages-empty-icon {
+            font-size: 3rem;
+        }
+        
+        .packages-empty-title {
+            font-size: 1.25rem;
+        }
+        
+        .packages-empty-text {
+            font-size: 0.95rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (min-width: 576px) {
+            .packages-section {
+                padding: 50px 20px !important;
+            }
+            .packages-subtitle {
+                font-size: 1rem;
+            }
+            .packages-content {
+                font-size: 1rem;
+            }
+            .package-name {
+                font-size: 1.25rem;
+            }
+            .package-price-display {
+                font-size: 2.5rem;
+            }
+            .package-description {
+                font-size: 0.95rem;
+            }
+            .package-btn {
+                font-size: 0.95rem;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .packages-section {
+                padding: 60px 25px !important;
+            }
+            .packages-subtitle {
+                font-size: 1.125rem;
+            }
+            .packages-content {
+                font-size: 1.125rem;
+            }
+            .package-name {
+                font-size: 1.5rem;
+            }
+            .package-price-display {
+                font-size: 3rem;
+            }
+            .package-duration {
+                font-size: 1rem;
+            }
+            .package-description {
+                font-size: 1rem;
+            }
+            .package-badge {
+                font-size: 0.875rem;
+            }
+            .package-btn {
+                font-size: 1rem;
+            }
+            .package-price-col {
+                min-height: 150px;
+            }
+            .packages-empty-icon {
+                font-size: 4rem;
+            }
+            .packages-empty-title {
+                font-size: 1.5rem;
+            }
+            .packages-empty-text {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .packages-section {
+                padding: 80px 29px !important;
+            }
+            .package-price-display {
+                font-size: 3.5rem;
+            }
+        }
+        
+        /* List layout responsive improvements */
+        @media (max-width: 767px) {
+            .package-card-list .row {
+                flex-direction: column;
+            }
+            .package-price-col {
+                min-height: 100px;
+            }
+        }
+    </style>
 
    
 @elseif($isMeditative)

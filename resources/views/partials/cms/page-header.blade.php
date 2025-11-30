@@ -15,14 +15,14 @@
             </div>
         </section>
     @elseif($isFitness)
-        {{-- Fitness Template Hero Header - Removed --}}
+        {{-- Fitness Template Page Header - Removed --}}
     @else
         {{-- Default Template Header --}}
-        <div class="page-header bg-gray-50 py-16">
-            <div class="container mx-auto px-6 text-center">
-                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{{ $page->title }}</h1>
+        <div class="page-header bg-gray-50 py-8 py-md-16">
+            <div class="container mx-auto px-4 px-md-6 text-center">
+                <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 mb-md-4">{{ $page->title }}</h1>
                 @if($page->description)
-                    <p class="text-xl text-gray-600 max-w-3xl mx-auto">{{ $page->description }}</p>
+                    <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-3 px-md-0">{{ $page->description }}</p>
                 @endif
             </div>
         </div>

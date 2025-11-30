@@ -1,17 +1,17 @@
 {{-- Coaches Section Partial --}}
 @if($isFitness)
-    <div class="container my-5 coaches-section">
+    <div class="container my-4 my-md-5 coaches-section">
         @if($section->title)
-        <div class="text-center mb-5">
+        <div class="text-center mb-4 mb-md-5">
             <h2 class="section-heading">{{ $section->title }}</h2>
             @if($section->subtitle)
-            <p class="text-muted">{{ $section->subtitle }}</p>
+            <p class="text-muted coaches-subtitle">{{ $section->subtitle }}</p>
             @endif
         </div>
         @endif
 
         @if($section->content)
-        <div class="text-center mb-5">{!! $section->content !!}</div>
+        <div class="text-center mb-4 mb-md-5 coaches-content">{!! $section->content !!}</div>
         @endif
 
         @if(isset($coaches) && $coaches->count() > 0)
@@ -30,15 +30,16 @@
                 
                 // Generate Bootstrap column classes based on columns setting
                 // Using explicit col-* classes instead of row-cols-* for better compatibility
+                // Mobile: 1 column, Tablet: 2 columns, Desktop: based on setting
                 $colClasses = match($columnsInt) {
-                    2 => 'col-12 col-md-6',
-                    4 => 'col-12 col-md-6 col-lg-3',
-                    default => 'col-12 col-md-6 col-lg-4' // 3 columns default
-                };
+                    2 => 'col-12 col-sm-6 col-md-6',
+                    4 => 'col-12 col-sm-6 col-md-4 col-lg-3',
+                    default => 'col-12 col-sm-6 col-md-6 col-lg-4' // 3 columns default
+                    };
             @endphp
             @if($layoutMode === 'list')
                 {{-- List Layout - Simple view with just image and name (same as grid) --}}
-                <div class="row g-4">
+                <div class="row g-3 g-md-4">
                     @foreach($coaches as $coach)
                         <div class="{{ $colClasses }}">
                             <div class="card border-0 h-100 coach-card text-center">
@@ -47,21 +48,19 @@
                                         @if($coach->profileImageUrl)
                                             <img src="{{ $coach->profileImageUrl }}" 
                                                  class="card-img-top coach-img" 
-                                                 alt="Coach {{ $coach->fullName }}" 
-                                                 style="height: 300px; object-fit: cover; width: 100%;">
+                                                 alt="Coach {{ $coach->fullName }}">
                                         @elseif($coach->portraitImageUrl)
                                             <img src="{{ $coach->portraitImageUrl }}" 
                                                  class="card-img-top coach-img" 
-                                                 alt="Coach {{ $coach->fullName }}" 
-                                                 style="height: 300px; object-fit: cover; width: 100%;">
+                                                 alt="Coach {{ $coach->fullName }}">
                                         @else
-                                            <div class="card-img-top coach-img d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
-                                                <i class="fas fa-user-tie fa-4x text-muted"></i>
+                                            <div class="card-img-top coach-img d-flex align-items-center justify-content-center bg-light">
+                                                <i class="fas fa-user-tie coach-placeholder-icon text-muted"></i>
                                             </div>
                                         @endif
                                     </div>
                                 @endif
-                                <div class="card-body p-4">
+                                <div class="card-body">
                                     <h5 class="card-title mb-0 fw-bold">{{ $coach->fullName }}</h5>
                                 </div>
                             </div>
@@ -70,7 +69,7 @@
                 </div>
             @else
                 {{-- Grid Layout - Simple view with just image and name (like Yii project) --}}
-                <div class="row g-4">
+                <div class="row g-3 g-md-4">
                     @foreach($coaches as $coach)
                         <div class="{{ $colClasses }}">
                             <div class="card border-0 h-100 coach-card text-center">
@@ -79,21 +78,19 @@
                                         @if($coach->profileImageUrl)
                                             <img src="{{ $coach->profileImageUrl }}" 
                                                  class="card-img-top coach-img" 
-                                                 alt="Coach {{ $coach->fullName }}" 
-                                                 style="height: 300px; object-fit: cover; width: 100%;">
+                                                 alt="Coach {{ $coach->fullName }}">
                                         @elseif($coach->portraitImageUrl)
                                             <img src="{{ $coach->portraitImageUrl }}" 
                                                  class="card-img-top coach-img" 
-                                                 alt="Coach {{ $coach->fullName }}" 
-                                                 style="height: 300px; object-fit: cover; width: 100%;">
+                                                 alt="Coach {{ $coach->fullName }}">
                                         @else
-                                            <div class="card-img-top coach-img d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
-                                                <i class="fas fa-user-tie fa-4x text-muted"></i>
+                                            <div class="card-img-top coach-img d-flex align-items-center justify-content-center bg-light">
+                                                <i class="fas fa-user-tie coach-placeholder-icon text-muted"></i>
                                             </div>
                                         @endif
                                     </div>
                                 @endif
-                                <div class="card-body p-4">
+                                <div class="card-body">
                                     <h5 class="card-title mb-0 fw-bold">{{ $coach->fullName }}</h5>
                                 </div>
                             </div>
@@ -110,25 +107,38 @@
     </div>
 
     <style>
+        /* Responsive Coaches Section */
         .coaches-section {
-            /* background: linear-gradient(135deg, #ffffff, #e9ecef); */
-            padding: 80px 29px;
+            padding: 40px 15px;
+        }
+        
+        .coaches-subtitle {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .coaches-content {
+            font-size: 0.95rem;
+            line-height: 1.7;
         }
         
         /* Ensure the row properly wraps columns */
         .coaches-section .row {
             display: flex;
             flex-wrap: wrap;
+            margin-left: -0.75rem;
+            margin-right: -0.75rem;
         }
         
-        /* Ensure columns can wrap properly */
-        .coaches-section .row > .col {
-            flex: 0 0 auto;
-            width: 100%;
+        .coaches-section .row > [class*="col-"] {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
         }
         
         .coach-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 10px;
+            overflow: hidden;
         }
         
         .coach-card:hover {
@@ -137,7 +147,7 @@
         }
         
         .coach-img-container {
-            height: 300px;
+            height: 250px;
         }
         
         .coach-img {
@@ -145,6 +155,15 @@
             height: 100%;
             object-fit: cover;
             transition: transform 0.3s ease;
+        }
+        
+        .coach-card .card-body {
+            padding: 1.25rem;
+        }
+        
+        .coach-card .card-title {
+            font-size: 1rem;
+            line-height: 1.4;
         }
         
         .coach-overlay {
@@ -187,6 +206,70 @@
         
         .coach-certifications .badge {
             font-size: 0.75rem;
+        }
+        
+        .coach-placeholder-icon {
+            font-size: 3rem;
+        }
+        
+        /* Responsive adjustments */
+        @media (min-width: 576px) {
+            .coaches-section {
+                padding: 50px 20px;
+            }
+            .coaches-subtitle {
+                font-size: 1rem;
+            }
+            .coaches-content {
+                font-size: 1rem;
+            }
+            .coach-img-container {
+                height: 280px;
+            }
+            .coach-card .card-title {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .coaches-section {
+                padding: 60px 25px;
+            }
+            .coaches-subtitle {
+                font-size: 1.125rem;
+            }
+            .coaches-content {
+                font-size: 1.125rem;
+            }
+            .coach-img-container {
+                height: 300px;
+            }
+            .coach-card .card-body {
+                padding: 1.5rem;
+            }
+            .coach-card .card-title {
+                font-size: 1.25rem;
+            }
+            .coach-placeholder-icon {
+                font-size: 4rem;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .coaches-section {
+                padding: 80px 29px;
+            }
+        }
+        
+        /* Empty state responsive */
+        .coaches-section .text-center.py-12 {
+            padding: 3rem 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            .coaches-section .text-center.py-12 {
+                padding: 4rem 2rem;
+            }
         }
     </style>
 
@@ -274,14 +357,14 @@
                 $layoutMode = $layout ?? 'grid';
                 
                 // Calculate grid columns for both list and grid (they use the same layout)
-                $gridCols = match((int)($columns ?? 3)) {
-                    2 => 'md:grid-cols-2',
-                    4 => 'md:grid-cols-4',
-                    default => 'md:grid-cols-3'
-                };
+                    $gridCols = match((int)($columns ?? 3)) {
+                        2 => 'md:grid-cols-2',
+                        4 => 'md:grid-cols-4',
+                        default => 'md:grid-cols-3'
+                    };
             @endphp
             {{-- Both list and grid use the same simple layout with grid columns from settings --}}
-            <div class="grid grid-cols-1 {{ $gridCols }} gap-8">
+                <div class="grid grid-cols-1 {{ $gridCols }} gap-8">
                 @foreach($coaches as $coach)
                     <div class="bg-white rounded-lg overflow-hidden transition-shadow text-center">
                         @if($showPhoto)

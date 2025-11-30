@@ -42,7 +42,7 @@ class CmsFooterSettings extends Component
         // Load dynamic footer blocks
         $this->loadFooterBlocks();
     }
-
+    
     /**
      * Watch for changes to footerBlocks array and persist to database
      */
@@ -82,8 +82,8 @@ class CmsFooterSettings extends Component
                             'name' => $block['name'] ?? '',
                             'is_active' => $block['is_active'] ?? true,
                         ]);
-                    }
-                }
+        }
+    }
             }
         }
     }
@@ -285,7 +285,7 @@ class CmsFooterSettings extends Component
             $block->update(['sort_order' => $previousBlock->sort_order]);
             $previousBlock->update(['sort_order' => $tempOrder]);
             
-            $this->loadFooterBlocks();
+                $this->loadFooterBlocks();
         }
     }
     
@@ -312,7 +312,7 @@ class CmsFooterSettings extends Component
             $block->update(['sort_order' => $nextBlock->sort_order]);
             $nextBlock->update(['sort_order' => $tempOrder]);
             
-            $this->loadFooterBlocks();
+                $this->loadFooterBlocks();
         }
     }
     
@@ -322,11 +322,11 @@ class CmsFooterSettings extends Component
     public function toggleBlockActive($blockId)
     {
         $block = CmsSection::find($blockId);
-        if ($block) {
+            if ($block) {
             $block->update(['is_active' => !($block->is_active ?? true)]);
-            $this->loadFooterBlocks();
+                $this->loadFooterBlocks();
+            }
         }
-    }
 
     /**
      * Update a specific link within a links block
@@ -390,11 +390,11 @@ class CmsFooterSettings extends Component
             $block->save();
             
             // Reload blocks
-            $this->loadFooterBlocks();
-            
-            Flux::toast(
+        $this->loadFooterBlocks();
+        
+        Flux::toast(
                 text: 'New link added successfully',
-                variant: 'success',
+            variant: 'success',
                 duration: 2000
             );
             
@@ -469,11 +469,11 @@ class CmsFooterSettings extends Component
             
             $this->loadFooterBlocks();
         } catch (\Exception $e) {
-            Flux::toast(
+        Flux::toast(
                 text: 'Error saving footer settings: ' . $e->getMessage(),
                 variant: 'error',
                 duration: 5000
-            );
+        );
         }
     }
     

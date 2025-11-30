@@ -1,9 +1,9 @@
 {{-- Generic Content Section Partial --}}
 @if($section->type === 'content')
     @if($isFitness)
-        <div class="container my-5">
+        <div class="container my-4 my-md-5">
             @if($section->title)
-            <div class="text-center mb-4">
+            <div class="text-center mb-3 mb-md-4">
                 <h2 class="section-heading">{{ $section->title }}</h2>
                 @if($section->subtitle)
                 <p class="text-muted">{{ $section->subtitle }}</p>
@@ -12,7 +12,7 @@
             @endif
             
             <div class="row justify-content-center">
-                <div class="col-lg-10">
+                <div class="col-12 col-md-10 col-lg-10">
                     @if($section->content)
                     <div class="content-section">
                         {!! $section->content !!}

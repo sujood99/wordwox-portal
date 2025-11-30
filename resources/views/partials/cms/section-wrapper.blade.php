@@ -361,23 +361,44 @@
                     @break
                     
                 @case('heading')
-                    <div class="heading-section py-8">
-                        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">{{ $section->content }}</h2>
-                    </div>
+                    @if($isFitness)
+                        <div class="heading-section py-4 py-md-6">
+                            <h2 class="section-heading text-center">{{ $section->content }}</h2>
+                        </div>
+                    @else
+                        <div class="heading-section py-6 py-md-8">
+                            <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 text-center">{{ $section->content }}</h2>
+                        </div>
+                    @endif
                     @break
 
                 @case('paragraph')
-                    <div class="max-w-none text-base leading-relaxed text-gray-700 ck-content">
-                        {!! $section->content !!}
-                    </div>
+                    @if($isFitness)
+                        <div class="content-section">
+                            {!! $section->content !!}
+                        </div>
+                    @else
+                        <div class="max-w-none text-base md:text-lg leading-relaxed text-gray-700 ck-content">
+                            {!! $section->content !!}
+                        </div>
+                    @endif
                     @break
 
                 @case('quote')
-                    <blockquote class="text-2xl md:text-3xl italic text-gray-700 mb-6">
-                        "{{ $section->content }}"
-                    </blockquote>
-                    @if($section->title)
-                        <cite class="text-lg text-gray-600">— {{ $section->title }}</cite>
+                    @if($isFitness)
+                        <blockquote class="blockquote-fitness">
+                            <p class="quote-text-fitness">"{{ $section->content }}"</p>
+                            @if($section->title)
+                                <cite class="quote-cite-fitness">— {{ $section->title }}</cite>
+                            @endif
+                        </blockquote>
+                    @else
+                        <blockquote class="text-xl md:text-2xl lg:text-3xl italic text-gray-700 mb-4 mb-md-6">
+                            "{{ $section->content }}"
+                        </blockquote>
+                        @if($section->title)
+                            <cite class="text-base md:text-lg text-gray-600">— {{ $section->title }}</cite>
+                        @endif
                     @endif
                     @break
 
@@ -386,24 +407,46 @@
                         $items = explode("\n", $section->content);
                         $items = array_filter(array_map('trim', $items));
                     @endphp
-                    <ul class="space-y-3 text-lg">
-                        @foreach($items as $item)
-                            @php
-                                $item = preg_replace('/^[•\-\*]\s*/', '', $item);
-                            @endphp
-                            <li class="flex items-start">
-                                <span class="text-blue-600 mr-3 mt-1">•</span>
-                                <span>{{ $item }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
+                    @if($isFitness)
+                        <ul class="list-fitness">
+                            @foreach($items as $item)
+                                @php
+                                    $item = preg_replace('/^[•\-\*]\s*/', '', $item);
+                                @endphp
+                                <li class="list-item-fitness">{{ $item }}</li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <ul class="space-y-2 md:space-y-3 text-base md:text-lg">
+                            @foreach($items as $item)
+                                @php
+                                    $item = preg_replace('/^[•\-\*]\s*/', '', $item);
+                                @endphp
+                                <li class="flex items-start">
+                                    <span class="text-blue-600 mr-3 mt-1">•</span>
+                                    <span>{{ $item }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
                     @break
 
                 @case('button')
-                    <a href="{{ $section->title ?: '#' }}" 
-                       class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg transition-colors">
-                        {{ $section->content ?: 'Click me' }}
-                    </a>
+                    @if($isFitness)
+                        <div class="text-center my-3 my-md-4">
+                            <a href="{{ $section->title ?: '#' }}" 
+                               class="btn-fitness">
+                                {{ $section->content ?: 'Click me' }}
+                            </a>
+                        </div>
+                    @else
+                        <div class="text-center my-4 my-md-6">
+                            <a href="{{ $section->title ?: '#' }}" 
+                               class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 md:px-8 md:py-4 rounded-lg transition-colors text-sm md:text-base">
+                                {{ $section->content ?: 'Click me' }}
+                            </a>
+                        </div>
+                    @endif
                     @break
 
                 @case('spacer')
@@ -422,33 +465,69 @@
                         $data = is_string($section->data) ? json_decode($section->data, true) : ($section->data ?? []);
                         $buttons = $data['buttons'] ?? [];
                     @endphp
-                    @if($section->title)
-                        <h2 class="text-3xl md:text-4xl font-bold mb-4">{{ $section->title }}</h2>
-                    @endif
-                    @if($section->content)
-                        <p class="text-xl mb-8 opacity-90">{{ $section->content }}</p>
-                    @endif
-                    @if(!empty($buttons))
-                        <div class="flex flex-wrap justify-center gap-4">
-                            @foreach($buttons as $button)
-                                @php
-                                    $buttonClass = 'inline-block px-8 py-4 rounded-lg font-semibold transition-colors ';
-                                    switch($button['style'] ?? 'primary') {
-                                        case 'primary':
-                                            $buttonClass .= 'bg-white text-blue-600 hover:bg-gray-100';
-                                            break;
-                                        case 'secondary':
-                                            $buttonClass .= 'bg-gray-600 text-white hover:bg-gray-700';
-                                            break;
-                                        case 'outline':
-                                            $buttonClass .= 'border-2 border-white text-white hover:bg-white hover:text-blue-600';
-                                            break;
-                                    }
-                                @endphp
-                                <a href="{{ $button['url'] ?? '#' }}" class="{{ $buttonClass }}">
-                                    {{ $button['text'] ?? 'Button' }}
-                                </a>
-                            @endforeach
+                    @if($isFitness)
+                        <div class="cta-section-fitness text-center py-4 py-md-5">
+                            @if($section->title)
+                                <h2 class="section-heading mb-3 mb-md-4">{{ $section->title }}</h2>
+                            @endif
+                            @if($section->content)
+                                <p class="cta-description-fitness mb-4 mb-md-5">{{ $section->content }}</p>
+                            @endif
+                            @if(!empty($buttons))
+                                <div class="cta-buttons-fitness d-flex flex-wrap justify-content-center gap-3">
+                                    @foreach($buttons as $button)
+                                        @php
+                                            $buttonClass = 'btn-fitness ';
+                                            switch($button['style'] ?? 'primary') {
+                                                case 'primary':
+                                                    $buttonClass .= '';
+                                                    break;
+                                                case 'secondary':
+                                                    $buttonClass .= 'btn-secondary-fitness';
+                                                    break;
+                                                case 'outline':
+                                                    $buttonClass .= 'btn-outline-fitness';
+                                                    break;
+                                            }
+                                        @endphp
+                                        <a href="{{ $button['url'] ?? '#' }}" class="{{ $buttonClass }}">
+                                            {{ $button['text'] ?? 'Button' }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    @else
+                        <div class="text-center py-6 py-md-8">
+                            @if($section->title)
+                                <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 mb-md-4">{{ $section->title }}</h2>
+                            @endif
+                            @if($section->content)
+                                <p class="text-lg md:text-xl mb-6 mb-md-8 opacity-90">{{ $section->content }}</p>
+                            @endif
+                            @if(!empty($buttons))
+                                <div class="d-flex flex-wrap justify-content-center gap-3 gap-md-4">
+                                    @foreach($buttons as $button)
+                                        @php
+                                            $buttonClass = 'inline-block px-6 py-3 md:px-8 md:py-4 rounded-lg font-semibold transition-colors text-sm md:text-base ';
+                                            switch($button['style'] ?? 'primary') {
+                                                case 'primary':
+                                                    $buttonClass .= 'bg-white text-blue-600 hover:bg-gray-100';
+                                                    break;
+                                                case 'secondary':
+                                                    $buttonClass .= 'bg-gray-600 text-white hover:bg-gray-700';
+                                                    break;
+                                                case 'outline':
+                                                    $buttonClass .= 'border-2 border-white text-white hover:bg-white hover:text-blue-600';
+                                                    break;
+                                            }
+                                        @endphp
+                                        <a href="{{ $button['url'] ?? '#' }}" class="{{ $buttonClass }}">
+                                            {{ $button['text'] ?? 'Button' }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     @endif
                     @break

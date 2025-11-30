@@ -33,10 +33,10 @@
     <input type="hidden" name="org_id" value="{{ $orgId }}">
     
     <div class="form-group field-contactform-name required mb-3">
-        <label for="contactform-name" class="form-label">Name</label>
+        <label for="contactform-name" class="form-label contact-form-label">Name</label>
         <input type="text" 
                id="contactform-name" 
-               class="form-control @error('name') is-invalid @enderror" 
+               class="form-control contact-form-input @error('name') is-invalid @enderror" 
                name="name" 
                value="{{ old('name') }}"
                autofocus 
@@ -48,10 +48,10 @@
     </div>
 
     <div class="form-group field-contactform-email required mb-3">
-        <label for="contactform-email" class="form-label">Email</label>
-        <input type="text" 
+        <label for="contactform-email" class="form-label contact-form-label">Email</label>
+        <input type="email" 
                id="contactform-email" 
-               class="form-control @error('email') is-invalid @enderror" 
+               class="form-control contact-form-input @error('email') is-invalid @enderror" 
                name="email" 
                value="{{ old('email') }}"
                aria-required="true"
@@ -62,10 +62,10 @@
     </div>
 
     <div class="form-group field-contactform-subject required mb-3">
-        <label for="contactform-subject" class="form-label">Subject</label>
+        <label for="contactform-subject" class="form-label contact-form-label">Subject</label>
         <input type="text" 
                id="contactform-subject" 
-               class="form-control @error('subject') is-invalid @enderror" 
+               class="form-control contact-form-input @error('subject') is-invalid @enderror" 
                name="subject" 
                value="{{ old('subject') }}"
                aria-required="true"
@@ -76,11 +76,11 @@
     </div>
 
     <div class="form-group field-contactform-body required mb-3">
-        <label for="contactform-body" class="form-label">Body</label>
+        <label for="contactform-body" class="form-label contact-form-label">Body</label>
         <textarea id="contactform-body" 
-                  class="form-control @error('body') is-invalid @enderror" 
+                  class="form-control contact-form-textarea @error('body') is-invalid @enderror" 
                   name="body" 
-                  rows="6" 
+                  rows="5"
                   aria-required="true"
                   required>{{ old('body') }}</textarea>
         @error('body')
@@ -91,8 +91,31 @@
     {{-- Captcha can be added here if needed --}}
     {{-- For now, we'll skip captcha but you can add Google reCAPTCHA or similar --}}
     
-    <div class="form-group">
-        <button type="submit" class="btn btn-primary" name="contact-button">Submit</button>
+    <div class="form-group mt-4">
+        <button type="submit" class="btn btn-primary btn-fitness contact-submit-btn" name="contact-button" id="contact-submit-btn">
+            <span class="submit-text">Submit</span>
+            <span class="submit-loading d-none">
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Sending...
+            </span>
+        </button>
     </div>
 </form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('contact-form');
+        const submitBtn = document.getElementById('contact-submit-btn');
+        const submitText = submitBtn.querySelector('.submit-text');
+        const submitLoading = submitBtn.querySelector('.submit-loading');
+        
+        if (form && submitBtn) {
+            form.addEventListener('submit', function() {
+                submitBtn.disabled = true;
+                submitText.classList.add('d-none');
+                submitLoading.classList.remove('d-none');
+            });
+        }
+    });
+</script>
 
