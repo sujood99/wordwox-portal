@@ -39,7 +39,6 @@ use Flux\Flux;
  *    - heading: Simple heading text
  *    - image: Single image upload
  *    - spacer: Spacing control
- *    - video: Video embed
  * 
  * This architecture follows best practices:
  * - CKEditor 5 for text/HTML content (rich editing with powerful table support, Arabic/RTL support)
@@ -73,7 +72,7 @@ class CmsPagesEdit extends Component
     
     // Confirmation modal state
     public $showDeleteConfirm = false;
-    public $deleteConfirmType = ''; // 'block', 'image', 'banner', 'video', 'gallery', 'fax'
+    public $deleteConfirmType = ''; // 'block', 'image', 'banner', 'gallery', 'fax'
     public $deleteConfirmIndex = null;
     public $deleteConfirmSubIndex = null; // For gallery images and fax numbers
     public $deleteConfirmMessage = '';
@@ -121,7 +120,7 @@ class CmsPagesEdit extends Component
      * 
      * Architecture:
      * - CKEditor blocks: paragraph (rich text content)
-     * - Custom form blocks: hero, heading, image, spacer, video (structured data)
+     * - Custom form blocks: hero, heading, image, spacer (structured data)
      */
     public function getBlockTypesProperty()
     {
@@ -132,7 +131,6 @@ class CmsPagesEdit extends Component
             'image' => ['name' => 'Image', 'icon' => 'photo', 'category' => 'structured'],
             'banner' => ['name' => 'Banner', 'icon' => 'rectangle-stack', 'category' => 'structured'],
             'spacer' => ['name' => 'Spacer', 'icon' => 'minus', 'category' => 'structured'],
-            'video' => ['name' => 'Video', 'icon' => 'play', 'category' => 'structured'],
             'contact' => ['name' => 'Contact', 'icon' => 'envelope', 'category' => 'structured'],
             'packages' => ['name' => 'Packages', 'icon' => 'shopping-bag', 'category' => 'structured'],
             'coaches' => ['name' => 'Coaches', 'icon' => 'user-group', 'category' => 'structured'],
@@ -237,6 +235,7 @@ class CmsPagesEdit extends Component
         if ($type === 'hero') {
             $defaultSettings['background_color'] = '#1f2937';
             $defaultSettings['text_color'] = '#ffffff';
+            $defaultSettings['height'] = '500';
         }
         
         // Default data for contact blocks
@@ -252,10 +251,8 @@ class CmsPagesEdit extends Component
         // Default data for banner blocks
         if ($type === 'banner') {
             $defaultData = [
-                'image_url' => '',
-                'link_url' => '',
-                'alt_text' => '',
-                'height' => 'medium'
+                'images' => [], // Array of images: [{url, path, alt_text, link_url}]
+                'height' => '300' // Height in pixels (number input)
             ];
         }
         
@@ -349,7 +346,6 @@ class CmsPagesEdit extends Component
                 'block' => 'Are you sure you want to remove this block? This action cannot be undone.',
                 'image' => 'Are you sure you want to remove this image?',
                 'banner' => 'Are you sure you want to remove this banner image?',
-                'video' => 'Are you sure you want to remove this video?',
                 'gallery' => 'Are you sure you want to remove this image from the gallery?',
                 'fax' => 'Are you sure you want to remove this fax number?',
             ];
@@ -392,10 +388,11 @@ class CmsPagesEdit extends Component
                 $this->removeImage($index);
                 break;
             case 'banner':
-                $this->removeBannerImage($index);
-                break;
-            case 'video':
-                $this->removeVideo($index);
+                if ($subIndex !== null) {
+                    $this->removeBannerImageByIndex($index, $subIndex);
+                } else {
+                    $this->removeBannerImage($index);
+                }
                 break;
             case 'gallery':
                 if ($subIndex !== null) {
@@ -540,6 +537,42 @@ class CmsPagesEdit extends Component
             $settings = $settingsJson;
         } else {
             $settings = json_decode($settingsJson, true) ?? [];
+        }
+        
+        // Validate minimum values
+        if ($key === 'height') {
+            $value = max(1, (int) $value); // Ensure minimum is 1px
+        } elseif ($key === 'title_font_size' || $key === 'subtitle_font_size' || $key === 'content_font_size') {
+            // Font size is now number input (px only), ensure minimum is 1
+            if (!empty($value)) {
+                $numericValue = is_numeric($value) ? (float) $value : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $value, $matches) ? (float) $matches[1] : 1);
+                $value = max(1, $numericValue) . 'px';
+            }
+        }
+        
+        $settings[$key] = $value;
+        $this->blocks[$index]['settings_json'] = json_encode($settings);
+    }
+    
+    /**
+     * Update block settings (generic method for all blocks)
+     */
+    public function updateBlockSettings($index, $key, $value)
+    {
+        // Handle both array and JSON string formats
+        $settingsJson = $this->blocks[$index]['settings_json'] ?? '{}';
+        if (is_array($settingsJson)) {
+            $settings = $settingsJson;
+        } else {
+            $settings = json_decode($settingsJson, true) ?? [];
+        }
+        
+        // Validate font size values
+        if (str_ends_with($key, '_font_size')) {
+            if (!empty($value)) {
+                $numericValue = is_numeric($value) ? (float) $value : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $value, $matches) ? (float) $matches[1] : 1);
+                $value = max(1, $numericValue) . 'px';
+            }
         }
         
         $settings[$key] = $value;
@@ -763,6 +796,14 @@ class CmsPagesEdit extends Component
             // Use dedicated method for gallery uploads
             $this->uploadGalleryImages($blockIndex);
         }
+        // Handle banner uploads (key format: "banner.0" or nested array "banner.0.0")
+        elseif (isset($parts[0]) && $parts[0] === 'banner' && isset($parts[1])) {
+            $blockIndex = (int)$parts[1];
+            \Log::info("updatedImageUploads called for banner with key: {$key}, blockIndex: {$blockIndex}");
+            \Log::info("Value type: " . (is_array($value) ? 'array[' . count($value) . ']' : gettype($value)));
+            // Use dedicated method for banner uploads
+            $this->uploadBannerImages($blockIndex);
+        }
         // Handle single image uploads (key format: "blocks.0")
         elseif ($value instanceof \Illuminate\Http\UploadedFile) {
             $blockIndex = (int)end($parts);
@@ -797,11 +838,7 @@ class CmsPagesEdit extends Component
                 $this->blocks[$blockIndex]['content'] = $url;
             }
             
-            // For banner blocks, set default alt text if empty
-            if (isset($this->blocks[$blockIndex]['type']) && $this->blocks[$blockIndex]['type'] === 'banner' && empty($data['alt_text'])) {
-                $data['alt_text'] = 'Banner image';
-                $this->blocks[$blockIndex]['data_json'] = json_encode($data);
-            }
+            // Banner blocks now use multiple images array, handled by uploadBannerImages method
             
             // Clear the file from uploads array
             unset($this->imageUploads[$key]);
@@ -926,63 +963,6 @@ class CmsPagesEdit extends Component
         }
     }
 
-    public $videoUploads = [];
-
-    public function updatedVideoUploads($value, $key)
-    {
-        // Handle video upload when file is selected
-        // Key format: "blocks.0" -> index is 0
-        if ($value instanceof \Illuminate\Http\UploadedFile) {
-            $parts = explode('.', $key);
-            $blockIndex = (int)end($parts);
-            
-            // Validate file
-            $this->validate([
-                "videoUploads.{$key}" => 'mimes:mp4,webm,ogg,avi,mov|max:102400', // 100MB max
-            ], [
-                "videoUploads.{$key}.mimes" => 'The file must be a video (MP4, WebM, OGG, AVI, MOV).',
-                "videoUploads.{$key}.max" => 'The video must not be larger than 100MB.',
-            ]);
-
-            // Store the file
-            $path = $value->store('cms/videos', 'public');
-            
-            // Get the public URL
-            $url = Storage::url($path);
-            
-            // Update block data with video URL and path
-            $data = json_decode($this->blocks[$blockIndex]['data_json'] ?? '{}', true);
-            if (!is_array($data)) {
-                $data = [];
-            }
-            
-            $data['video_url'] = $url;
-            $data['video_path'] = $path;
-            
-            $this->blocks[$blockIndex]['data_json'] = json_encode($data);
-            $this->blocks[$blockIndex]['content'] = $url;
-            
-            // Clear the file from uploads array
-            unset($this->videoUploads[$key]);
-        }
-    }
-
-    public function removeVideo($index)
-    {
-        // Get current video path
-        $data = json_decode($this->blocks[$index]['data_json'] ?? '{}', true);
-        
-        if (isset($data['video_path'])) {
-            // Delete the file
-            Storage::disk('public')->delete($data['video_path']);
-        }
-        
-        // Clear video data
-        $data['video_url'] = '';
-        $data['video_path'] = '';
-        $this->blocks[$index]['data_json'] = json_encode($data);
-        $this->blocks[$index]['content'] = '';
-    }
 
     /**
      * Update contact field (email or phone)
@@ -1085,7 +1065,25 @@ class CmsPagesEdit extends Component
             $data = [];
         }
         
-        $data[$field] = $value;
+        // Handle height as number (pixels)
+        if ($field === 'height') {
+            $numericValue = is_numeric($value) ? (float) $value : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $value, $matches) ? (float) $matches[1] : 300);
+            $value = max(1, $numericValue); // Minimum 1px
+        }
+        
+        // Handle updating individual image fields (format: image_0_alt_text, image_0_link_url)
+        if (preg_match('/^image_(\d+)_(.+)$/', $field, $matches)) {
+            $imageIndex = (int)$matches[1];
+            $imageField = $matches[2];
+            $images = $data['images'] ?? [];
+            if (isset($images[$imageIndex])) {
+                $images[$imageIndex][$imageField] = $value;
+                $data['images'] = $images;
+            }
+        } else {
+            $data[$field] = $value;
+        }
+        
         $this->blocks[$index]['data_json'] = json_encode($data);
         
         // Auto-save to database
@@ -1133,7 +1131,119 @@ class CmsPagesEdit extends Component
     }
 
     /**
-     * Remove banner image
+     * Upload banner images (supports multiple images)
+     */
+    public function uploadBannerImages($blockIndex)
+    {
+        // Get uploaded files for this banner block
+        $key = "banner.{$blockIndex}";
+        
+        \Log::info("uploadBannerImages called for blockIndex: {$blockIndex}");
+        \Log::info("Looking for key: {$key}");
+        \Log::info("imageUploads structure: " . json_encode(array_keys($this->imageUploads)));
+        
+        // Check if files exist in nested structure
+        if (!isset($this->imageUploads['banner'][$blockIndex]) && !isset($this->imageUploads[$key])) {
+            \Log::info("Banner upload: No files found for key: {$key}");
+            return;
+        }
+        
+        // Get value from either nested or flat structure
+        $value = $this->imageUploads['banner'][$blockIndex] ?? $this->imageUploads[$key] ?? null;
+        
+        if (!$value) {
+            \Log::info("Banner upload: Value is null");
+            return;
+        }
+        
+        $filesToProcess = [];
+        
+        // Handle both array and single file
+        if (is_array($value)) {
+            $filesToProcess = $value;
+        } elseif ($value instanceof \Illuminate\Http\UploadedFile) {
+            $filesToProcess = [$value];
+        }
+        
+        if (empty($filesToProcess)) {
+            \Log::info("Banner upload: No files to process");
+            return;
+        }
+        
+        \Log::info("Banner upload: Processing " . count($filesToProcess) . " files");
+        
+        $uploadedImages = [];
+        
+        foreach ($filesToProcess as $file) {
+            if ($file instanceof \Illuminate\Http\UploadedFile) {
+                // Validate file
+                try {
+                    $this->validate([
+                        "imageUploads.banner.{$blockIndex}.*" => 'image|max:10240',
+                    ]);
+                } catch (\Illuminate\Validation\ValidationException $e) {
+                    // Try single file validation
+                    $this->validate([
+                        "imageUploads.banner.{$blockIndex}" => 'image|max:10240',
+                    ]);
+                }
+
+                // Store the file
+                $path = $file->store('cms/images', 'public');
+                $url = Storage::url($path);
+                
+                \Log::info("Banner upload: Uploaded file to {$path}");
+                
+                $uploadedImages[] = [
+                    'url' => $url,
+                    'path' => $path,
+                    'alt_text' => 'Banner image',
+                    'link_url' => ''
+                ];
+            }
+        }
+        
+        if (!empty($uploadedImages)) {
+            // Add to existing banner images
+            $data = json_decode($this->blocks[$blockIndex]['data_json'] ?? '{}', true);
+            if (!is_array($data)) {
+                $data = [];
+            }
+            
+            $existingImages = $data['images'] ?? [];
+            if (!is_array($existingImages)) {
+                $existingImages = [];
+            }
+            // Merge and re-index to ensure sequential numeric keys
+            $data['images'] = array_values(array_merge($existingImages, $uploadedImages));
+            
+            \Log::info("Banner upload: Total images now: " . count($data['images']));
+            
+            $this->blocks[$blockIndex]['data_json'] = json_encode($data);
+            
+            // Auto-save to database
+            if ($this->blocks[$blockIndex]['id']) {
+                $section = $this->page->sections()->find($this->blocks[$blockIndex]['id']);
+                if ($section) {
+                    $section->data = $data;
+                    $section->save();
+                    \Log::info("Banner upload: Saved to database for section ID: " . $section->id);
+                }
+            } else {
+                \Log::info("Banner upload: No section ID yet (new block not saved)");
+            }
+            
+            // Force Livewire to refresh this specific block
+            $this->dispatch('banner-images-uploaded', blockIndex: $blockIndex);
+        }
+        
+        // Clear the file from uploads array
+        unset($this->imageUploads['banner'][$blockIndex]);
+        unset($this->imageUploads[$key]);
+    }
+
+    /**
+     * Remove banner image (all images - for backward compatibility)
      */
     public function removeBannerImage($index)
     {
@@ -1142,15 +1252,66 @@ class CmsPagesEdit extends Component
             $data = [];
         }
         
-        // Delete the file if it exists
-        if (isset($data['image_path'])) {
-            Storage::disk('public')->delete($data['image_path']);
+        // Delete all image files
+        $images = $data['images'] ?? [];
+        foreach ($images as $image) {
+            if (isset($image['path'])) {
+                Storage::disk('public')->delete($image['path']);
+            }
         }
         
-        // Remove the image URL and path but keep other banner data
-        $data['image_url'] = '';
-        $data['image_path'] = '';
+        // Clear all images
+        $data['images'] = [];
         $this->blocks[$index]['data_json'] = json_encode($data);
+    }
+
+    /**
+     * Remove a specific banner image by index
+     * Note: This removes the image from the block but doesn't delete the file until page is saved
+     */
+    public function removeBannerImageByIndex($blockIndex, $imageIndex)
+    {
+        \Log::info("removeBannerImageByIndex called: blockIndex={$blockIndex}, imageIndex={$imageIndex}");
+        
+        $data = json_decode($this->blocks[$blockIndex]['data_json'] ?? '{}', true);
+        if (!is_array($data)) {
+            $data = [];
+        }
+        
+        $images = $data['images'] ?? [];
+        
+        \Log::info("Current images count: " . count($images));
+        
+        // Get the image to remove
+        if (isset($images[$imageIndex])) {
+            $imageToRemove = $images[$imageIndex];
+            
+            // Store path for deletion on save (don't delete immediately)
+            if (isset($imageToRemove['path'])) {
+                // Add to pending deletions array
+                if (!isset($data['pending_deletions'])) {
+                    $data['pending_deletions'] = [];
+                }
+                $data['pending_deletions'][] = $imageToRemove['path'];
+                \Log::info("Marked file for deletion on save: " . $imageToRemove['path']);
+            }
+            
+            // Remove from array (hide from UI)
+            unset($images[$imageIndex]);
+            $data['images'] = array_values($images); // Re-index array
+            
+            \Log::info("New images count: " . count($data['images']));
+            
+            $this->blocks[$blockIndex]['data_json'] = json_encode($data);
+            
+            // Don't auto-save to database - let user save when they're ready
+            // The files will be deleted when savePage() is called
+            
+            // Dispatch success message
+            $this->dispatch('banner-image-removed', blockIndex: $blockIndex);
+        } else {
+            \Log::warning("Image index {$imageIndex} not found in images array");
+        }
     }
 
     /**
@@ -1301,6 +1462,24 @@ class CmsPagesEdit extends Component
 
         // Create or update sections (each block becomes a section in the database)
         foreach ($this->blocks as $block) {
+            // Process pending deletions for banner images
+            if ($block['type'] === 'banner') {
+                $blockData = json_decode($block['data_json'] ?? '{}', true);
+                if (isset($blockData['pending_deletions']) && !empty($blockData['pending_deletions'])) {
+                    foreach ($blockData['pending_deletions'] as $filePath) {
+                        try {
+                            Storage::disk('public')->delete($filePath);
+                            \Log::info("Deleted file on save: {$filePath}");
+                        } catch (\Exception $e) {
+                            \Log::error("Failed to delete file: {$filePath}", ['error' => $e->getMessage()]);
+                        }
+                    }
+                    // Clear pending deletions after processing
+                    unset($blockData['pending_deletions']);
+                    $block['data_json'] = json_encode($blockData);
+                }
+            }
+            
             $sectionData = [
                 'uuid' => $block['uuid'],
                 'cms_page_id' => $this->page->id,
@@ -1324,6 +1503,52 @@ class CmsPagesEdit extends Component
                 $this->page->sections()->create($sectionData);
             }
         }
+    }
+
+    /**
+     * Store preview data in session and return preview URL
+     */
+    public function preview()
+    {
+        // Store current page data and blocks in session for preview
+        session()->put('cms_preview_page_' . $this->page->id, [
+            'title' => $this->title,
+            'slug' => $this->slug ?: $this->page->slug,
+            'description' => $this->description,
+            'template' => $this->template ?? $this->page->template,
+            'is_homepage' => $this->is_homepage,
+            'blocks' => $this->blocks,
+            'org_id' => $this->page->org_id,
+        ]);
+        
+        $slug = $this->slug ?: $this->page->slug;
+        
+        // If it's the homepage
+        if ($this->is_homepage || $slug === 'home' || empty($slug)) {
+            $url = url('/?preview=' . $this->page->id);
+        } else {
+            $url = url('/' . $slug . '?preview=' . $this->page->id);
+        }
+        
+        // Dispatch browser event to open preview in new tab
+        $this->dispatch('open-preview', url: $url);
+        
+        return $url;
+    }
+
+    /**
+     * Get the preview URL for the current page (without storing data)
+     */
+    public function getPreviewUrl()
+    {
+        $slug = $this->slug ?: $this->page->slug;
+        
+        // If it's the homepage
+        if ($this->is_homepage || $slug === 'home' || empty($slug)) {
+            return url('/?preview=' . $this->page->id);
+        }
+        
+        return url('/' . $slug . '?preview=' . $this->page->id);
     }
 
     public function render()

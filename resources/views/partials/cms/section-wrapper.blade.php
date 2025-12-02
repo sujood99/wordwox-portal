@@ -69,10 +69,15 @@
         '2xl' => '6rem'
     ];
     
-    $topPadding = $spacing['padding_top'] ?? 'md';
-    $bottomPadding = $spacing['padding_bottom'] ?? 'md';
-    $sectionStyles[] = 'padding-top: ' . ($paddingMap[$topPadding] ?? $paddingMap['md']);
-    $sectionStyles[] = 'padding-bottom: ' . ($paddingMap[$bottomPadding] ?? $paddingMap['md']);
+    // Only apply padding if explicitly set in section settings (not by default)
+    if (isset($spacing['padding_top']) && $spacing['padding_top'] !== 'none') {
+        $topPadding = $spacing['padding_top'];
+        $sectionStyles[] = 'padding-top: ' . ($paddingMap[$topPadding] ?? $paddingMap['md']);
+    }
+    if (isset($spacing['padding_bottom']) && $spacing['padding_bottom'] !== 'none') {
+        $bottomPadding = $spacing['padding_bottom'];
+        $sectionStyles[] = 'padding-bottom: ' . ($paddingMap[$bottomPadding] ?? $paddingMap['md']);
+    }
     
     // Background styles
     switch ($background['type'] ?? 'color') {
@@ -123,8 +128,16 @@
     
     $containerClasses[] = $alignmentMap[$typography['text_align'] ?? 'left'];
     
+    // Set text color for all sections
     if (isset($typography['text_color'])) {
         $sectionStyles[] = 'color: ' . $typography['text_color'];
+    } else {
+        // Set default text color if not specified - determine based on background
+        $bgColor = $background['color'] ?? '#ffffff';
+        // If background is light/white, use dark text; if dark, use light text
+        $isLightBg = $bgColor === '#ffffff' || $bgColor === '#fff' || stripos($bgColor, '#f') === 0;
+        $defaultTextColor = $isLightBg ? '#2c3e50' : '#ffffff';
+        $sectionStyles[] = 'color: ' . $defaultTextColor;
     }
     
     // Add template-specific classes
@@ -135,7 +148,7 @@
             $templateClasses[] = 'ftco-animate';
         }
     } elseif ($isFitness) {
-        $templateClasses[] = 'section-padding';
+        // Don't add section-padding class - each section type handles its own padding
         if ($section->type !== 'hero') {
             $templateClasses[] = 'fitness-section';
         }
@@ -347,13 +360,14 @@
                         }
                         
                         // Configuration options
+                        $layout = $scheduleData['layout'] ?? 'grid'; // grid or list
                         $showDays = $scheduleData['show_days'] ?? $days;
                         $showInstructor = $scheduleData['show_instructor'] ?? true;
                         $showCapacity = $scheduleData['show_capacity'] ?? true;
                         $showBookButton = $scheduleData['show_book_button'] ?? true;
                         $bookButtonText = $scheduleData['book_button_text'] ?? 'Book Class';
                     @endphp
-                    @include('partials.cms.sections.schedule', compact('section', 'page', 'isMeditative', 'isFitness', 'scheduleByDay', 'showDays', 'showInstructor', 'showCapacity', 'showBookButton', 'bookButtonText'))
+                    @include('partials.cms.sections.schedule', compact('section', 'page', 'isMeditative', 'isFitness', 'scheduleByDay', 'showDays', 'showInstructor', 'showCapacity', 'showBookButton', 'bookButtonText', 'layout'))
                     @break
                     
                 @case('content')
@@ -361,26 +375,50 @@
                     @break
                     
                 @case('heading')
+                    @php
+                        $headingSettings = is_string($section->settings) ? json_decode($section->settings, true) : ($section->settings ?? []);
+                        $headingFontSize = $headingSettings['content_font_size'] ?? '';
+                        $headingStyle = '';
+                        if (!empty($headingFontSize)) {
+                            $numericValue = is_numeric($headingFontSize) ? (float) $headingFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $headingFontSize, $matches) ? (float) $matches[1] : null);
+                            if ($numericValue && $numericValue >= 1) {
+                                $headingStyle = 'font-size: ' . $numericValue . 'px; ';
+                            }
+                        }
+                        // Always add black color to override parent section's color
+                        $headingStyleWithColor = $headingStyle . 'color: #000000 !important;';
+                    @endphp
                     @if($isFitness)
-                        <div class="heading-section py-4 py-md-6">
-                            <h2 class="section-heading text-center">{{ $section->content }}</h2>
+                        <div class="py-4 py-md-6">
+                            <h2 class="section-heading text-center" style="{{ $headingStyleWithColor }}">{{ $section->content }}</h2>
                         </div>
                     @else
-                        <div class="heading-section py-6 py-md-8">
-                            <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 text-center">{{ $section->content }}</h2>
-                        </div>
+                        <div class="py-6 py-md-8">
+                            <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 text-center" style="{{ $headingStyleWithColor }}">{{ $section->content }}</h2>
+                    </div>
                     @endif
                     @break
 
                 @case('paragraph')
+                    @php
+                        $paragraphSettings = is_string($section->settings) ? json_decode($section->settings, true) : ($section->settings ?? []);
+                        $paragraphFontSize = $paragraphSettings['content_font_size'] ?? '';
+                        $paragraphStyle = '';
+                        if (!empty($paragraphFontSize)) {
+                            $numericValue = is_numeric($paragraphFontSize) ? (float) $paragraphFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $paragraphFontSize, $matches) ? (float) $matches[1] : null);
+                            if ($numericValue && $numericValue >= 1) {
+                                $paragraphStyle = 'font-size: ' . $numericValue . 'px;';
+                            }
+                        }
+                    @endphp
                     @if($isFitness)
-                        <div class="content-section">
+                        <div class="content-section" style="{{ $paragraphStyle }}">
                             {!! $section->content !!}
                         </div>
                     @else
-                        <div class="max-w-none text-base md:text-lg leading-relaxed text-gray-700 ck-content">
-                            {!! $section->content !!}
-                        </div>
+                        <div class="max-w-none text-base md:text-lg leading-relaxed text-gray-700 ck-content" style="{{ $paragraphStyle }}">
+                        {!! $section->content !!}
+                    </div>
                     @endif
                     @break
 
@@ -394,9 +432,9 @@
                         </blockquote>
                     @else
                         <blockquote class="text-xl md:text-2xl lg:text-3xl italic text-gray-700 mb-4 mb-md-6">
-                            "{{ $section->content }}"
-                        </blockquote>
-                        @if($section->title)
+                        "{{ $section->content }}"
+                    </blockquote>
+                    @if($section->title)
                             <cite class="text-base md:text-lg text-gray-600">— {{ $section->title }}</cite>
                         @endif
                     @endif
@@ -418,16 +456,16 @@
                         </ul>
                     @else
                         <ul class="space-y-2 md:space-y-3 text-base md:text-lg">
-                            @foreach($items as $item)
-                                @php
-                                    $item = preg_replace('/^[•\-\*]\s*/', '', $item);
-                                @endphp
-                                <li class="flex items-start">
-                                    <span class="text-blue-600 mr-3 mt-1">•</span>
-                                    <span>{{ $item }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
+                        @foreach($items as $item)
+                            @php
+                                $item = preg_replace('/^[•\-\*]\s*/', '', $item);
+                            @endphp
+                            <li class="flex items-start">
+                                <span class="text-blue-600 mr-3 mt-1">•</span>
+                                <span>{{ $item }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
                     @endif
                     @break
 
@@ -441,10 +479,10 @@
                         </div>
                     @else
                         <div class="text-center my-4 my-md-6">
-                            <a href="{{ $section->title ?: '#' }}" 
+                    <a href="{{ $section->title ?: '#' }}" 
                                class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 md:px-8 md:py-4 rounded-lg transition-colors text-sm md:text-base">
-                                {{ $section->content ?: 'Click me' }}
-                            </a>
+                        {{ $section->content ?: 'Click me' }}
+                    </a>
                         </div>
                     @endif
                     @break
@@ -499,33 +537,33 @@
                         </div>
                     @else
                         <div class="text-center py-6 py-md-8">
-                            @if($section->title)
+                    @if($section->title)
                                 <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 mb-md-4">{{ $section->title }}</h2>
-                            @endif
-                            @if($section->content)
+                    @endif
+                    @if($section->content)
                                 <p class="text-lg md:text-xl mb-6 mb-md-8 opacity-90">{{ $section->content }}</p>
-                            @endif
-                            @if(!empty($buttons))
+                    @endif
+                    @if(!empty($buttons))
                                 <div class="d-flex flex-wrap justify-content-center gap-3 gap-md-4">
-                                    @foreach($buttons as $button)
-                                        @php
+                            @foreach($buttons as $button)
+                                @php
                                             $buttonClass = 'inline-block px-6 py-3 md:px-8 md:py-4 rounded-lg font-semibold transition-colors text-sm md:text-base ';
-                                            switch($button['style'] ?? 'primary') {
-                                                case 'primary':
-                                                    $buttonClass .= 'bg-white text-blue-600 hover:bg-gray-100';
-                                                    break;
-                                                case 'secondary':
-                                                    $buttonClass .= 'bg-gray-600 text-white hover:bg-gray-700';
-                                                    break;
-                                                case 'outline':
-                                                    $buttonClass .= 'border-2 border-white text-white hover:bg-white hover:text-blue-600';
-                                                    break;
-                                            }
-                                        @endphp
-                                        <a href="{{ $button['url'] ?? '#' }}" class="{{ $buttonClass }}">
-                                            {{ $button['text'] ?? 'Button' }}
-                                        </a>
-                                    @endforeach
+                                    switch($button['style'] ?? 'primary') {
+                                        case 'primary':
+                                            $buttonClass .= 'bg-white text-blue-600 hover:bg-gray-100';
+                                            break;
+                                        case 'secondary':
+                                            $buttonClass .= 'bg-gray-600 text-white hover:bg-gray-700';
+                                            break;
+                                        case 'outline':
+                                            $buttonClass .= 'border-2 border-white text-white hover:bg-white hover:text-blue-600';
+                                            break;
+                                    }
+                                @endphp
+                                <a href="{{ $button['url'] ?? '#' }}" class="{{ $buttonClass }}">
+                                    {{ $button['text'] ?? 'Button' }}
+                                </a>
+                            @endforeach
                                 </div>
                             @endif
                         </div>
@@ -539,47 +577,95 @@
                         if (!is_array($bannerData)) {
                             $bannerData = [];
                         }
-                        $bannerImageUrl = $bannerData['image_url'] ?? '';
-                        $linkUrl = $bannerData['link_url'] ?? '';
-                        $altText = $bannerData['alt_text'] ?? '';
-                        $height = $bannerData['height'] ?? 'medium';
+                        $bannerImages = $bannerData['images'] ?? [];
+                        // Backward compatibility: if old format with image_url exists, convert it
+                        if (empty($bannerImages) && !empty($bannerData['image_url'])) {
+                            $bannerImages = [[
+                                'url' => $bannerData['image_url'],
+                                'alt_text' => $bannerData['alt_text'] ?? 'Banner image',
+                                'link_url' => $bannerData['link_url'] ?? ''
+                            ]];
+                        }
+                        $height = $bannerData['height'] ?? '300';
+                        // Convert old height values (small, medium, etc.) to pixels
+                        if (!is_numeric($height)) {
+                            $heightMap = ['small' => '200', 'medium' => '300', 'large' => '400', 'xl' => '500'];
+                            $height = $heightMap[$height] ?? '300';
+                        }
+                        $heightPixels = max(1, (int)$height); // Ensure minimum 1px
                         
-                        $heightClass = match($height) {
-                            'small' => 'h-48 md:h-56',
-                            'medium' => 'h-64 md:h-72',
-                            'large' => 'h-80 md:h-96',
-                            'xl' => 'h-96 md:h-[32rem]',
-                            default => 'h-64 md:h-72'
-                        };
-                        
-                        $heightPixels = match($height) {
-                            'small' => '200',
-                            'medium' => '300', 
-                            'large' => '400',
-                            'xl' => '500',
-                            default => '300'
-                        };
+                        // Generate unique carousel ID
+                        $carouselId = 'banner-carousel-' . $section->id . '-' . uniqid();
                     @endphp
                     <div class="banner-section">
-                        @if($bannerImageUrl)
-                            @if($linkUrl)
-                                <a href="{{ $linkUrl }}" class="block overflow-hidden">
-                                    <img src="{{ $bannerImageUrl }}" 
-                                         alt="{{ $altText ?: 'Banner image' }}" 
-                                         height="{{ $heightPixels }}"
-                                         class="w-full {{ $heightClass }} object-cover hover:scale-105 transition-transform duration-300">
+                        @if(!empty($bannerImages))
+                            @if(count($bannerImages) === 1)
+                                {{-- Single image --}}
+                                @php $image = $bannerImages[0]; @endphp
+                                @if(!empty($image['link_url']))
+                                    <a href="{{ $image['link_url'] }}" class="block overflow-hidden">
+                                        <img src="{{ $image['url'] }}" 
+                                             alt="{{ $image['alt_text'] ?? 'Banner image' }}" 
+                                             style="height: {{ $heightPixels }}px;"
+                                             class="w-full object-cover hover:scale-105 transition-transform duration-300">
                                 </a>
                             @else
                                 <div class="overflow-hidden">
-                                    <img src="{{ $bannerImageUrl }}" 
-                                         alt="{{ $altText ?: 'Banner image' }}" 
-                                         height="{{ $heightPixels }}"
-                                         class="w-full {{ $heightClass }} object-cover">
+                                        <img src="{{ $image['url'] }}" 
+                                             alt="{{ $image['alt_text'] ?? 'Banner image' }}" 
+                                             style="height: {{ $heightPixels }}px;"
+                                             class="w-full object-cover">
+                                    </div>
+                                @endif
+                            @else
+                                {{-- Multiple images - display as carousel slider --}}
+                                <div id="{{ $carouselId }}" class="carousel slide carousel-fade" data-bs-ride="carousel" style="height: {{ $heightPixels }}px;">
+                                    {{-- Carousel indicators --}}
+                                    <ol class="carousel-indicators">
+                                        @foreach($bannerImages as $idx => $image)
+                                            <li data-bs-target="#{{ $carouselId }}" 
+                                                data-bs-slide-to="{{ $idx }}" 
+                                                class="{{ $idx === 0 ? 'active' : '' }}"
+                                                aria-current="{{ $idx === 0 ? 'true' : 'false' }}"
+                                                aria-label="Slide {{ $idx + 1 }}"></li>
+                                        @endforeach
+                                    </ol>
+                                    
+                                    {{-- Carousel inner --}}
+                                    <div class="carousel-inner" style="height: {{ $heightPixels }}px;">
+                                        @foreach($bannerImages as $idx => $image)
+                                            <div class="carousel-item {{ $idx === 0 ? 'active' : '' }}" style="height: {{ $heightPixels }}px;">
+                                                @if(!empty($image['link_url']))
+                                                    <a href="{{ $image['link_url'] }}" style="height: {{ $heightPixels }}px; display: block;">
+                                                        <img src="{{ $image['url'] }}" 
+                                                             alt="{{ $image['alt_text'] ?? 'Banner image' }}" 
+                                                             style="height: {{ $heightPixels }}px; width: 100%; object-fit: cover;"
+                                                             class="d-block">
+                                                    </a>
+                                                @else
+                                                    <img src="{{ $image['url'] }}" 
+                                                         alt="{{ $image['alt_text'] ?? 'Banner image' }}" 
+                                                         style="height: {{ $heightPixels }}px; width: 100%; object-fit: cover;"
+                                                         class="d-block">
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    
+                                    {{-- Carousel controls --}}
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#{{ $carouselId }}" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#{{ $carouselId }}" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
                                 </div>
                             @endif
                         @else
                             <!-- Placeholder when no image is set -->
-                            <div class="{{ $heightClass }} bg-gray-200 flex items-center justify-center">
+                            <div class="bg-gray-200 flex items-center justify-center" style="height: {{ $heightPixels }}px;">
                                 <div class="text-center text-gray-500">
                                     <svg class="mx-auto h-16 w-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z"/>

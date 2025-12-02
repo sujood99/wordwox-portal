@@ -1,5 +1,24 @@
 {{-- Contact Form Section Partial --}}
 @if($isFitness)
+    @php
+        $contactSettings = is_string($section->settings) ? json_decode($section->settings, true) : ($section->settings ?? []);
+        $contactTitleFontSize = $contactSettings['title_font_size'] ?? '';
+        $contactSubtitleFontSize = $contactSettings['subtitle_font_size'] ?? '';
+        $contactTitleStyle = '';
+        $contactSubtitleStyle = '';
+        if (!empty($contactTitleFontSize)) {
+            $numericValue = is_numeric($contactTitleFontSize) ? (float) $contactTitleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $contactTitleFontSize, $matches) ? (float) $matches[1] : null);
+            if ($numericValue && $numericValue >= 1) {
+                $contactTitleStyle = 'font-size: ' . $numericValue . 'px;';
+            }
+        }
+        if (!empty($contactSubtitleFontSize)) {
+            $numericValue = is_numeric($contactSubtitleFontSize) ? (float) $contactSubtitleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $contactSubtitleFontSize, $matches) ? (float) $matches[1] : null);
+            if ($numericValue && $numericValue >= 1) {
+                $contactSubtitleStyle = 'font-size: ' . $numericValue . 'px;';
+            }
+        }
+    @endphp
     <div class="container my-4 my-md-5">
         <div class="row">
             {{-- Contact Information --}}
@@ -36,10 +55,10 @@
                 <div class="col-12 col-lg-8 mx-auto">
             @endif
                 @if($section->title)
-                <h2 class="section-heading text-center mb-3 mb-md-4">{{ $section->title }}</h2>
+                <h2 class="section-heading text-center mb-3 mb-md-4" style="{{ $contactTitleStyle }}">{{ $section->title }}</h2>
                 @endif
                 @if($section->subtitle)
-                <p class="text-center mb-4 mb-md-5 text-muted contact-subtitle-fitness">{{ $section->subtitle }}</p>
+                <p class="text-center mb-4 mb-md-5 text-muted contact-subtitle-fitness" style="{{ $contactSubtitleStyle }}">{{ $section->subtitle }}</p>
                 @endif
                 @if($section->content)
                 <div class="text-center mb-4 mb-md-5 contact-content-fitness">{!! $section->content !!}</div>

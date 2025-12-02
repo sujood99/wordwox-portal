@@ -126,7 +126,7 @@
         .navbar-fitness {
             background: var(--fitness-navbar-bg);
             backdrop-filter: blur(10px);
-            box-shadow: 0 2px 20px var(--fitness-navbar-shadow);
+           
             padding: 0.75rem 0;
             transition: all 0.3s ease;
         }
@@ -227,6 +227,35 @@
             .nav-link.active:hover {
                 transform: translateY(-2px);
             }
+        }
+        
+        /* Dropdown Menu Styles */
+        .dropdown-menu {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px var(--fitness-shadow);
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+        }
+        
+        .dropdown-item {
+            padding: 0.75rem 1.5rem;
+            color: var(--fitness-text-base);
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: var(--fitness-primary-light);
+            color: var(--fitness-primary);
+        }
+        
+        .dropdown-item.text-danger:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+        
+        .dropdown-divider {
+            margin: 0.5rem 0;
         }
         
         @media (min-width: 768px) {
@@ -343,7 +372,7 @@
         
         /* Responsive Section Padding */
         .section-padding {
-            padding: 40px 0;
+            padding: 0px 0;
         }
         
         @media (min-width: 768px) {
@@ -429,12 +458,17 @@
             }
         }
         
-        /* Section Heading */
+        /* Section Heading - inherit color from parent, allow inline styles to override */
         .section-heading {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--fitness-text-dark);
+            color: inherit; /* Inherit from parent section instead of forcing --fitness-text-dark */
             margin-bottom: 0.5rem;
+        }
+        
+        /* Override section-heading color when inside heading-section */
+        .heading-section .section-heading {
+            color: #000000 !important;
         }
         
         @media (min-width: 768px) {
@@ -447,6 +481,21 @@
             .section-heading {
                 font-size: 3rem;
             }
+        }
+        /* Heading Section - force black color, override any inherited colors */
+        .heading-section {
+            color: #000000 !important;
+        }
+        
+        .heading-section h1,
+        .heading-section h2,
+        .heading-section h3,
+        .heading-section h4,
+        .heading-section h5,
+        .heading-section h6,
+        .heading-section .section-heading,
+        .heading-section p {
+            color: #000000 !important;
         }
         
         /* Responsive Quote Block */
@@ -617,6 +666,14 @@
             font-weight: 600;
             border-radius: 25px;
             transition: all 0.3s ease;
+            background: var(--fitness-primary, #ff6b6b) !important;
+            border: none !important;
+            color: var(--fitness-text-light, white) !important;
+        }
+        
+        .contact-submit-btn:hover {
+            background: var(--fitness-primary-hover, #ff5252) !important;
+            color: var(--fitness-text-light, white) !important;
         }
         
         .contact-submit-btn:disabled {
@@ -837,6 +894,29 @@
             }
         }
         
+        /* Override Bootstrap btn-primary to use custom theme colors */
+        .btn-primary,
+        .btn-primary.btn-sm,
+        .btn-primary.btn-lg {
+            background: var(--fitness-primary, #ff6b6b) !important;
+            border-color: var(--fitness-primary, #ff6b6b) !important;
+            color: var(--fitness-text-light, white) !important;
+        }
+        
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-primary:active,
+        .btn-primary.btn-sm:hover,
+        .btn-primary.btn-sm:focus,
+        .btn-primary.btn-sm:active,
+        .btn-primary.btn-lg:hover,
+        .btn-primary.btn-lg:focus,
+        .btn-primary.btn-lg:active {
+            background: var(--fitness-primary-hover, #ff5252) !important;
+            border-color: var(--fitness-primary-hover, #ff5252) !important;
+            color: var(--fitness-text-light, white) !important;
+        }
+        
         /* Responsive Buttons */
         .btn-fitness {
             background: var(--fitness-gradient);
@@ -904,7 +984,7 @@
         }
         
         @media (min-width: 768px) {
-            .footer-fitness {
+        .footer-fitness {
                 padding: 40px 0 0 0;
             }
             .footer-fitness h5 {
@@ -1058,6 +1138,41 @@
                             </li>
                         @endforeach
                     @endif
+                    
+                    <!-- Authentication Links -->
+                    @guest
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('register') ? 'active fw-bold' : '' }}" 
+                               href="{{ route('register') }}">Signup</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('login') ? 'active fw-bold' : '' }}" 
+                               href="{{ route('login') }}">Login</a>
+                        </li>
+                    @else
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle me-1"></i>
+                                {{ Auth::user()->fullName ?? Auth::user()->name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('cms.dashboard') }}">
+                                        <i class="fas fa-dashboard me-2"></i>Dashboard
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    @endguest
                 </ul>
             </div>
         </div>
@@ -1115,7 +1230,7 @@
                                         @if($block->content)
                                             <div class="text-white-50">
                                                 {{ $block->content }}
-                                            </div>
+                        </div>
                         @endif
                                         @break
                                     
@@ -1123,8 +1238,8 @@
                                         @if($block->content)
                                             <div class="text-white-50">
                                                 {!! $block->content !!}
-                        </div>
-                        @endif
+                </div>
+                @endif
                                         @break
                                     
                                     @case('html')
@@ -1132,7 +1247,7 @@
                                             <div class="footer-html-content">
                                                 {!! $block->content !!}
                 </div>
-                @endif
+                        @endif
                                         @break
                                     
                                     @case('links')
@@ -1189,8 +1304,8 @@
                                                         {{ $contactData['email'] }}
                                                     </a>
                                                 </p>
-                                            @endif
-                                        </div>
+                        @endif
+                    </div>
                                         @break
                                     
                                     @case('image')
@@ -1206,8 +1321,8 @@
                                                 @if(!empty($imageData['caption']))
                                                     <p class="text-white-50 small mt-2 mb-0">{{ $imageData['caption'] }}</p>
                                                 @endif
-                                            </div>
-                                        @endif
+                </div>
+                @endif
                                         @break
                                     
                                     @case('spacer')
@@ -1233,7 +1348,7 @@
                 <!-- Fallback: Default Footer Content when no blocks exist -->
                 <div class="row">
                     <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="footer-widget">
+                    <div class="footer-widget">
                             <h5 class="fw-bold mb-3 text-white">
                                 <i class="fas fa-dumbbell text-danger me-2"></i>
                                 {{ config('app.name', 'Fitness Gym') }}
@@ -1263,8 +1378,8 @@
                         </ul>
                     </div>
                 </div>
-                    <div class="col-lg-3 col-md-6 mb-4">
-                        <div class="footer-widget">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="footer-widget">
                             <h5 class="fw-bold mb-3 text-white">Classes</h5>
                             <ul class="list-unstyled">
                                 <li class="mb-2">
@@ -1305,10 +1420,10 @@
                                         info@fitnessgym.com
                                 </a>
                             </p>
-                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
                 @endif
             
             <!-- Copyright Section -->

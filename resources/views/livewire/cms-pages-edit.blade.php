@@ -18,6 +18,25 @@
 
                 <!-- Action Buttons -->
                 <div class="flex items-center justify-end gap-3">
+                    <button 
+                        type="button"
+                        wire:click="preview"
+                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border border-green-300 dark:border-green-600 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        Preview
+                    </button>
+                    
+                    @script
+                    <script>
+                        Livewire.on('open-preview', (event) => {
+                            window.open(event.url, '_blank');
+                        });
+                    </script>
+                    @endscript
                     <flux:button 
                         wire:click="save" 
                         variant="primary" 
@@ -185,15 +204,40 @@
                             <!-- Block Content -->
                             <div class="space-y-4" x-show="!collapsed" x-transition>
                                 @if($block['type'] === 'heading')
+                                    @php
+                                        $headingSettingsJson = $block['settings_json'] ?? '{}';
+                                        $headingSettings = is_array($headingSettingsJson) ? $headingSettingsJson : json_decode($headingSettingsJson, true) ?? [];
+                                        $headingFontSize = $headingSettings['content_font_size'] ?? '';
+                                    @endphp
                                     <flux:field>
-                                        <flux:label>Heading Text</flux:label>
-                                        <flux:input 
-                                            wire:model="blocks.{{ $index }}.content" 
-                                            placeholder="Enter heading text..." 
-                                        />
+                                        <div class="flex items-end gap-2">
+                                            <div class="flex-1">
+                                                <flux:label>Heading Text</flux:label>
+                                                <flux:input 
+                                                    wire:model="blocks.{{ $index }}.content" 
+                                                    placeholder="Enter heading text..." 
+                                                />
+                                            </div>
+                                            <div class="w-20">
+                                                <flux:label class="text-xs text-zinc-500 dark:text-zinc-400">Size (px)</flux:label>
+                                                <flux:input 
+                                                    type="number"
+                                                    value="{{ is_numeric($headingFontSize) ? $headingFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $headingFontSize, $matches) ? $matches[1] : '') }}"
+                                                    placeholder="32"
+                                                    min="1"
+                                                    wire:change="updateBlockSettings({{ $index }}, 'content_font_size', $event.target.value)"
+                                                    title="Font Size (px)"
+                                                />
+                                            </div>
+                                        </div>
                                     </flux:field>
 
                                 @elseif($block['type'] === 'paragraph')
+                                    @php
+                                        $paragraphSettingsJson = $block['settings_json'] ?? '{}';
+                                        $paragraphSettings = is_array($paragraphSettingsJson) ? $paragraphSettingsJson : json_decode($paragraphSettingsJson, true) ?? [];
+                                        $paragraphFontSize = $paragraphSettings['content_font_size'] ?? '';
+                                    @endphp
                                     <flux:field>
                                         <flux:label>Paragraph Content</flux:label>
                                         <div 
@@ -230,6 +274,20 @@
                                                 wire:model.defer="blocks.{{ $index }}.content"
                                                 class="min-h-[300px]"
                                             >{!! $block['content'] ?? '' !!}</textarea>
+                                        </div>
+                                        <div class="flex items-end gap-2 mt-2">
+                                            <div class="flex-1"></div>
+                                            <div class="w-20">
+                                                <flux:label class="text-xs text-zinc-500 dark:text-zinc-400">Font Size (px)</flux:label>
+                                                <flux:input 
+                                                    type="number"
+                                                    value="{{ is_numeric($paragraphFontSize) ? $paragraphFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $paragraphFontSize, $matches) ? $matches[1] : '') }}"
+                                                    placeholder="16"
+                                                    min="1"
+                                                    wire:change="updateBlockSettings({{ $index }}, 'content_font_size', $event.target.value)"
+                                                    title="Font Size (px)"
+                                                />
+                                            </div>
                                         </div>
                                     </flux:field>
 
@@ -681,6 +739,9 @@
                                         }
                                         $bgColor = $settings['background_color'] ?? '#1f2937';
                                         $textColor = $settings['text_color'] ?? '#ffffff';
+                                        $height = $settings['height'] ?? ($settings['custom_height'] ?? '500');
+                                        $titleFontSize = $settings['title_font_size'] ?? ($settings['custom_title_font_size'] ?? '');
+                                        $subtitleFontSize = $settings['subtitle_font_size'] ?? ($settings['custom_subtitle_font_size'] ?? '');
                                     @endphp
                                     <div class="space-y-4">
                                         <!-- Hero Preview -->
@@ -701,28 +762,73 @@
                                         <!-- Hero Editor Fields -->
                                         <div class="space-y-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
                                             <flux:field>
-                                                <flux:label>Hero Title</flux:label>
-                                                <flux:input 
-                                                    wire:model="blocks.{{ $index }}.title" 
-                                                    placeholder="Enter hero title..." 
-                                                />
+                                                <div class="flex items-end gap-2">
+                                                    <div class="flex-1">
+                                                        <flux:label>Hero Title</flux:label>
+                                                        <flux:input 
+                                                            wire:model="blocks.{{ $index }}.title" 
+                                                            placeholder="Enter hero title..." 
+                                                        />
+                                                    </div>
+                                                    <div class="w-20">
+                                                        <flux:label class="text-xs text-zinc-500 dark:text-zinc-400">Size (px)</flux:label>
+                                                        <flux:input 
+                                                            type="number"
+                                                            value="{{ is_numeric($titleFontSize) ? $titleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $titleFontSize, $matches) ? $matches[1] : '') }}"
+                                                            placeholder="56"
+                                                            min="1"
+                                                            wire:change="updateHeroSettings({{ $index }}, 'title_font_size', $event.target.value)"
+                                                            title="Font Size (px)"
+                                                        />
+                                                    </div>
+                                                </div>
                                             </flux:field>
                                             
                                             <flux:field>
-                                                <flux:label>Hero Subtitle</flux:label>
-                                                <flux:input 
-                                                    wire:model="blocks.{{ $index }}.subtitle" 
-                                                    placeholder="Enter hero subtitle..." 
-                                                />
+                                                <div class="flex items-end gap-2">
+                                                    <div class="flex-1">
+                                                        <flux:label>Hero Subtitle</flux:label>
+                                                        <flux:input 
+                                                            wire:model="blocks.{{ $index }}.subtitle" 
+                                                            placeholder="Enter hero subtitle..." 
+                                                        />
+                                                    </div>
+                                                    <div class="w-20">
+                                                        <flux:label class="text-xs text-zinc-500 dark:text-zinc-400">Size (px)</flux:label>
+                                                        <flux:input 
+                                                            type="number"
+                                                            value="{{ is_numeric($subtitleFontSize) ? $subtitleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $subtitleFontSize, $matches) ? $matches[1] : '') }}"
+                                                            placeholder="28"
+                                                            min="1"
+                                                            wire:change="updateHeroSettings({{ $index }}, 'subtitle_font_size', $event.target.value)"
+                                                            title="Font Size (px)"
+                                                        />
+                                                    </div>
+                                                </div>
                                             </flux:field>
                                             
                                             <flux:field>
-                                                <flux:label>Hero Description</flux:label>
-                                                <flux:textarea 
-                                                    wire:model="blocks.{{ $index }}.content" 
-                                                    placeholder="Enter hero description..." 
-                                                    rows="3"
-                                                />
+                                                <div class="flex items-start gap-2">
+                                                    <div class="flex-1">
+                                                        <flux:label>Hero Description</flux:label>
+                                                        <flux:textarea 
+                                                            wire:model="blocks.{{ $index }}.content" 
+                                                            placeholder="Enter hero description..." 
+                                                            rows="3"
+                                                        />
+                                                    </div>
+                                                    <div class="w-20">
+                                                        <flux:label class="text-xs text-zinc-500 dark:text-zinc-400">Size (px)</flux:label>
+                                                        <flux:input 
+                                                            type="number"
+                                                            value="{{ is_numeric($settings['content_font_size'] ?? '') ? $settings['content_font_size'] : (isset($settings['content_font_size']) && preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $settings['content_font_size'], $matches) ? $matches[1] : '') }}"
+                                                            placeholder="18"
+                                                            min="1"
+                                                            wire:change="updateHeroSettings({{ $index }}, 'content_font_size', $event.target.value)"
+                                                            title="Font Size (px)"
+                                                        />
+                                                    </div>
+                                                </div>
                                             </flux:field>
 
                                             <!-- Color Settings -->
@@ -764,6 +870,20 @@
                                                 </flux:field>
                                             </div>
 
+                                            <!-- Height Settings -->
+                                            <flux:field>
+                                                <flux:label>Hero Height (px)</flux:label>
+                                                <flux:input 
+                                                    type="number"
+                                                    value="{{ is_numeric($height) ? $height : (is_numeric($settings['custom_height'] ?? '') ? $settings['custom_height'] : '500') }}"
+                                                    placeholder="Enter height in px (e.g., 500)"
+                                                    min="1"
+                                                    wire:change="updateHeroSettings({{ $index }}, 'height', $event.target.value)"
+                                                />
+                                                <flux:description>Minimum value: 1px</flux:description>
+                                            </flux:field>
+
+
                                             <!-- Quick Color Presets -->
                                             <flux:field>
                                                 <flux:label>Quick Presets</flux:label>
@@ -801,134 +921,6 @@
                                         </div>
                                     </div>
 
-                                @elseif($block['type'] === 'video')
-                                    @php
-                                        // Get video data from block
-                                        $videoData = json_decode($block['data_json'] ?? '{}', true);
-                                        if (!is_array($videoData)) {
-                                            $videoData = [];
-                                        }
-                                        $videoUrl = $videoData['video_url'] ?? $block['content'] ?? '';
-                                        $videoPath = $videoData['video_path'] ?? '';
-                                        $isUploaded = !empty($videoPath);
-                                    @endphp
-                                    <flux:field>
-                                        <flux:label>Video</flux:label>
-                                        
-                                        @if($videoUrl)
-                                            <!-- Video Preview -->
-                                            <div class="mb-4">
-                                                <video 
-                                                    controls 
-                                                    class="w-full max-w-2xl rounded-lg border border-zinc-200 dark:border-zinc-700"
-                                                    style="max-height: 400px;"
-                                                >
-                                                    <source src="{{ $isUploaded ? asset('storage/' . $videoPath) : $videoUrl }}" type="video/mp4">
-                                                    Your browser does not support the video tag.
-                                                </video>
-                                                @if($isUploaded)
-                                                    <flux:description class="mt-2">
-                                                        Video stored at: {{ $videoPath }}
-                                                    </flux:description>
-                                                @else
-                                                    <flux:description class="mt-2">
-                                                        External video URL: {{ $videoUrl }}
-                                                    </flux:description>
-                                                @endif
-                                            </div>
-                                            
-                                            <!-- Remove Video Button -->
-                                            <div class="mb-4">
-                                                <flux:modal.trigger name="delete-video-{{ $index }}">
-                                                    <flux:button 
-                                                        variant="danger"
-                                                        size="sm"
-                                                        icon="trash"
-                                                    >
-                                                        Remove Video
-                                                    </flux:button>
-                                                </flux:modal.trigger>
-                                                
-                                                <!-- Delete Video Modal -->
-                                                <flux:modal name="delete-video-{{ $index }}" class="min-w-[20rem]">
-                                                    <div class="space-y-4">
-                                                        <div>
-                                                            <flux:heading size="lg">Remove Video?</flux:heading>
-                                                            <flux:text class="mt-2">
-                                                                This will remove the video from this block.
-                                                            </flux:text>
-                                                        </div>
-                                                        <div class="flex gap-2">
-                                                            <flux:spacer />
-                                                            <flux:modal.close>
-                                                                <flux:button variant="ghost">Cancel</flux:button>
-                                                            </flux:modal.close>
-                                                            <flux:button 
-                                                                wire:click="confirmDelete('video', {{ $index }})"
-                                                                variant="danger"
-                                                                wire:loading.attr="disabled"
-                                                            >
-                                                                <span wire:loading.remove wire:target="confirmDelete">Remove Video</span>
-                                                                <span wire:loading wire:target="confirmDelete">
-                                                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
-                                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                    </svg>
-                                                                    Removing...
-                                                                </span>
-                                                            </flux:button>
-                                                        </div>
-                                                    </div>
-                                                </flux:modal>
-                                            </div>
-                                        @endif
-                                        
-                                        <!-- Upload Video File -->
-                                        <div class="border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-lg p-8 text-center mb-4">
-                                            <flux:icon name="video-camera" class="mx-auto h-12 w-12 text-zinc-400 mb-3" />
-                                            <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-3">
-                                                <span wire:loading.remove wire:target="videoUploads.blocks.{{ $index }}">Upload a video file</span>
-                                                <span wire:loading wire:target="videoUploads.blocks.{{ $index }}">Uploading...</span>
-                                            </p>
-                                            <label class="cursor-pointer">
-                                                <input 
-                                                    type="file" 
-                                                    wire:model="videoUploads.blocks.{{ $index }}"
-                                                    accept="video/*"
-                                                    class="hidden"
-                                                    wire:loading.attr="disabled"
-                                                />
-                                                <flux:button 
-                                                    type="button"
-                                                    variant="outline" 
-                                                    size="sm" 
-                                                    icon="arrow-up-tray"
-                                                    onclick="this.previousElementSibling.click()"
-                                                    wire:loading.attr="disabled"
-                                                >
-                                                    <span wire:loading.remove wire:target="videoUploads.blocks.{{ $index }}">Choose Video File</span>
-                                                    <span wire:loading wire:target="videoUploads.blocks.{{ $index }}">Uploading...</span>
-                                                </flux:button>
-                                            </label>
-                                            <p class="text-xs text-zinc-400 mt-2">MP4, WebM, OGG up to 100MB</p>
-                                        </div>
-                                        
-                                        @error("videoUploads.blocks.{$index}")
-                                            <flux:description variant="danger">{{ $message }}</flux:description>
-                                        @enderror
-                                        
-                                        <!-- Or Enter Video URL -->
-                                        <flux:separator class="my-4" />
-                                        <flux:field>
-                                            <flux:label>Or Enter Video URL</flux:label>
-                                            <flux:input 
-                                                wire:model="blocks.{{ $index }}.content" 
-                                                placeholder="https://example.com/video.mp4 or YouTube/Vimeo embed URL" 
-                                            />
-                                            <flux:description>Enter a direct video URL or embed URL from YouTube/Vimeo</flux:description>
-                                        </flux:field>
-                                    </flux:field>
-
                                 @elseif($block['type'] === 'contact')
                                     @php
                                         $contactData = json_decode($block['data_json'] ?? '{}', true);
@@ -937,20 +929,56 @@
                                         }
                                     @endphp
                                     
+                                    @php
+                                        $contactSettingsJson = $block['settings_json'] ?? '{}';
+                                        $contactSettings = is_array($contactSettingsJson) ? $contactSettingsJson : json_decode($contactSettingsJson, true) ?? [];
+                                        $contactTitleFontSize = $contactSettings['title_font_size'] ?? '';
+                                        $contactSubtitleFontSize = $contactSettings['subtitle_font_size'] ?? '';
+                                    @endphp
                                     <flux:field>
-                                        <flux:label>Contact Section Title</flux:label>
-                                        <flux:input 
-                                            wire:model="blocks.{{ $index }}.title" 
-                                            placeholder="Contact Us" 
-                                        />
+                                        <div class="flex items-end gap-2">
+                                            <div class="flex-1">
+                                                <flux:label>Contact Section Title</flux:label>
+                                                <flux:input 
+                                                    wire:model="blocks.{{ $index }}.title" 
+                                                    placeholder="Contact Us" 
+                                                />
+                                            </div>
+                                            <div class="w-20">
+                                                <flux:label class="text-xs text-zinc-500 dark:text-zinc-400">Size (px)</flux:label>
+                                                <flux:input 
+                                                    type="number"
+                                                    value="{{ is_numeric($contactTitleFontSize) ? $contactTitleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $contactTitleFontSize, $matches) ? $matches[1] : '') }}"
+                                                    placeholder="32"
+                                                    min="1"
+                                                    wire:change="updateBlockSettings({{ $index }}, 'title_font_size', $event.target.value)"
+                                                    title="Font Size (px)"
+                                                />
+                                            </div>
+                                        </div>
                                     </flux:field>
 
                                     <flux:field>
-                                        <flux:label>Contact Section Subtitle</flux:label>
-                                        <flux:input 
-                                            wire:model="blocks.{{ $index }}.subtitle" 
-                                            placeholder="Get in touch with us" 
-                                        />
+                                        <div class="flex items-end gap-2">
+                                            <div class="flex-1">
+                                                <flux:label>Contact Section Subtitle</flux:label>
+                                                <flux:input 
+                                                    wire:model="blocks.{{ $index }}.subtitle" 
+                                                    placeholder="Get in touch with us" 
+                                                />
+                                            </div>
+                                            <div class="w-20">
+                                                <flux:label class="text-xs text-zinc-500 dark:text-zinc-400">Size (px)</flux:label>
+                                                <flux:input 
+                                                    type="number"
+                                                    value="{{ is_numeric($contactSubtitleFontSize) ? $contactSubtitleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $contactSubtitleFontSize, $matches) ? $matches[1] : '') }}"
+                                                    placeholder="18"
+                                                    min="1"
+                                                    wire:change="updateBlockSettings({{ $index }}, 'subtitle_font_size', $event.target.value)"
+                                                    title="Font Size (px)"
+                                                />
+                                            </div>
+                                        </div>
                                     </flux:field>
 
                                     <flux:field>
@@ -1054,79 +1082,125 @@
                                         if (!is_array($bannerData)) {
                                             $bannerData = [];
                                         }
-                                        $bannerImageUrl = $bannerData['image_url'] ?? '';
-                                        $linkUrl = $bannerData['link_url'] ?? '';
-                                        $altText = $bannerData['alt_text'] ?? 'Banner image';
-                                        $height = $bannerData['height'] ?? 'medium';
+                                        $bannerImages = $bannerData['images'] ?? [];
+                                        // Backward compatibility: if old format with image_url exists, convert it
+                                        if (empty($bannerImages) && !empty($bannerData['image_url'])) {
+                                            $bannerImages = [[
+                                                'url' => $bannerData['image_url'],
+                                                'path' => $bannerData['image_path'] ?? '',
+                                                'alt_text' => $bannerData['alt_text'] ?? 'Banner image',
+                                                'link_url' => $bannerData['link_url'] ?? ''
+                                            ]];
+                                            $bannerData['images'] = $bannerImages;
+                                        }
+                                        $height = $bannerData['height'] ?? '300';
+                                        // Convert old height values (small, medium, etc.) to pixels
+                                        if (!is_numeric($height)) {
+                                            $heightMap = ['small' => '200', 'medium' => '300', 'large' => '400', 'xl' => '500'];
+                                            $height = $heightMap[$height] ?? '300';
+                                        }
+                                        // Ensure index is always a valid integer
+                                        $blockIndex = (int)$index;
                                     @endphp
-                                    <div class="space-y-4" wire:key="banner-{{ $index }}">
+                                    <div class="space-y-4" wire:key="banner-{{ $blockIndex }}">
                                         <flux:field>
-                                            <flux:label>Banner Image</flux:label>
+                                            <flux:label>Banner Images</flux:label>
                                             
-                                            @if($bannerImageUrl)
-                                                <!-- Display uploaded banner image -->
-                                                <div class="relative mb-3" wire:key="banner-image-{{ $index }}-{{ md5($bannerImageUrl) }}">
-                                                    <img src="{{ $bannerImageUrl }}" 
-                                                         alt="Banner image" 
-                                                         class="w-full h-32 object-cover rounded-lg border border-zinc-200 dark:border-zinc-700"
-                                                         loading="lazy">
-                                                    <flux:modal.trigger name="delete-banner-{{ $index }}">
-                                                        <flux:button 
-                                                            variant="ghost"
-                                                            size="xs"
-                                                            icon="trash"
-                                                            class="absolute top-2 right-2 bg-white/90 dark:bg-zinc-800/90"
-                                                        >
-                                                            Remove
-                                                        </flux:button>
-                                                    </flux:modal.trigger>
-                                                    
-                                                    <!-- Delete Banner Modal -->
-                                                    <flux:modal name="delete-banner-{{ $index }}" class="min-w-[20rem]">
-                                                        <div class="space-y-4">
-                                                            <div>
-                                                                <flux:heading size="lg">Remove Banner Image?</flux:heading>
-                                                                <flux:text class="mt-2">
-                                                                    This will remove the banner image from this block.
-                                                                </flux:text>
-                                                            </div>
-                                                            <div class="flex gap-2">
-                                                                <flux:spacer />
-                                                                <flux:modal.close>
-                                                                    <flux:button variant="ghost">Cancel</flux:button>
-                                                                </flux:modal.close>
-                                                                <flux:button 
-                                                                    wire:click="confirmDelete('banner', {{ $index }})"
-                                                                    variant="danger"
-                                                                    wire:loading.attr="disabled"
-                                                                >
-                                                                    <span wire:loading.remove wire:target="confirmDelete">Remove Banner</span>
-                                                                    <span wire:loading wire:target="confirmDelete">
-                                                                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
-                                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                        </svg>
-                                                                        Removing...
-                                                                    </span>
-                                                                </flux:button>
+                                            <!-- Display uploaded banner images -->
+                                            @if(!empty($bannerImages))
+                                                @php
+                                                    // Ensure array is sequentially indexed (0, 1, 2, ...)
+                                                    $bannerImages = array_values($bannerImages);
+                                                @endphp
+                                                <div class="space-y-3 mb-4">
+                                                    @foreach($bannerImages as $imgIndex => $image)
+                                                        @php
+                                                            // Use loop index to ensure we always have a valid numeric index
+                                                            $imgIndexNum = (int)$loop->index;
+                                                            $altTextField = 'image_' . $imgIndexNum . '_alt_text';
+                                                            $linkUrlField = 'image_' . $imgIndexNum . '_link_url';
+                                                        @endphp
+                                                        <div class="relative border border-zinc-200 dark:border-zinc-700 rounded-lg p-3" wire:key="banner-image-{{ $blockIndex }}-{{ $imgIndexNum }}">
+                                                            <div class="flex gap-3">
+                                                                <img src="{{ $image['url'] ?? '' }}" 
+                                                                     alt="{{ $image['alt_text'] ?? 'Banner image' }}" 
+                                                                     class="w-24 h-24 object-cover rounded-lg border border-zinc-200 dark:border-zinc-700"
+                                                                     loading="lazy">
+                                                                <div class="flex-1 space-y-2">
+                                                                    <flux:input 
+                                                                        value="{{ $image['alt_text'] ?? '' }}"
+                                                                        wire:change="updateBannerField({{ $blockIndex }}, '{{ $altTextField }}', $event.target.value)"
+                                                                        placeholder="Alt text for accessibility" 
+                                                                        label="Alt Text"
+                                                                    />
+                                                                    <flux:input 
+                                                                        value="{{ $image['link_url'] ?? '' }}"
+                                                                        wire:change="updateBannerField({{ $blockIndex }}, '{{ $linkUrlField }}', $event.target.value)"
+                                                                        placeholder="https://example.com (optional)" 
+                                                                        label="Link URL (Optional)"
+                                                                    />
+                                                                </div>
+                                                                <flux:modal.trigger name="delete-banner-{{ $blockIndex }}-{{ $imgIndexNum }}">
+                                                                    <flux:button 
+                                                                        variant="ghost"
+                                                                        size="xs"
+                                                                        icon="trash"
+                                                                        class="self-start"
+                                                                    >
+                                                                        Remove
+                                                                    </flux:button>
+                                                                </flux:modal.trigger>
+                                                                
+                                                                <!-- Delete Banner Image Modal -->
+                                                                <flux:modal name="delete-banner-{{ $blockIndex }}-{{ $imgIndexNum }}" class="min-w-[20rem]">
+                                                                    <div class="space-y-4">
+                                                                        <div>
+                                                                            <flux:heading size="lg">Remove Banner Image?</flux:heading>
+                                                                            <flux:text class="mt-2">
+                                                                                This will remove this banner image from the block.
+                                                                            </flux:text>
+                                                                        </div>
+                                                                        <div class="flex gap-2">
+                                                                            <flux:spacer />
+                                                                            <flux:modal.close>
+                                                                                <flux:button variant="ghost">Cancel</flux:button>
+                                                                            </flux:modal.close>
+                                                                            <flux:button 
+                                                                                wire:click="removeBannerImageByIndex({{ $blockIndex }}, {{ $imgIndexNum }})"
+                                                                                variant="danger"
+                                                                                wire:loading.attr="disabled"
+                                                                            >
+                                                                                <span wire:loading.remove wire:target="removeBannerImageByIndex">Remove Image</span>
+                                                                                <span wire:loading wire:target="removeBannerImageByIndex">
+                                                                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                                    </svg>
+                                                                                    Removing...
+                                                                                </span>
+                                                                            </flux:button>
+                                                                        </div>
+                                                                    </div>
+                                                                </flux:modal>
                                                             </div>
                                                         </div>
-                                                    </flux:modal>
+                                                    @endforeach
                                                 </div>
                                             @endif
                                             
                                             <!-- File Upload Area -->
-                                            <div class="border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-lg p-8 text-center {{ $bannerImageUrl ? 'hidden' : 'block' }}" wire:loading.class="opacity-50">
+                                            <div class="border-2 border-dashed border-zinc-300 dark:border-zinc-600 rounded-lg p-8 text-center" wire:loading.class="opacity-50" wire:target="imageUploads.banner.{{ $blockIndex }}">
                                                 <flux:icon name="photo" class="mx-auto h-12 w-12 text-zinc-400 mb-3" />
                                                 <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-3">
-                                                    <span wire:loading.remove wire:target="imageUploads.blocks.{{ $index }}">Upload a banner image</span>
-                                                    <span wire:loading wire:target="imageUploads.blocks.{{ $index }}">Uploading...</span>
+                                                    <span wire:loading.remove wire:target="imageUploads.banner.{{ $blockIndex }}">Upload banner images</span>
+                                                    <span wire:loading wire:target="imageUploads.banner.{{ $blockIndex }}">Uploading...</span>
                                                 </p>
                                                 <label class="cursor-pointer">
                                                     <input 
                                                         type="file" 
-                                                        wire:model="imageUploads.blocks.{{ $index }}"
+                                                        wire:model="imageUploads.banner.{{ $blockIndex }}"
                                                         accept="image/*"
+                                                        multiple
                                                         class="hidden"
                                                         wire:loading.attr="disabled"
                                                     />
@@ -1138,63 +1212,25 @@
                                                         onclick="this.previousElementSibling.click()"
                                                         wire:loading.attr="disabled"
                                                     >
-                                                        <span wire:loading.remove wire:target="imageUploads.blocks.{{ $index }}">Choose Banner Image</span>
-                                                        <span wire:loading wire:target="imageUploads.blocks.{{ $index }}">Uploading...</span>
+                                                        <span wire:loading.remove wire:target="imageUploads.banner.{{ $blockIndex }}">Choose Banner Images</span>
+                                                        <span wire:loading wire:target="imageUploads.banner.{{ $blockIndex }}">Uploading...</span>
                                                     </flux:button>
                                                 </label>
+                                                <flux:description class="mt-2">You can select multiple images at once</flux:description>
                                             </div>
-                                            
-                                            @if($bannerImageUrl)
-                                                <!-- Replace Image Button -->
-                                                <div class="mt-3">
-                                                    <label class="cursor-pointer">
-                                                        <input 
-                                                            type="file" 
-                                                            wire:model="imageUploads.blocks.{{ $index }}"
-                                                            accept="image/*"
-                                                            class="hidden"
-                                                        />
-                                                        <flux:button 
-                                                            type="button"
-                                                            variant="outline" 
-                                                            size="sm"
-                                                            onclick="this.previousElementSibling.click()"
-                                                        >
-                                                            Replace Image
-                                                        </flux:button>
-                                                    </label>
-                                                </div>
-                                            @endif
                                         </flux:field>
 
                                         <flux:field>
-                                            <flux:label>Banner Height</flux:label>
-                                            <flux:select wire:change="updateBannerField({{ $index }}, 'height', $event.target.value)">
-                                                <option value="small" {{ $height === 'small' ? 'selected' : '' }}>Small (200px)</option>
-                                                <option value="medium" {{ $height === 'medium' ? 'selected' : '' }}>Medium (300px)</option>
-                                                <option value="large" {{ $height === 'large' ? 'selected' : '' }}>Large (400px)</option>
-                                                <option value="xl" {{ $height === 'xl' ? 'selected' : '' }}>Extra Large (500px)</option>
-                                            </flux:select>
-                                        </flux:field>
-
-                                        <flux:field>
-                                            <flux:label>Link URL (Optional)</flux:label>
+                                            <flux:label>Banner Height (px)</flux:label>
                                             <flux:input 
-                                                value="{{ $linkUrl }}"
-                                                wire:change="updateBannerField({{ $index }}, 'link_url', $event.target.value)"
-                                                placeholder="https://example.com" 
+                                                type="number"
+                                                value="{{ is_numeric($height) ? $height : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $height, $matches) ? $matches[1] : '300') }}"
+                                                placeholder="300"
+                                                min="1"
+                                                wire:change="updateBannerField({{ $blockIndex }}, 'height', $event.target.value)"
+                                                title="Height in pixels"
                                             />
-                                            <flux:description>Make the banner clickable by adding a link</flux:description>
-                                        </flux:field>
-
-                                        <flux:field>
-                                            <flux:label>Alt Text</flux:label>
-                                            <flux:input 
-                                                value="{{ $altText }}"
-                                                wire:change="updateBannerField({{ $index }}, 'alt_text', $event.target.value)"
-                                                placeholder="Describe the banner image for accessibility" 
-                                            />
-                                            <flux:description>Important for accessibility and SEO</flux:description>
+                                            <flux:description>Minimum: 1px</flux:description>
                                         </flux:field>
                                     </div>
 
@@ -1204,16 +1240,50 @@
                                         if (!is_array($packagesData)) {
                                             $packagesData = [];
                                         }
+                                        $packagesSettingsJson = $block['settings_json'] ?? '{}';
+                                        $packagesSettings = is_array($packagesSettingsJson) ? $packagesSettingsJson : json_decode($packagesSettingsJson, true) ?? [];
+                                        $packagesTitleFontSize = $packagesSettings['title_font_size'] ?? '';
+                                        $packagesSubtitleFontSize = $packagesSettings['subtitle_font_size'] ?? '';
                                     @endphp
                                     <div class="space-y-4" wire:key="packages-{{ $index }}">
                                         <flux:field>
-                                            <flux:label>Section Title</flux:label>
-                                            <flux:input wire:model="blocks.{{ $index }}.title" placeholder="Our Packages" />
+                                            <div class="flex items-end gap-2">
+                                                <div class="flex-1">
+                                                    <flux:label>Section Title</flux:label>
+                                                    <flux:input wire:model="blocks.{{ $index }}.title" placeholder="Our Packages" />
+                                                </div>
+                                                <div class="w-20">
+                                                    <flux:label class="text-xs text-zinc-500 dark:text-zinc-400">Size (px)</flux:label>
+                                                    <flux:input 
+                                                        type="number"
+                                                        value="{{ is_numeric($packagesTitleFontSize) ? $packagesTitleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $packagesTitleFontSize, $matches) ? $matches[1] : '') }}"
+                                                        placeholder="32"
+                                                        min="1"
+                                                        wire:change="updateBlockSettings({{ $index }}, 'title_font_size', $event.target.value)"
+                                                        title="Font Size (px)"
+                                                    />
+                                                </div>
+                                            </div>
                                         </flux:field>
 
                                         <flux:field>
-                                            <flux:label>Section Subtitle (Optional)</flux:label>
-                                            <flux:input wire:model="blocks.{{ $index }}.subtitle" placeholder="Choose the perfect plan for you" />
+                                            <div class="flex items-end gap-2">
+                                                <div class="flex-1">
+                                                    <flux:label>Section Subtitle (Optional)</flux:label>
+                                                    <flux:input wire:model="blocks.{{ $index }}.subtitle" placeholder="Choose the perfect plan for you" />
+                                                </div>
+                                                <div class="w-20">
+                                                    <flux:label class="text-xs text-zinc-500 dark:text-zinc-400">Size (px)</flux:label>
+                                                    <flux:input 
+                                                        type="number"
+                                                        value="{{ is_numeric($packagesSubtitleFontSize) ? $packagesSubtitleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $packagesSubtitleFontSize, $matches) ? $matches[1] : '') }}"
+                                                        placeholder="18"
+                                                        min="1"
+                                                        wire:change="updateBlockSettings({{ $index }}, 'subtitle_font_size', $event.target.value)"
+                                                        title="Font Size (px)"
+                                                    />
+                                                </div>
+                                            </div>
                                         </flux:field>
 
                                         <flux:field>
@@ -1250,6 +1320,22 @@
                                         </flux:field>
 
                                         <flux:field>
+                                            <div class="flex items-end gap-2">
+                                                <div class="flex-1">
+                                                    <flux:label>Package Card Title Font Size (px)</flux:label>
+                                                    <flux:input 
+                                                        type="number"
+                                                        value="{{ is_numeric($packagesSettings['card_title_font_size'] ?? '') ? $packagesSettings['card_title_font_size'] : (isset($packagesSettings['card_title_font_size']) && preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $packagesSettings['card_title_font_size'], $matches) ? $matches[1] : '') }}"
+                                                        placeholder="24"
+                                                        min="1"
+                                                        wire:change="updateBlockSettings({{ $index }}, 'card_title_font_size', $event.target.value)"
+                                                        title="Font Size for individual package card titles"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </flux:field>
+
+                                        <flux:field>
                                             <flux:label>Buy Button Text</flux:label>
                                             <flux:input 
                                                 value="{{ $packagesData['buy_button_text'] ?? 'Buy' }}"
@@ -1281,15 +1367,51 @@
                                             $coachesData = [];
                                         }
                                     @endphp
+                                    @php
+                                        $coachesSettingsJson = $block['settings_json'] ?? '{}';
+                                        $coachesSettings = is_array($coachesSettingsJson) ? $coachesSettingsJson : json_decode($coachesSettingsJson, true) ?? [];
+                                        $coachesTitleFontSize = $coachesSettings['title_font_size'] ?? '';
+                                        $coachesSubtitleFontSize = $coachesSettings['subtitle_font_size'] ?? '';
+                                    @endphp
                                     <div class="space-y-4" wire:key="coaches-{{ $index }}">
                                         <flux:field>
-                                            <flux:label>Section Title</flux:label>
-                                            <flux:input wire:model="blocks.{{ $index }}.title" placeholder="Our Coaches" />
+                                            <div class="flex items-end gap-2">
+                                                <div class="flex-1">
+                                                    <flux:label>Section Title</flux:label>
+                                                    <flux:input wire:model="blocks.{{ $index }}.title" placeholder="Our Coaches" />
+                                                </div>
+                                                <div class="w-20">
+                                                    <flux:label class="text-xs text-zinc-500 dark:text-zinc-400">Size (px)</flux:label>
+                                                    <flux:input 
+                                                        type="number"
+                                                        value="{{ is_numeric($coachesTitleFontSize) ? $coachesTitleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $coachesTitleFontSize, $matches) ? $matches[1] : '') }}"
+                                                        placeholder="32"
+                                                        min="1"
+                                                        wire:change="updateBlockSettings({{ $index }}, 'title_font_size', $event.target.value)"
+                                                        title="Font Size (px)"
+                                                    />
+                                                </div>
+                                            </div>
                                         </flux:field>
 
                                         <flux:field>
-                                            <flux:label>Section Subtitle (Optional)</flux:label>
-                                            <flux:input wire:model="blocks.{{ $index }}.subtitle" placeholder="Meet our expert team" />
+                                            <div class="flex items-end gap-2">
+                                                <div class="flex-1">
+                                                    <flux:label>Section Subtitle (Optional)</flux:label>
+                                                    <flux:input wire:model="blocks.{{ $index }}.subtitle" placeholder="Meet our expert team" />
+                                                </div>
+                                                <div class="w-20">
+                                                    <flux:label class="text-xs text-zinc-500 dark:text-zinc-400">Size (px)</flux:label>
+                                                    <flux:input 
+                                                        type="number"
+                                                        value="{{ is_numeric($coachesSubtitleFontSize) ? $coachesSubtitleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $coachesSubtitleFontSize, $matches) ? $matches[1] : '') }}"
+                                                        placeholder="18"
+                                                        min="1"
+                                                        wire:change="updateBlockSettings({{ $index }}, 'subtitle_font_size', $event.target.value)"
+                                                        title="Font Size (px)"
+                                                    />
+                                                </div>
+                                            </div>
                                         </flux:field>
 
                                         <flux:field>
@@ -1326,6 +1448,22 @@
                                         </flux:field>
 
                                         <flux:field>
+                                            <div class="flex items-end gap-2">
+                                                <div class="flex-1">
+                                                    <flux:label>Coach Card Title Font Size (px)</flux:label>
+                                                    <flux:input 
+                                                        type="number"
+                                                        value="{{ is_numeric($coachesSettings['card_title_font_size'] ?? '') ? $coachesSettings['card_title_font_size'] : (isset($coachesSettings['card_title_font_size']) && preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $coachesSettings['card_title_font_size'], $matches) ? $matches[1] : '') }}"
+                                                        placeholder="20"
+                                                        min="1"
+                                                        wire:change="updateBlockSettings({{ $index }}, 'card_title_font_size', $event.target.value)"
+                                                        title="Font Size for individual coach card titles"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </flux:field>
+
+                                        <flux:field>
                                             <flux:label>View Profile Button Text</flux:label>
                                             <flux:input 
                                                 value="{{ $coachesData['view_profile_text'] ?? 'View Profile' }}"
@@ -1347,16 +1485,50 @@
                                         if (!is_array($scheduleData)) {
                                             $scheduleData = [];
                                         }
+                                        $scheduleSettingsJson = $block['settings_json'] ?? '{}';
+                                        $scheduleSettings = is_array($scheduleSettingsJson) ? $scheduleSettingsJson : json_decode($scheduleSettingsJson, true) ?? [];
+                                        $scheduleTitleFontSize = $scheduleSettings['title_font_size'] ?? '';
+                                        $scheduleSubtitleFontSize = $scheduleSettings['subtitle_font_size'] ?? '';
                                     @endphp
                                     <div class="space-y-4" wire:key="schedule-{{ $index }}">
                                         <flux:field>
-                                            <flux:label>Section Title</flux:label>
-                                            <flux:input wire:model="blocks.{{ $index }}.title" placeholder="Schedule" />
+                                            <div class="flex items-end gap-2">
+                                                <div class="flex-1">
+                                                    <flux:label>Section Title</flux:label>
+                                                    <flux:input wire:model="blocks.{{ $index }}.title" placeholder="Schedule" />
+                                                </div>
+                                                <div class="w-20">
+                                                    <flux:label class="text-xs text-zinc-500 dark:text-zinc-400">Size (px)</flux:label>
+                                                    <flux:input 
+                                                        type="number"
+                                                        value="{{ is_numeric($scheduleTitleFontSize) ? $scheduleTitleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $scheduleTitleFontSize, $matches) ? $matches[1] : '') }}"
+                                                        placeholder="32"
+                                                        min="1"
+                                                        wire:change="updateBlockSettings({{ $index }}, 'title_font_size', $event.target.value)"
+                                                        title="Font Size (px)"
+                                                    />
+                                                </div>
+                                            </div>
                                         </flux:field>
 
                                         <flux:field>
-                                            <flux:label>Section Subtitle (Optional)</flux:label>
-                                            <flux:input wire:model="blocks.{{ $index }}.subtitle" placeholder="View our class schedule" />
+                                            <div class="flex items-end gap-2">
+                                                <div class="flex-1">
+                                                    <flux:label>Section Subtitle (Optional)</flux:label>
+                                                    <flux:input wire:model="blocks.{{ $index }}.subtitle" placeholder="View our class schedule" />
+                                                </div>
+                                                <div class="w-20">
+                                                    <flux:label class="text-xs text-zinc-500 dark:text-zinc-400">Size (px)</flux:label>
+                                                    <flux:input 
+                                                        type="number"
+                                                        value="{{ is_numeric($scheduleSubtitleFontSize) ? $scheduleSubtitleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $scheduleSubtitleFontSize, $matches) ? $matches[1] : '') }}"
+                                                        placeholder="18"
+                                                        min="1"
+                                                        wire:change="updateBlockSettings({{ $index }}, 'subtitle_font_size', $event.target.value)"
+                                                        title="Font Size (px)"
+                                                    />
+                                                </div>
+                                            </div>
                                         </flux:field>
 
                                         <flux:field>
@@ -1399,6 +1571,22 @@
                                                 checked="{{ ($scheduleData['show_drop_in_button'] ?? true) ? 'true' : 'false' }}"
                                                 wire:change="updateScheduleField({{ $index }}, 'show_drop_in_button', $event.target.checked)"
                                                 label="Show \"Drop In\" button on events" />
+                                        </flux:field>
+
+                                        <flux:field>
+                                            <div class="flex items-end gap-2">
+                                                <div class="flex-1">
+                                                    <flux:label>Schedule Item Title Font Size (px)</flux:label>
+                                                    <flux:input 
+                                                        type="number"
+                                                        value="{{ is_numeric($scheduleSettings['card_title_font_size'] ?? '') ? $scheduleSettings['card_title_font_size'] : (isset($scheduleSettings['card_title_font_size']) && preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $scheduleSettings['card_title_font_size'], $matches) ? $matches[1] : '') }}"
+                                                        placeholder="18"
+                                                        min="1"
+                                                        wire:change="updateBlockSettings({{ $index }}, 'card_title_font_size', $event.target.value)"
+                                                        title="Font Size for individual schedule item titles"
+                                                    />
+                                                </div>
+                                            </div>
                                         </flux:field>
 
                                         <flux:field>

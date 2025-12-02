@@ -57,6 +57,9 @@ class OrgUser extends BaseWWModel implements CanBeSigned
         'deleted_by',
         'member_at',
         'addMemberInviteOption',
+        'bio',
+        'favoriteQuote',
+        'certificates',
     ];
 
     protected $attributes = [

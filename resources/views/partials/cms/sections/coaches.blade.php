@@ -1,5 +1,16 @@
 {{-- Coaches Section Partial --}}
 @if($isFitness)
+    @php
+        $coachesSettings = is_string($section->settings) ? json_decode($section->settings, true) : ($section->settings ?? []);
+        $cardTitleFontSize = $coachesSettings['card_title_font_size'] ?? '';
+        $cardTitleStyle = '';
+        if (!empty($cardTitleFontSize)) {
+            $numericValue = is_numeric($cardTitleFontSize) ? (float) $cardTitleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $cardTitleFontSize, $matches) ? (float) $matches[1] : null);
+            if ($numericValue && $numericValue >= 1) {
+                $cardTitleStyle = 'font-size: ' . $numericValue . 'px;';
+            }
+        }
+    @endphp
     <div class="container my-4 my-md-5 coaches-section">
         @if($section->title)
         <div class="text-center mb-4 mb-md-5">
@@ -43,7 +54,7 @@
                     @foreach($coaches as $coach)
                         <div class="{{ $colClasses }}">
                             <div class="card border-0 h-100 coach-card text-center">
-                                @if($showPhoto)
+                                    @if($showPhoto)
                                     <div class="coach-img-container position-relative overflow-hidden">
                                         @if($coach->profileImageUrl)
                                             <img src="{{ $coach->profileImageUrl }}" 
@@ -53,15 +64,16 @@
                                             <img src="{{ $coach->portraitImageUrl }}" 
                                                  class="card-img-top coach-img" 
                                                  alt="Coach {{ $coach->fullName }}">
-                                        @else
+                                            @else
                                             <div class="card-img-top coach-img d-flex align-items-center justify-content-center bg-light">
                                                 <i class="fas fa-user-tie coach-placeholder-icon text-muted"></i>
                                             </div>
-                                        @endif
+                                            @endif
                                     </div>
                                 @endif
                                 <div class="card-body">
-                                    <h5 class="card-title mb-0 fw-bold">{{ $coach->fullName }}</h5>
+                                    <h5 class="card-title mb-3 fw-bold" style="{{ $cardTitleStyle }}">{{ $coach->fullName }}</h5>
+                                    <a href="{{ route('coach.view', ['id' => $coach->uuid]) }}" class="btn btn-primary btn-sm view-profile-btn">View Profile</a>
                                 </div>
                             </div>
                         </div>
@@ -73,8 +85,8 @@
                     @foreach($coaches as $coach)
                         <div class="{{ $colClasses }}">
                             <div class="card border-0 h-100 coach-card text-center">
-                                @if($showPhoto)
-                                    <div class="coach-img-container position-relative overflow-hidden">
+                            @if($showPhoto)
+                                <div class="coach-img-container position-relative overflow-hidden">
                                         @if($coach->profileImageUrl)
                                             <img src="{{ $coach->profileImageUrl }}" 
                                                  class="card-img-top coach-img" 
@@ -83,20 +95,21 @@
                                             <img src="{{ $coach->portraitImageUrl }}" 
                                                  class="card-img-top coach-img" 
                                                  alt="Coach {{ $coach->fullName }}">
-                                        @else
+                                    @else
                                             <div class="card-img-top coach-img d-flex align-items-center justify-content-center bg-light">
                                                 <i class="fas fa-user-tie coach-placeholder-icon text-muted"></i>
-                                            </div>
-                                        @endif
+                                        </div>
+                                    @endif
                                     </div>
                                 @endif
                                 <div class="card-body">
-                                    <h5 class="card-title mb-0 fw-bold">{{ $coach->fullName }}</h5>
-                                </div>
+                                    <h5 class="card-title mb-3 fw-bold" style="{{ $cardTitleStyle }}">{{ $coach->fullName }}</h5>
+                                    <a href="{{ route('coach.view', ['id' => $coach->uuid]) }}" class="btn btn-primary btn-sm view-profile-btn">View Profile</a>
                             </div>
                         </div>
-                    @endforeach
-                </div>
+                    </div>
+                @endforeach
+            </div>
             @endif
         @else
             <div class="text-center py-12 bg-light rounded">
@@ -136,14 +149,15 @@
         }
         
         .coach-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease;
             border-radius: 10px;
             overflow: hidden;
+            box-shadow: none !important;
         }
         
         .coach-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1)!important;
+            transform: none;
+            box-shadow: none !important;
         }
         
         .coach-img-container {
@@ -154,7 +168,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease;
         }
         
         .coach-card .card-body {
@@ -167,18 +180,15 @@
         }
         
         .coach-overlay {
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(78, 205, 196, 0.9) 100%);
-            background: linear-gradient(135deg, color-mix(in srgb, var(--fitness-primary, #ff6b6b) 90%, transparent) 0%, color-mix(in srgb, var(--fitness-secondary, #4ecdc4) 90%, transparent) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            display: none;
         }
         
         .coach-card:hover .coach-overlay {
-            opacity: 1;
+            display: none;
         }
         
         .coach-card:hover .coach-img {
-            transform: scale(1.1);
+            transform: none;
         }
         
         .social-link {
@@ -211,6 +221,29 @@
         
         .coach-placeholder-icon {
             font-size: 3rem;
+        }
+        
+        .view-profile-btn,
+        .view-profile-btn.btn-primary,
+        .view-profile-btn.btn-primary.btn-sm {
+            font-size: 0.9rem;
+            padding: 0.625rem 1.25rem;
+            background: var(--fitness-primary, #ff6b6b) !important;
+            border: none !important;
+            border-color: var(--fitness-primary, #ff6b6b) !important;
+            color: var(--fitness-text-light, white) !important;
+            box-shadow: none !important;
+        }
+        
+        .view-profile-btn:hover,
+        .view-profile-btn.btn-primary:hover,
+        .view-profile-btn.btn-primary.btn-sm:hover,
+        .view-profile-btn:focus,
+        .view-profile-btn:active {
+            background: var(--fitness-primary-hover, #ff5252) !important;
+            border-color: var(--fitness-primary-hover, #ff5252) !important;
+            color: var(--fitness-text-light, white) !important;
+            box-shadow: none !important;
         }
         
         /* Responsive adjustments */
@@ -320,7 +353,10 @@
                                     @endif
                                 @endif
                                 <div class="info text-center">
-                                    <h3>{{ $coach->fullName }}</h3>
+                                    <h3 style="{{ $cardTitleStyle }}">{{ $coach->fullName }}</h3>
+                                    <a href="{{ route('coach.view', ['id' => $coach->uuid]) }}" class="btn btn-primary btn-sm mt-3">
+                                        {{ $viewProfileText ?? 'View Profile' }}
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -380,7 +416,11 @@
                             @endif
                         @endif
                         <div class="p-6">
-                            <h3 class="text-xl font-bold">{{ $coach->fullName }}</h3>
+                            <h3 class="text-xl font-bold mb-3" style="{{ $cardTitleStyle }}">{{ $coach->fullName }}</h3>
+                            <a href="{{ route('coach.view', ['id' => $coach->uuid]) }}" 
+                               class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm">
+                                {{ $viewProfileText ?? 'View Profile' }}
+                            </a>
                         </div>
                     </div>
                 @endforeach

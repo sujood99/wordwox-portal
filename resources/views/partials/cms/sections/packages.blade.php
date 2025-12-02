@@ -1,5 +1,16 @@
 {{-- Packages Section Partial --}}
 @if($isFitness)
+    @php
+        $packagesSettings = is_string($section->settings) ? json_decode($section->settings, true) : ($section->settings ?? []);
+        $cardTitleFontSize = $packagesSettings['card_title_font_size'] ?? '';
+        $cardTitleStyle = '';
+        if (!empty($cardTitleFontSize)) {
+            $numericValue = is_numeric($cardTitleFontSize) ? (float) $cardTitleFontSize : (preg_match('/^([0-9]+(?:\.[0-9]+)?)/', $cardTitleFontSize, $matches) ? (float) $matches[1] : null);
+            if ($numericValue && $numericValue >= 1) {
+                $cardTitleStyle = 'font-size: ' . $numericValue . 'px;';
+            }
+        }
+    @endphp
     <div class="container my-4 my-md-5 packages-section">
         @if($section->title)
         <div class="text-center mb-4 mb-md-5">
@@ -62,7 +73,7 @@
                                     <div class="col-12 col-md-8">
                                         <div class="card-body p-3 p-md-4">
                                             <div class="d-flex justify-content-between align-items-start mb-2 mb-md-3">
-                                                <h4 class="card-title package-name">{{ $plan->name }}</h4>
+                                                <h4 class="card-title package-name" style="{{ $cardTitleStyle }}">{{ $plan->name }}</h4>
                                                 @if($showPrograms)
                                                     <span class="badge bg-primary package-badge">{{ $plan->type_label ?? 'Standard Plan' }}</span>
                                                 @endif
@@ -102,34 +113,34 @@
                         <div class="{{ $fitnessBootstrapCols }}">
                             <div class="card h-100 border-0 package-card-grid" style="border-top: 4px solid {{ $color }};">
                                 <div class="card-body text-center p-4 p-md-5">
-                                    <h4 class="card-title mb-2 mb-md-3 package-name">{{ $plan->name }}</h4>
+                                    <h4 class="card-title mb-2 mb-md-3 package-name" style="{{ $cardTitleStyle }}">{{ $plan->name }}</h4>
                                     <div class="price mb-3 mb-md-4">
                                         <span class="package-price-display">${{ number_format($plan->price, 2) }}</span>
                                         <span class="text-muted package-duration">/{{ $plan->duration_text }}</span>
-                                    </div>
-                                    @if($showDescription && $plan->description)
+                                </div>
+                                @if($showDescription && $plan->description)
                                         <p class="card-text mb-3 mb-md-4 package-description">{{ Str::limit($plan->description, 120) }}</p>
-                                    @endif
-                                    @if($showPrograms)
+                                @endif
+                                @if($showPrograms)
                                         <div class="mb-2 mb-md-3">
                                             <span class="badge bg-primary package-badge">{{ $plan->type_label ?? 'Standard Plan' }}</span>
-                                        </div>
-                                    @endif
-                                    @php
-                                        $canSellOnline = true;
-                                        $planUuid = $plan->uuid ?? $plan->id;
-                                    @endphp
-                                    @if($canSellOnline)
-                                        <a href="/org-plan/index?plan={{ $planUuid }}" class="btn {{ $isPopular ? 'btn-lg' : 'btn-outline-primary btn-lg' }} w-100 package-btn" {{ $isPopular ? 'style=background: var(--fitness-gradient, linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%)); border: none; color: var(--fitness-text-light, white);' : '' }}>
-                                            {{ $buyButtonText ?? 'Buy' }} <i class="fas fa-arrow-right ms-1"></i>
-                                        </a>
-                                    @else
+                                    </div>
+                                @endif
+                                @php
+                                    $canSellOnline = true;
+                                    $planUuid = $plan->uuid ?? $plan->id;
+                                @endphp
+                                @if($canSellOnline)
+                                        <a href="/org-plan/index?plan={{ $planUuid }}" class="btn btn-lg w-100 package-btn">
+                                        {{ $buyButtonText ?? 'Buy' }} <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                @else
                                         <button class="btn btn-outline-secondary btn-lg w-100 package-btn" disabled>
-                                            {{ $purchaseAtGymText ?? 'Purchase at the Gym' }}
-                                        </button>
-                                    @endif
-                                </div>
+                                        {{ $purchaseAtGymText ?? 'Purchase at the Gym' }}
+                                    </button>
+                                @endif
                             </div>
+                        </div>
                         </div>
                     @endforeach
                 </div>
@@ -184,7 +195,7 @@
         }
         
         .package-price-display {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
             line-height: 1.2;
         }
@@ -206,6 +217,14 @@
         .package-btn {
             font-size: 0.9rem;
             padding: 0.625rem 1.25rem;
+            background: var(--fitness-primary, #ff6b6b) !important;
+            border: none !important;
+            color: var(--fitness-text-light, white) !important;
+        }
+        
+        .package-btn:hover {
+            background: var(--fitness-primary-hover, #ff5252) !important;
+            color: var(--fitness-text-light, white) !important;
         }
         
         .package-price-col {
@@ -240,7 +259,7 @@
                 font-size: 1.25rem;
             }
             .package-price-display {
-                font-size: 2.5rem;
+                font-size: 1.5rem;
             }
             .package-description {
                 font-size: 0.95rem;
@@ -264,7 +283,7 @@
                 font-size: 1.5rem;
             }
             .package-price-display {
-                font-size: 3rem;
+                font-size: 1.5rem;
             }
             .package-duration {
                 font-size: 1rem;
@@ -297,7 +316,7 @@
                 padding: 80px 29px !important;
             }
             .package-price-display {
-                font-size: 3.5rem;
+                font-size: 1.5rem;
             }
         }
         

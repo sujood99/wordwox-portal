@@ -32,23 +32,31 @@ Route::post('contact', [\App\Http\Controllers\ContactController::class, 'submit'
 Route::get('/', \App\Livewire\CmsPageViewer::class)
     ->name('home');
 
-// Catch-all route for CMS pages (GET requests)
+// Coach Profile Route (Public - must be BEFORE catch-all to take priority)
+Route::get('coaches/view', \App\Livewire\Customer\CoachProfile::class)->name('coach.view');
+
+// Customer Portal Routes (Protected - require authentication)
+Route::middleware(['auth'])->prefix('org-plan')->name('customer.')->group(function () {
+    Route::get('index', \App\Livewire\Customer\PurchasePlan::class)->name('purchase-plan');
+});
+
+// Catch-all route for CMS pages (GET requests) - now catches /coaches too
 Route::get('{slug}', \App\Livewire\CmsPageViewer::class)
-    ->where('slug', '^(?!dashboard|login|register|cms-admin|portal|cms).*$')
+    ->where('slug', '^(?!dashboard|login|register|cms-admin|portal|cms|org-plan).*$')
     ->name('page.view');
 
 // CMS Admin Routes (Protected)
 Route::middleware(['auth', 'verified', \App\Http\Middleware\SetTenantTimezone::class])->prefix('cms-admin')->name('cms.')->group(function () {
     Route::get('/', \App\Livewire\CmsAdminDashboard::class)->name('dashboard');
-    
+
     // Pages
     Route::get('pages', \App\Livewire\CmsPagesIndex::class)->name('pages.index');
     Route::get('pages/create', \App\Livewire\CmsPagesCreate::class)->name('pages.create');
     Route::get('pages/{page}/edit', \App\Livewire\CmsPagesEdit::class)->name('pages.edit');
-    
+
     // Templates
     Route::get('templates', \App\Livewire\TemplatePreview::class)->name('templates');
-    
+
     // Image Upload for CKEditor
     Route::post('upload-image', function (\Illuminate\Http\Request $request) {
         $request->validate([
@@ -67,18 +75,18 @@ Route::middleware(['auth', 'verified', \App\Http\Middleware\SetTenantTimezone::c
 
         return response()->json(['error' => 'No file uploaded'], 400);
     })->name('upload-image');
-    
+
     // Sections - Temporarily commented out - components missing
     // Route::get('sections', \App\Livewire\CmsSectionsIndex::class)->name('sections.index');
     // Route::get('sections/create', \App\Livewire\CmsSectionsCreate::class)->name('sections.create');
     // Route::get('sections/{section}/edit', \App\Livewire\CmsSectionsEdit::class)->name('sections.edit');
-    
+
     // Media - Temporarily commented out - components missing
     // Route::get('media', \App\Livewire\CmsMediaIndex::class)->name('media.index');
-    
+
     // Settings
     Route::get('settings/footer', \App\Livewire\CmsFooterSettings::class)->name('settings.footer');
-    
+
     // Temporarily commented out - components missing
     // Route::get('settings/general', \App\Livewire\CmsSettingsGeneral::class)->name('settings.general');
     // Route::get('settings/seo', \App\Livewire\CmsSettingsSeo::class)->name('settings.seo');

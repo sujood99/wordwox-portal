@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\CmsPage;
+use App\Models\CmsSection;
 use Livewire\Component;
 
 class CmsPageViewer extends Component
@@ -36,6 +37,47 @@ class CmsPageViewer extends Component
 
     public function loadPage()
     {
+        // Check if this is a preview request
+        $previewId = request()->get('preview');
+        if ($previewId && session()->has('cms_preview_page_' . $previewId)) {
+            $previewData = session()->get('cms_preview_page_' . $previewId);
+            
+            // Create a temporary page object from preview data
+            $this->page = new CmsPage();
+            $this->page->id = $previewId;
+            $this->page->title = $previewData['title'] ?? '';
+            $this->page->slug = $previewData['slug'] ?? '';
+            $this->page->description = $previewData['description'] ?? '';
+            $this->page->template = $previewData['template'] ?? 'modern';
+            $this->page->is_homepage = $previewData['is_homepage'] ?? false;
+            $this->page->org_id = $previewData['org_id'] ?? $this->orgId;
+            $this->page->status = 'published'; // Set to published for preview
+            
+            // Convert blocks to sections collection
+            $sections = collect();
+            if (isset($previewData['blocks']) && is_array($previewData['blocks'])) {
+                foreach ($previewData['blocks'] as $block) {
+                    $section = new \App\Models\CmsSection();
+                    $section->id = $block['id'] ?? null;
+                    $section->uuid = $block['uuid'] ?? \Illuminate\Support\Str::uuid();
+                    $section->type = $block['type'] ?? 'paragraph';
+                    $section->title = $block['title'] ?? '';
+                    $section->subtitle = $block['subtitle'] ?? '';
+                    $section->content = $block['content'] ?? '';
+                    $section->settings = $block['settings_json'] ?? '{}';
+                    $section->data = $block['data_json'] ?? '{}';
+                    $section->sort_order = $block['sort_order'] ?? 0;
+                    $section->is_active = $block['is_active'] ?? true;
+                    $section->is_visible = $block['is_visible'] ?? true;
+                    $sections->push($section);
+                }
+            }
+            $this->page->setRelation('sections', $sections);
+            
+            return;
+        }
+        
+        // Normal page loading
         $query = CmsPage::where('org_id', $this->orgId)
             ->where('status', 'published')
             ->with(['sections' => function($query) {
