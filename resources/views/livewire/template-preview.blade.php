@@ -143,37 +143,7 @@
             <!-- Text Colors -->
             <div>
                 <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Text Colors</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dark Text</label>
-                        <div class="flex items-center gap-3">
-                            <input 
-                                type="color" 
-                                wire:model.live="themeColors.text_dark"
-                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
-                            >
-                            <input 
-                                type="text" 
-                                wire:model="themeColors.text_dark"
-                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                            >
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Gray Text</label>
-                        <div class="flex items-center gap-3">
-                            <input 
-                                type="color" 
-                                wire:model.live="themeColors.text_gray"
-                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
-                            >
-                            <input 
-                                type="text" 
-                                wire:model="themeColors.text_gray"
-                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                            >
-                        </div>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Base Text</label>
                         <div class="flex items-center gap-3">
@@ -204,6 +174,21 @@
                             >
                         </div>
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Footer Text</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.text_footer"
+                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.text_footer"
+                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                            >
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -211,51 +196,6 @@
             <div>
                 <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Background Colors</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">White</label>
-                        <div class="flex items-center gap-3">
-                            <input 
-                                type="color" 
-                                wire:model.live="themeColors.bg_white"
-                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
-                            >
-                            <input 
-                                type="text" 
-                                wire:model="themeColors.bg_white"
-                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                            >
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Light</label>
-                        <div class="flex items-center gap-3">
-                            <input 
-                                type="color" 
-                                wire:model.live="themeColors.bg_light"
-                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
-                            >
-                            <input 
-                                type="text" 
-                                wire:model="themeColors.bg_light"
-                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                            >
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lighter</label>
-                        <div class="flex items-center gap-3">
-                            <input 
-                                type="color" 
-                                wire:model.live="themeColors.bg_lighter"
-                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
-                            >
-                            <input 
-                                type="text" 
-                                wire:model="themeColors.bg_lighter"
-                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                            >
-                        </div>
-                    </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Packages BG</label>
                         <div class="flex items-center gap-3">
@@ -272,6 +212,21 @@
                         </div>
                     </div>
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Coaches BG</label>
+                        <div class="flex items-center gap-3">
+                            <input 
+                                type="color" 
+                                wire:model.live="themeColors.bg_coaches"
+                                class="w-12 h-12 rounded-lg border-2 border-gray-300 cursor-pointer"
+                            >
+                            <input 
+                                type="text" 
+                                wire:model="themeColors.bg_coaches"
+                                class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                            >
+                        </div>
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Footer BG</label>
                         <div class="flex items-center gap-3">
                             <input 
@@ -283,45 +238,6 @@
                                 type="text" 
                                 wire:model="themeColors.bg_footer"
                                 class="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                            >
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hover Colors -->
-            <div>
-                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Hover Colors</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Primary Hover</label>
-                        <div class="flex items-center gap-3">
-                            <input 
-                                type="color" 
-                                wire:model.live="themeColors.primary_hover"
-                                class="w-16 h-16 rounded-lg border-2 border-gray-300 cursor-pointer"
-                            >
-                            <input 
-                                type="text" 
-                                wire:model="themeColors.primary_hover"
-                                class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                                placeholder="#ff5252"
-                            >
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Secondary Hover</label>
-                        <div class="flex items-center gap-3">
-                            <input 
-                                type="color" 
-                                wire:model.live="themeColors.secondary_hover"
-                                class="w-16 h-16 rounded-lg border-2 border-gray-300 cursor-pointer"
-                            >
-                            <input 
-                                type="text" 
-                                wire:model="themeColors.secondary_hover"
-                                class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                                placeholder="#3db8a8"
                             >
                         </div>
                     </div>

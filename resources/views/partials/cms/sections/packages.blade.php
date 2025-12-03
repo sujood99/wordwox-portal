@@ -223,8 +223,9 @@
         }
         
         .package-btn:hover {
-            background: var(--fitness-primary-hover, #ff5252) !important;
-            color: var(--fitness-text-light, white) !important;
+            background: var(--fitness-primary-light) !important;
+            border-color: var(--fitness-primary, #ff6b6b) !important;
+            color: var(--fitness-primary, #ff6b6b) !important;
         }
         
         .package-price-col {

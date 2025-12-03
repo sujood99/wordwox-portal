@@ -10124,7 +10124,7 @@ textarea.form-control {
 
 /* Enhanced coach section styling */
 .coaches-section {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: var(--fitness-bg-coaches, #f8f9fa);
   padding: 60px 0;
 }
 

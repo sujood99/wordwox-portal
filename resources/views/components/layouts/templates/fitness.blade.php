@@ -38,13 +38,11 @@
         $textGray = $themeColor?->text_gray ?? '#6c757d';
         $textBase = $themeColor?->text_base ?? '#333';
         $textLight = $themeColor?->text_light ?? '#ffffff';
+        $textFooter = $themeColor?->text_footer ?? '#ffffff';
         $bgWhite = $themeColor?->bg_white ?? '#ffffff';
-        $bgLight = $themeColor?->bg_light ?? '#f8f9fa';
-        $bgLighter = $themeColor?->bg_lighter ?? '#e9ecef';
         $bgPackages = $themeColor?->bg_packages ?? '#f2f4f6';
+        $bgCoaches = $themeColor?->bg_coaches ?? '#f8f9fa';
         $bgFooter = $themeColor?->bg_footer ?? '#2c3e50';
-        $primaryHover = $themeColor?->primary_hover ?? '#ff5252';
-        $secondaryHover = $themeColor?->secondary_hover ?? '#3db8a8';
         
         // Convert hex to rgba for opacity variants
         function hexToRgb($hex) {
@@ -55,6 +53,7 @@
             return "$r, $g, $b";
         }
         $primaryRgb = hexToRgb($primaryColor);
+        $secondaryRgb = hexToRgb($secondaryColor);
     @endphp
     
     <style>
@@ -70,19 +69,18 @@
             --fitness-text-gray: {{ $textGray }};
             --fitness-text-base: {{ $textBase }};
             --fitness-text-light: {{ $textLight }};
+            --fitness-text-footer: {{ $textFooter }};
             
             /* Background Colors */
             --fitness-bg-white: {{ $bgWhite }};
-            --fitness-bg-light: {{ $bgLight }};
-            --fitness-bg-lighter: {{ $bgLighter }};
             --fitness-bg-packages: {{ $bgPackages }};
+            --fitness-bg-coaches: {{ $bgCoaches }};
             --fitness-bg-footer: {{ $bgFooter }};
             
-            /* Interactive Colors */
-            --fitness-primary-hover: {{ $primaryHover }};
-            --fitness-secondary-hover: {{ $secondaryHover }};
+            /* Interactive Colors - Hover colors are automatically lighter using CSS filter: brightness(1.15) */
             --fitness-primary-light: rgba({{ $primaryRgb }}, 0.1);
             --fitness-primary-shadow: rgba({{ $primaryRgb }}, 0.25);
+            --fitness-secondary-light: rgba({{ $secondaryRgb }}, 0.1);
             
             /* Border & Shadow Colors */
             --fitness-border-light: rgba(0, 0, 0, 0.1);
@@ -203,14 +201,15 @@
         }
         
         .nav-link.active {
-            background: var(--fitness-gradient);
-            color: var(--fitness-text-light) !important;
+            background: var(--fitness-primary-light);
+            color: var(--fitness-primary) !important;
             font-weight: 600;
+            border-radius: 4px;
         }
         
         .nav-link.active:hover {
-            background: linear-gradient(135deg, var(--fitness-primary-hover) 0%, var(--fitness-secondary-hover) 100%);
-            color: var(--fitness-text-light) !important;
+            background: var(--fitness-primary-light);
+            color: var(--fitness-primary) !important;
             transform: translateX(0);
         }
         
@@ -327,7 +326,7 @@
         
         /* Responsive Page Header */
         .page-header-fitness {
-            background: linear-gradient(135deg, var(--fitness-bg-light) 0%, var(--fitness-bg-lighter) 100%);
+            background: var(--fitness-bg-coaches);
             padding: 40px 0;
             margin-bottom: 0;
         }
@@ -503,7 +502,7 @@
             border-left: 4px solid var(--fitness-primary);
             padding: 1.5rem;
             margin: 2rem 0;
-            background: var(--fitness-bg-light);
+            background: var(--fitness-bg-coaches);
             border-radius: 8px;
         }
         
@@ -640,7 +639,7 @@
         .contact-form-textarea {
             font-size: 0.95rem;
             padding: 0.7rem 0.9rem;
-            border: 2px solid var(--fitness-bg-lighter);
+            border: 2px solid #e9ecef;
             border-radius: 8px;
             transition: all 0.3s ease;
             width: 100%;
@@ -672,8 +671,9 @@
         }
         
         .contact-submit-btn:hover {
-            background: var(--fitness-primary-hover, #ff5252) !important;
-            color: var(--fitness-text-light, white) !important;
+            background: var(--fitness-primary-light) !important;
+            border-color: var(--fitness-primary) !important;
+            color: var(--fitness-primary) !important;
         }
         
         .contact-submit-btn:disabled {
@@ -912,9 +912,9 @@
         .btn-primary.btn-lg:hover,
         .btn-primary.btn-lg:focus,
         .btn-primary.btn-lg:active {
-            background: var(--fitness-primary-hover, #ff5252) !important;
-            border-color: var(--fitness-primary-hover, #ff5252) !important;
-            color: var(--fitness-text-light, white) !important;
+            background: var(--fitness-primary-light) !important;
+            border-color: var(--fitness-primary) !important;
+            color: var(--fitness-primary) !important;
         }
         
         /* Responsive Buttons */
@@ -938,8 +938,8 @@
         
         .btn-fitness:hover {
             transform: translateY(-2px);
-            color: var(--fitness-text-light);
-            background: linear-gradient(135deg, var(--fitness-primary-hover) 0%, var(--fitness-secondary-hover) 100%);
+            background: var(--fitness-primary-light);
+            color: var(--fitness-primary);
         }
         
         /* Responsive Cards */
@@ -957,7 +957,7 @@
         /* Responsive Footer */
         .footer-fitness {
             background: var(--fitness-bg-footer);
-            color: var(--fitness-text-light);
+            color: var(--fitness-text-footer, #ffffff);
             padding: 30px 0 0 0;
             margin: 0;
             margin-top: auto;
@@ -979,6 +979,13 @@
         }
         
         .footer-fitness p,
+        .footer-fitness .text-white-50,
+        .footer-fitness,
+        .footer-fitness * {
+            color: var(--fitness-text-footer, #ffffff) !important;
+        }
+        
+        .footer-fitness p,
         .footer-fitness .text-white-50 {
             font-size: 0.9rem;
         }
@@ -993,6 +1000,11 @@
             .footer-fitness p,
             .footer-fitness .text-white-50 {
                 font-size: 1rem;
+            }
+            
+            .footer-fitness,
+            .footer-fitness * {
+                color: var(--fitness-text-footer, #ffffff) !important;
             }
         }
         

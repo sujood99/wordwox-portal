@@ -123,6 +123,7 @@
         /* Responsive Coaches Section */
         .coaches-section {
             padding: 40px 15px;
+            background: var(--fitness-bg-coaches, #f8f9fa);
         }
         
         .coaches-subtitle {
@@ -240,9 +241,9 @@
         .view-profile-btn.btn-primary.btn-sm:hover,
         .view-profile-btn:focus,
         .view-profile-btn:active {
-            background: var(--fitness-primary-hover, #ff5252) !important;
-            border-color: var(--fitness-primary-hover, #ff5252) !important;
-            color: var(--fitness-text-light, white) !important;
+            background: var(--fitness-primary-light) !important;
+            border-color: var(--fitness-primary, #ff6b6b) !important;
+            color: var(--fitness-primary, #ff6b6b) !important;
             box-shadow: none !important;
         }
         
