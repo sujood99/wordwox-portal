@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Tenantable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Enums\OrgUserPlanHoldStatus;
 use Carbon\Carbon;
@@ -9,6 +10,7 @@ use Illuminate\Support\Str;
 
 class OrgUserPlanHold extends BaseWWModel
 {
+    use Tenantable;
     /**
      * The table associated with the model.
      */

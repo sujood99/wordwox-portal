@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Tenantable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OrgEvent extends Model
 {
-    use HasFactory;
+    use HasFactory, Tenantable;
 
     protected $table = 'orgEvent';
 

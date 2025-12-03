@@ -13,7 +13,6 @@ use App\Rules\UniqueOrgUserPhone;
 use App\Rules\UniqueOrgUserPhoneOptional;
 use App\Rules\ValidChildAge;
 use App\Rules\ValidSchoolGrade;
-use App\Services\Yii2QueueDispatcher;
 use App\Services\ConsentService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -34,12 +33,10 @@ class CustomerRegistrationService
     const LOGIN_METHOD_EMAIL = 'email';
     const LOGIN_METHOD_SMS = 'sms';
 
-    protected Yii2QueueDispatcher $yii2QueueDispatcher;
     protected ConsentService $consentService;
 
-    public function __construct(Yii2QueueDispatcher $yii2QueueDispatcher, ConsentService $consentService)
+    public function __construct(ConsentService $consentService)
     {
-        $this->yii2QueueDispatcher = $yii2QueueDispatcher;
         $this->consentService = $consentService;
     }
 

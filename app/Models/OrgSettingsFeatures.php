@@ -3,12 +3,13 @@
 
 namespace App\Models;
 
+use App\Traits\Tenantable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class OrgSettingsFeatures extends BaseWWModel
 {
-    use HasFactory;
+    use HasFactory, Tenantable;
 
     protected $table = 'orgSettingsFeatures';
     protected $dateFormat = 'U';

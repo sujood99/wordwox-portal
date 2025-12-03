@@ -3,7 +3,6 @@
 namespace App\Livewire\Customer;
 
 use App\Models\User;
-use App\Services\Yii2QueueDispatcher;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -74,26 +73,6 @@ class VerifyOtp extends Component
             'user_id' => $user->id,
             'org_user_id' => $user->orgUser_id
         ]);
-        
-        // Dispatch Yii2 queue job for customer login (similar to other user operations)
-        try {
-            $dispatcher = new Yii2QueueDispatcher();
-            $dispatcher->dispatch('common\jobs\user\UserLoginCompleteJob', [
-                'id' => $user->id,
-                'orgUser_id' => $user->orgUser_id
-            ]);
-            
-            Log::info('Customer login Yii2 job dispatched', [
-                'user_id' => $user->id,
-                'org_user_id' => $user->orgUser_id
-            ]);
-        } catch (\Exception $e) {
-            // Log warning but don't fail login for background job issues
-            Log::warning('Failed to dispatch UserLoginCompleteJob', [
-                'user_id' => $user->id,
-                'error' => $e->getMessage()
-            ]);
-        }
         
         // Redirect to package purchase page or home
         return $this->redirect(route('customer.purchase-plan'), navigate: false);

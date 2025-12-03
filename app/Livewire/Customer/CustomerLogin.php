@@ -5,7 +5,6 @@ namespace App\Livewire\Customer;
 use App\Models\OrgUser;
 use App\Models\User;
 use App\Services\SmsService;
-use App\Services\Yii2QueueDispatcher;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -101,22 +100,10 @@ class CustomerLogin extends Component
             $user->status = 10; // Set status to active/verified
             $user->save();
             
-            // Dispatch Yii2 queue job for User creation (similar to OrgUser pattern)
-            try {
-                $dispatcher = new Yii2QueueDispatcher();
-                $dispatcher->dispatch('common\jobs\user\UserCreateCompleteJob', ['id' => $user->id]);
-                
-                Log::info('Customer User account created and Yii2 job dispatched', [
-                    'user_id' => $user->id,
-                    'org_user_id' => $orgUser->id
-                ]);
-            } catch (\Exception $e) {
-                // Log warning but don't fail login for background job issues
-                Log::warning('Failed to dispatch UserCreateCompleteJob', [
-                    'user_id' => $user->id,
-                    'error' => $e->getMessage()
-                ]);
-            }
+            Log::info('Customer User account created', [
+                'user_id' => $user->id,
+                'org_user_id' => $orgUser->id
+            ]);
         }
         
         // Generate OTP

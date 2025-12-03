@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Tenantable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class OrgInvoicePayment extends Model
 {
+    use Tenantable;
     /**
      * Payment Status Constants
      * Matching Box project's OrgInvoicePayment constants
