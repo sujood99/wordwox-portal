@@ -105,7 +105,7 @@
                                         </flux:button>
                                     @endif
                                     @if(Route::has('cms.page'))
-                                        <flux:button href="{{ route('cms.page', $page->slug) }}" variant="ghost" size="sm" icon="eye">
+                                        <flux:button href="{{ route('cms.page', $page->slug) }}" variant="ghost" size="sm" icon="eye" target="_blank">
                                             View
                                         </flux:button>
                                     @endif

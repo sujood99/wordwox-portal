@@ -418,18 +418,21 @@ class CmsPagesEdit extends Component
         
         $blockType = $this->blocks[$index]['type'] ?? 'Block';
         
+        // Remove the block at the specified index
         unset($this->blocks[$index]);
+        
+        // Re-index the array to maintain sequential indices (0, 1, 2, ...)
         $this->blocks = array_values($this->blocks);
-        $this->reorderBlocks();
         
-        // Dispatch event to reinitialize SortableJS
+        // Update sort_order for all remaining blocks to match their new array indices
+        // This ensures correct ordering: first block = 0, second = 1, etc.
+        foreach ($this->blocks as $newIndex => &$block) {
+            $block['sort_order'] = $newIndex;
+        }
+        unset($block); // Unset reference to avoid issues
+        
+        // Dispatch event to reinitialize SortableJS after deletion
         $this->dispatch('block-removed');
-        
-        // Show success message
-        Flux::toast(
-            variant: 'success',
-            text: ucfirst($blockType) . ' block deleted successfully!'
-        );
     }
 
     public function moveBlockUp($index)
@@ -503,12 +506,6 @@ class CmsPagesEdit extends Component
             
             // Notify user of successful reorder
             $this->dispatch('blocks-reordered');
-            
-            // Optional: Show toast notification
-            Flux::toast(
-                variant: 'success',
-                text: 'Blocks reordered successfully!'
-            );
         }
     }
 
