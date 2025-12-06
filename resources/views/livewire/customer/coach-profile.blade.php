@@ -2,6 +2,13 @@
     <div class="org-user-view">
         <div class="container my-5">
             @if($coach)
+                <!-- Back to Coaches Button -->
+                <div class="mb-4">
+                    <a href="/coaches" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Coaches
+                    </a>
+                </div>
+                
                 <div class="row">
                     <!-- Coach Photo -->
                     <div class="col-md-4">

@@ -40,7 +40,7 @@ return [
     ],
 
     'myfatoorah' => [
-        'base_url' => env('MYFATOORAH_PAYMENT_SERVICE_URL', 'https://cfd459638f4f.ngrok-free.app'),
+        'base_url' => env('MYFATOORAH_PAYMENT_SERVICE_URL', 'https://781c91b1c7e5.ngrok-free.app'),
         'api_token' => env('MYFATOORAH_PAYMENT_API_TOKEN', '199681ae02c979e58abbc7a1ab0d0cf3ac06b6e3f50e8ef6018a64bfd2009487'),
         'timeout' => env('MYFATOORAH_PAYMENT_TIMEOUT', 30),
     ],

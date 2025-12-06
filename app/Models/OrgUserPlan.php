@@ -39,6 +39,7 @@ class OrgUserPlan extends BaseWWModel
     const STATUS_HOLD = 3;
     const STATUS_CANCELED = 4;
     const STATUS_DELETED = 5;
+    const STATUS_PENDING = 6;      // Pending payment/processing
     const STATUS_EXPIRED_LIMIT = 98;
     const STATUS_EXPIRED = 99;
 

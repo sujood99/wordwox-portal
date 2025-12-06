@@ -78,11 +78,11 @@
 
     <!-- Theme Color Customization (Fitness Template Only) -->
     @if($selectedTemplate === 'fitness' && !empty($themeColors))
-    <div class="mt-8 p-6 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+    <div class="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
         <div class="flex items-center justify-between mb-4">
             <div>
                 <h3 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
                     </svg>
                     Customize Theme Colors
@@ -93,7 +93,7 @@
             </div>
             <button 
                 wire:click="toggleColorCustomization"
-                class="px-4 py-2 text-sm font-medium {{ $showColorCustomization ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-200' }} rounded-lg transition-colors"
+                class="px-4 py-2 text-sm font-medium {{ $showColorCustomization ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200' }} rounded-lg transition-colors"
             >
                 {{ $showColorCustomization ? 'Hide Colors' : 'Show Colors' }}
             </button>
@@ -255,7 +255,7 @@
                 <button 
                     wire:click="saveThemeColors"
                     wire:loading.attr="disabled"
-                    class="px-6 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    class="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                     <span wire:loading.remove wire:target="saveThemeColors">Save Colors</span>
                     <span wire:loading wire:target="saveThemeColors" class="flex items-center gap-2">

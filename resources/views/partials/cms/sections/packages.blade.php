@@ -112,35 +112,37 @@
                         @endphp
                         <div class="{{ $fitnessBootstrapCols }}">
                             <div class="card h-100 border-0 package-card-grid" style="border-top: 4px solid {{ $color }};">
-                                <div class="card-body text-center p-4 p-md-5">
+                                <div class="card-body text-center p-4 p-md-5 d-flex flex-column">
                                     <h4 class="card-title mb-2 mb-md-3 package-name" style="{{ $cardTitleStyle }}">{{ $plan->name }}</h4>
                                     <div class="price mb-3 mb-md-4">
                                         <span class="package-price-display">${{ number_format($plan->price, 2) }}</span>
                                         <span class="text-muted package-duration">/{{ $plan->duration_text }}</span>
-                                </div>
-                                @if($showDescription && $plan->description)
+                                    </div>
+                                    @if($showDescription && $plan->description)
                                         <p class="card-text mb-3 mb-md-4 package-description">{{ Str::limit($plan->description, 120) }}</p>
-                                @endif
-                                @if($showPrograms)
+                                    @endif
+                                    @if($showPrograms)
                                         <div class="mb-2 mb-md-3">
                                             <span class="badge bg-primary package-badge">{{ $plan->type_label ?? 'Standard Plan' }}</span>
+                                        </div>
+                                    @endif
+                                    <div class="mt-auto">
+                                        @php
+                                            $canSellOnline = true;
+                                            $planUuid = $plan->uuid ?? $plan->id;
+                                        @endphp
+                                        @if($canSellOnline)
+                                            <a href="/org-plan/index?plan={{ $planUuid }}" class="btn btn-lg w-100 package-btn">
+                                                {{ $buyButtonText ?? 'Buy' }} <i class="fas fa-arrow-right ms-1"></i>
+                                            </a>
+                                        @else
+                                            <button class="btn btn-outline-secondary btn-lg w-100 package-btn" disabled>
+                                                {{ $purchaseAtGymText ?? 'Purchase at the Gym' }}
+                                            </button>
+                                        @endif
                                     </div>
-                                @endif
-                                @php
-                                    $canSellOnline = true;
-                                    $planUuid = $plan->uuid ?? $plan->id;
-                                @endphp
-                                @if($canSellOnline)
-                                        <a href="/org-plan/index?plan={{ $planUuid }}" class="btn btn-lg w-100 package-btn">
-                                        {{ $buyButtonText ?? 'Buy' }} <i class="fas fa-arrow-right ms-1"></i>
-                                    </a>
-                                @else
-                                        <button class="btn btn-outline-secondary btn-lg w-100 package-btn" disabled>
-                                        {{ $purchaseAtGymText ?? 'Purchase at the Gym' }}
-                                    </button>
-                                @endif
+                                </div>
                             </div>
-                        </div>
                         </div>
                     @endforeach
                 </div>

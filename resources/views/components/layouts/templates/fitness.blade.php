@@ -1187,13 +1187,15 @@
                            href="/">Home</a>
                     </li>
                     
-                    <!-- Dynamic Navigation Pages -->
+                    <!-- Dynamic Navigation Pages (exclude Home to avoid duplicates) -->
                     @if(isset($navigationPages) && $navigationPages->count() > 0)
                         @foreach($navigationPages as $navPage)
-                            <li class="nav-item">
-                                <a class="nav-link {{ request()->is($navPage->slug) || request()->is($navPage->slug . '/*') ? 'active fw-bold' : '' }}" 
-                                   href="/{{ $navPage->slug }}">{{ $navPage->title }}</a>
-                            </li>
+                            @if(strtolower($navPage->title) !== 'home' && strtolower($navPage->slug) !== 'home')
+                                <li class="nav-item">
+                                    <a class="nav-link {{ request()->is($navPage->slug) || request()->is($navPage->slug . '/*') ? 'active fw-bold' : '' }}" 
+                                       href="/{{ $navPage->slug }}">{{ $navPage->title }}</a>
+                                </li>
+                            @endif
                         @endforeach
                     @endif
                     
@@ -1211,7 +1213,7 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user-circle me-1"></i>
-                                {{ Auth::user()->fullName ?? Auth::user()->name }}
+                                {{ Auth::user()->orgUser->fullName ?? Auth::user()->fullName ?? Auth::user()->name }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>

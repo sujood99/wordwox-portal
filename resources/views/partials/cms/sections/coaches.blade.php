@@ -73,7 +73,7 @@
                                 @endif
                                 <div class="card-body">
                                     <h5 class="card-title mb-3 fw-bold" style="{{ $cardTitleStyle }}">{{ $coach->fullName }}</h5>
-                                    <a href="{{ route('coach.view', ['id' => $coach->uuid]) }}" class="btn btn-primary btn-sm view-profile-btn">View Profile</a>
+                                    <a href="{{ route('coach.view', ['id' => $coach->uuid]) }}" class="btn btn-primary btn-sm view-profile-btn" target="_blank">View Profile</a>
                                 </div>
                             </div>
                         </div>
@@ -104,7 +104,7 @@
                                 @endif
                                 <div class="card-body">
                                     <h5 class="card-title mb-3 fw-bold" style="{{ $cardTitleStyle }}">{{ $coach->fullName }}</h5>
-                                    <a href="{{ route('coach.view', ['id' => $coach->uuid]) }}" class="btn btn-primary btn-sm view-profile-btn">View Profile</a>
+                                    <a href="{{ route('coach.view', ['id' => $coach->uuid]) }}" class="btn btn-primary btn-sm view-profile-btn" target="_blank">View Profile</a>
                             </div>
                         </div>
                     </div>
@@ -355,7 +355,7 @@
                                 @endif
                                 <div class="info text-center">
                                     <h3 style="{{ $cardTitleStyle }}">{{ $coach->fullName }}</h3>
-                                    <a href="{{ route('coach.view', ['id' => $coach->uuid]) }}" class="btn btn-primary btn-sm mt-3">
+                                    <a href="{{ route('coach.view', ['id' => $coach->uuid]) }}" class="btn btn-primary btn-sm mt-3" target="_blank">
                                         {{ $viewProfileText ?? 'View Profile' }}
                                     </a>
                                 </div>
@@ -419,7 +419,8 @@
                         <div class="p-6">
                             <h3 class="text-xl font-bold mb-3" style="{{ $cardTitleStyle }}">{{ $coach->fullName }}</h3>
                             <a href="{{ route('coach.view', ['id' => $coach->uuid]) }}" 
-                               class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm">
+                               class="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
+                               target="_blank">
                                 {{ $viewProfileText ?? 'View Profile' }}
                             </a>
                         </div>
