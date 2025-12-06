@@ -52,6 +52,9 @@ Route::middleware(['auth'])->prefix('org-plan')->name('customer.')->group(functi
     Route::get('index', \App\Livewire\Customer\PurchasePlan::class)->name('purchase-plan');
 });
 
+// Payment Success Route (Public - accessible after payment)
+Route::get('pay/org-plan-success', \App\Livewire\Customer\PaymentSuccess::class)->name('payment.success');
+
 // Catch-all route for CMS pages (GET requests) - now catches /coaches too
 Route::get('{slug}', \App\Livewire\CmsPageViewer::class)
     ->where('slug', '^(?!dashboard|register|cms-admin|portal|cms|org-plan|customer|forgot-password|reset-password|verify-email|confirm-password).*$')

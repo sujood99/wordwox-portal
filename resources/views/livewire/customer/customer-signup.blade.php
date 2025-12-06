@@ -78,7 +78,7 @@
                                     <div class="mb-3" wire:key="phone-input-field">
                                         <label for="phoneNumber" class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
                                         <div class="row">
-                                            <div class="col-4">
+                                            <div class="col-5">
                                                 <select class="form-select @error('phoneCountry') is-invalid @enderror" wire:model.live="phoneCountry" id="phoneCountry" required>
                                                     @foreach($this->getSupportedCountries() as $code => $country)
                                                         <option value="{{ $code }}">
@@ -90,7 +90,7 @@
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
-                                            <div class="col-8">
+                                            <div class="col-7">
                                                 <input 
                                                     type="tel" 
                                                     class="form-control @error('phoneNumber') is-invalid @enderror" 
@@ -110,7 +110,7 @@
                                     <div class="mb-3">
                                         <label for="phoneNumber" class="form-label fw-semibold">Phone Number (Optional)</label>
                                         <div class="row">
-                                            <div class="col-4">
+                                            <div class="col-5">
                                                 <select class="form-select" wire:model="phoneCountry" id="phoneCountry">
                                                     @foreach($this->getSupportedCountries() as $code => $country)
                                                         <option value="{{ $code }}">
@@ -119,7 +119,7 @@
                                                     @endforeach
                                                 </select>
                                             </div>
-                                            <div class="col-8">
+                                            <div class="col-7">
                                                 <input 
                                                     type="tel" 
                                                     class="form-control @error('phoneNumber') is-invalid @enderror" 
@@ -195,16 +195,135 @@
     </div>
 
     <style>
+        /* Package Button Styling - Match Buy Button */
+        .package-btn {
+            font-size: 0.9rem;
+            padding: 0.625rem 1.25rem;
+            background: var(--fitness-primary, #ff6b6b) !important;
+            border: 2px solid var(--fitness-primary, #ff6b6b) !important;
+            color: var(--fitness-text-light, white) !important;
+            box-shadow: none !important;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .package-btn:hover:not(:disabled) {
+            background: var(--fitness-primary-light, #ff8787) !important;
+            border-color: var(--fitness-primary, #ff6b6b) !important;
+            color: white !important;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3) !important;
+        }
+        
+        .package-btn:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 1px 4px rgba(255, 107, 107, 0.2) !important;
+        }
+        
+        .package-btn:disabled {
+            background: var(--fitness-primary, #ff6b6b) !important;
+            color: var(--fitness-text-light, white) !important;
+            opacity: 0.7;
+            cursor: not-allowed;
+            box-shadow: none !important;
+        }
+        
+        /* Radio Button Groups - Login Method (Email/Phone) - Gray like Gender buttons */
+        .btn-group .btn-outline-primary,
+        label.btn-outline-primary[for="signupEmail"],
+        label.btn-outline-primary[for="signupPhone"] {
+            border: 2px solid #6c757d !important;
+            color: #6c757d !important;
+            background: transparent !important;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            padding: 0.625rem 1.25rem;
+            --bs-btn-color: #6c757d !important;
+            --bs-btn-border-color: #6c757d !important;
+        }
+        
+        .btn-group .btn-outline-primary:hover,
+        label.btn-outline-primary[for="signupEmail"]:hover,
+        label.btn-outline-primary[for="signupPhone"]:hover {
+            background: rgba(108, 117, 125, 0.1) !important;
+            border-color: #6c757d !important;
+            color: #6c757d !important;
+            transform: translateY(-1px);
+            --bs-btn-hover-color: #6c757d !important;
+            --bs-btn-hover-bg: rgba(108, 117, 125, 0.1) !important;
+            --bs-btn-hover-border-color: #6c757d !important;
+        }
+        
         .btn-check:checked + .btn-outline-primary {
-            background: var(--fitness-primary, #ff6b6b);
-            border-color: var(--fitness-primary, #ff6b6b);
-            color: white;
+            background: var(--fitness-primary, #ff6b6b) !important;
+            border-color: var(--fitness-primary, #ff6b6b) !important;
+            color: white !important;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+        }
+        
+        /* Radio Button Groups - Gender (Male/Female) */
+        .btn-group .btn-outline-secondary {
+            border: 2px solid #6c757d;
+            color: #6c757d;
+            background: transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            padding: 0.625rem 1.25rem;
+        }
+        
+        .btn-group .btn-outline-secondary:hover {
+            background: rgba(108, 117, 125, 0.1);
+            border-color: #6c757d;
+            color: #6c757d;
+            transform: translateY(-1px);
         }
         
         .btn-check:checked + .btn-outline-secondary {
-            background: var(--fitness-primary, #ff6b6b);
+            background: var(--fitness-primary, #ff6b6b) !important;
+            border-color: var(--fitness-primary, #ff6b6b) !important;
+            color: white !important;
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+        }
+        
+        /* Ensure country code select has proper border styling */
+        #phoneCountry.form-select {
+            border: 2px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+        
+        #phoneCountry.form-select:hover {
             border-color: var(--fitness-primary, #ff6b6b);
-            color: white;
+        }
+        
+        #phoneCountry.form-select:focus {
+            border-color: var(--fitness-primary, #ff6b6b);
+            box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
+        }
+        
+        #phoneCountry.form-select.is-invalid {
+            border-color: #dc3545;
+        }
+        
+        /* Form inputs hover effect */
+        .form-control:hover:not(:disabled):not(:focus) {
+            border-color: var(--fitness-primary, #ff6b6b);
+        }
+        
+        .form-control:focus {
+            border-color: var(--fitness-primary, #ff6b6b);
+            box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
+        }
+        
+        /* Login link styling */
+        a.text-decoration-none {
+            color: var(--fitness-primary, #ff6b6b);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        a.text-decoration-none:hover {
+            color: var(--fitness-primary-dark, #ff5252);
+            text-decoration: underline !important;
         }
     </style>
 </div>

@@ -47,32 +47,36 @@ class MyFatoorahPaymentApiService
             throw new \RuntimeException('MyFatoorah payment service base URL is not configured');
         }
 
-        if (empty($this->apiToken)) {
-            Log::error('MyFatoorahPaymentApiService: API token not configured');
-            throw new \RuntimeException('MyFatoorah payment service API token is not configured');
-        }
+        // API token is optional - frontend endpoints don't require it
+        // Only verify-payment endpoint uses it
     }
 
     /**
-     * Initiate a MyFatoorah payment for a membership/invoice
+     * Get available payment methods
      * 
-     * @param string $uuid Invoice or membership UUID
-     * @param array $additionalData Optional additional data to send
+     * @param int $orgId Organization ID
+     * @param float $invoiceAmount Invoice amount
+     * @param string|null $currencyIso Currency ISO code (optional)
      * @return array Response data from the API
      * @throws \Exception If the API request fails
      */
-    public function initiatePayment(string $uuid, array $additionalData = []): array
+    public function getPaymentMethods(int $orgId, float $invoiceAmount, ?string $currencyIso = null): array
     {
-        $endpoint = $this->baseUrl . '/api/myfatoorah/initiate-payment';
+        $endpoint = $this->baseUrl . '/api/myfatoorah/get-payment-methods';
 
-        $payload = array_merge([
-            'uuid' => $uuid,
-        ], $additionalData);
+        $payload = [
+            'org_id' => $orgId,
+            'invoice_amount' => $invoiceAmount,
+        ];
 
-        Log::info('MyFatoorah API: Initiating payment', [
+        if ($currencyIso) {
+            $payload['currency_iso'] = $currencyIso;
+        }
+
+        Log::info('MyFatoorah API: Getting payment methods', [
             'endpoint' => $endpoint,
-            'uuid' => $uuid,
-            'has_additional_data' => !empty($additionalData),
+            'org_id' => $orgId,
+            'invoice_amount' => $invoiceAmount,
         ]);
 
         try {
@@ -80,13 +84,11 @@ class MyFatoorahPaymentApiService
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
-                    'X-API-Token' => $this->apiToken,
                 ])
                 ->post($endpoint, $payload);
 
             $statusCode = $response->status();
             $responseData = $response->json();
-
 
             if ($response->successful()) {
                 return [
@@ -96,28 +98,165 @@ class MyFatoorahPaymentApiService
                 ];
             }
 
-            // Handle error response
             $errorMessage = $responseData['message'] ?? $responseData['error'] ?? 'Unknown error';
-            
-          
-
-            throw new \Exception("MyFatoorah payment initiation failed: {$errorMessage}", $statusCode);
-
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::error('MyFatoorah API: Connection error', [
-                'uuid' => $uuid,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw new \Exception("Failed to connect to MyFatoorah payment service: {$e->getMessage()}", 0, $e);
+            throw new \Exception("Failed to get payment methods: {$errorMessage}", $statusCode);
 
         } catch (\Exception $e) {
-            Log::error('MyFatoorah API: Unexpected error', [
-                'uuid' => $uuid,
+            Log::error('MyFatoorah API: Error getting payment methods', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Create payment and get payment URL (NO database records created)
+     * 
+     * @param array $paymentData Payment data (org_id, payment_method_id, invoice_value, customer_name, etc.)
+     * @return array Response with payment_url
+     * @throws \Exception If the API request fails
+     */
+    public function createPayment(array $paymentData): array
+    {
+        $endpoint = $this->baseUrl . '/api/myfatoorah/create-payment';
+
+        Log::info('MyFatoorah API: Creating payment', [
+            'endpoint' => $endpoint,
+            'org_id' => $paymentData['org_id'] ?? null,
+            'invoice_value' => $paymentData['invoice_value'] ?? null,
+            'has_api_token' => !empty($this->apiToken),
+            'token_preview' => $this->apiToken ? substr($this->apiToken, 0, 10) . '...' : 'empty',
+        ]);
+
+        try {
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ];
+            
+            // Add API token from env/config if available
+            if ($this->apiToken) {
+                $headers['X-API-Token'] = $this->apiToken;
+                Log::info('MyFatoorah API: X-API-Token header added', [
+                    'token_length' => strlen($this->apiToken),
+                    'token_preview' => substr($this->apiToken, 0, 10) . '...',
+                ]);
+            } else {
+                Log::warning('MyFatoorah API: X-API-Token header NOT added - token is empty');
+            }
+            
+            $response = Http::timeout($this->timeout)
+                ->withHeaders($headers)
+                ->post($endpoint, $paymentData);
+
+            $statusCode = $response->status();
+            $responseData = $response->json();
+            $responseBody = $response->body();
+
+            Log::info('MyFatoorah API: Payment creation response', [
+                'status_code' => $statusCode,
+                'response' => $responseData,
+                'response_body' => $responseBody,
+                'endpoint' => $endpoint,
             ]);
 
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $responseData['data'] ?? $responseData,
+                    'status_code' => $statusCode,
+                ];
+            }
+
+            // Better error handling for different status codes
+            if ($statusCode === 404) {
+                $errorMessage = 'Payment service endpoint not found. Please check the service URL configuration.';
+                Log::error('MyFatoorah API: Endpoint not found (404)', [
+                    'endpoint' => $endpoint,
+                    'base_url' => $this->baseUrl,
+                ]);
+            } elseif ($statusCode === 401 || $statusCode === 403) {
+                $errorMessage = $responseData['message'] ?? $responseData['error'] ?? 'Authentication failed. Please check API token.';
+            } elseif ($statusCode >= 500) {
+                $errorMessage = $responseData['message'] ?? $responseData['error'] ?? 'Payment service error. Please try again later.';
+            } else {
+                $errorMessage = $responseData['message'] ?? $responseData['error'] ?? $responseBody ?? 'Unknown error';
+            }
+            
+            throw new \Exception("Failed to create payment: {$errorMessage}", $statusCode);
+
+        } catch (\Exception $e) {
+            Log::error('MyFatoorah API: Error creating payment', [
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Verify payment status
+     * 
+     * @param string $paymentId Payment ID or Invoice ID
+     * @param string $paymentType Payment type (PaymentId or InvoiceId)
+     * @return array Payment status information
+     * @throws \Exception If the API request fails
+     */
+    public function verifyPayment(string $paymentId, string $paymentType = 'PaymentId'): array
+    {
+        $endpoint = $this->baseUrl . '/api/myfatoorah/verify-payment';
+
+        $payload = [
+            'payment_id' => $paymentId,
+            'payment_type' => $paymentType,
+        ];
+
+        Log::info('MyFatoorah API: Verifying payment', [
+            'endpoint' => $endpoint,
+            'payment_id' => $paymentId,
+            'payment_type' => $paymentType,
+            'has_api_token' => !empty($this->apiToken),
+            'token_preview' => $this->apiToken ? substr($this->apiToken, 0, 10) . '...' : 'empty',
+        ]);
+
+        try {
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ];
+            
+            // Add API token from env/config if available
+            if ($this->apiToken) {
+                $headers['X-API-Token'] = $this->apiToken;
+                Log::info('MyFatoorah API: X-API-Token header added', [
+                    'token_length' => strlen($this->apiToken),
+                    'token_preview' => substr($this->apiToken, 0, 10) . '...',
+                ]);
+            } else {
+                Log::warning('MyFatoorah API: X-API-Token header NOT added - token is empty');
+            }
+            
+            $response = Http::timeout($this->timeout)
+                ->withHeaders($headers)
+                ->post($endpoint, $payload);
+
+            $statusCode = $response->status();
+            $responseData = $response->json();
+
+            if ($response->successful()) {
+                return [
+                    'success' => true,
+                    'data' => $responseData,
+                    'status_code' => $statusCode,
+                ];
+            }
+
+            $errorMessage = $responseData['message'] ?? $responseData['error'] ?? 'Unknown error';
+            throw new \Exception("Failed to verify payment: {$errorMessage}", $statusCode);
+
+        } catch (\Exception $e) {
+            Log::error('MyFatoorah API: Error verifying payment', [
+                'error' => $e->getMessage(),
+            ]);
             throw $e;
         }
     }
@@ -134,13 +273,32 @@ class MyFatoorahPaymentApiService
         $endpoint = $this->baseUrl . '/api/myfatoorah/payment-status';
 
 
+        Log::info('MyFatoorah API: Checking payment status', [
+            'endpoint' => $endpoint,
+            'uuid' => $uuid,
+            'has_api_token' => !empty($this->apiToken),
+            'token_preview' => $this->apiToken ? substr($this->apiToken, 0, 10) . '...' : 'empty',
+        ]);
+
         try {
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ];
+            
+            // Add API token from env/config if available
+            if ($this->apiToken) {
+                $headers['X-API-Token'] = $this->apiToken;
+                Log::info('MyFatoorah API: X-API-Token header added', [
+                    'token_length' => strlen($this->apiToken),
+                    'token_preview' => substr($this->apiToken, 0, 10) . '...',
+                ]);
+            } else {
+                Log::warning('MyFatoorah API: X-API-Token header NOT added - token is empty');
+            }
+            
             $response = Http::timeout($this->timeout)
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                    'X-API-Token' => $this->apiToken,
-                ])
+                ->withHeaders($headers)
                 ->get($endpoint, [
                     'uuid' => $uuid,
                 ]);
