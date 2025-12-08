@@ -36,24 +36,26 @@
                 <div class="col-lg-8">
                     @if($error)
                         <div class="alert alert-danger" role="alert">
-                            <h4 class="alert-heading">Payment Processing Error</h4>
-                            <p>{{ $error }}</p>
+                            <h4 class="alert-heading">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Payment Failed
+                            </h4>
+                            <p class="mb-3">{{ $error }}</p>
                             <hr>
-                            <p class="mb-0">If you just completed a payment, please wait a moment and refresh the page. If the issue persists, please contact support.</p>
+                            <p class="mb-3">If the issue persists, please contact support.</p>
                             <div class="mt-3">
-                                <a href="{{ route('home') }}" class="btn btn-primary me-2">Return to Home</a>
-                                <button onclick="window.location.reload()" class="btn btn-secondary">Refresh Page</button>
+                                <a href="{{ route('home') }}" class="btn btn-primary">
+                                    <i class="fas fa-home me-1"></i>Return to Home
+                                </a>
                             </div>
                         </div>
                     @else
                         <div class="alert alert-warning" role="alert">
                             <h4 class="alert-heading">Payment Information Not Found</h4>
-                            <p>We couldn't find the payment details. If you just completed a payment, please wait a moment and refresh the page.</p>
+                            <p>We couldn't find the payment details. If you just completed a payment, please wait a moment.</p>
                             <hr>
-                            <p class="mb-0">The payment may still be processing. Please wait a few moments and refresh this page.</p>
+                            <p class="mb-0">The payment may still be processing. Please wait a few moments or contact support.</p>
                             <div class="mt-3">
-                                <a href="{{ route('home') }}" class="btn btn-primary me-2">Return to Home</a>
-                                <button onclick="window.location.reload()" class="btn btn-secondary">Refresh Page</button>
+                                <a href="{{ route('home') }}" class="btn btn-primary">Return to Home</a>
                             </div>
                         </div>
                     @endif

@@ -148,7 +148,8 @@ class PurchasePlan extends Component
     
     /**
      * Check for existing active memberships
-     * Prevents duplicate purchases of the same plan
+     * Only prevents buying the SAME plan if it's active/pending/upcoming
+     * Users can buy different plans even if they have an active membership for another plan
      */
     protected function checkExistingMembership()
     {
@@ -168,7 +169,8 @@ class PurchasePlan extends Component
             return;
         }
         
-        // Check for active, upcoming, or pending membership for this specific plan
+        // Check for active, upcoming, or pending membership for THIS SPECIFIC plan only
+        // Users can buy different plans even if they have an active membership for another plan
         $existingMembership = \App\Models\OrgUserPlan::where('orgUser_id', $orgUser->id)
             ->where('orgPlan_id', $this->plan->id)
             ->whereIn('status', [
@@ -192,20 +194,20 @@ class PurchasePlan extends Component
             
             if ($status == \App\Models\OrgUserPlan::STATUS_ACTIVE) {
                 $this->error = 'You already have an active membership for this plan.';
-                Log::warning('PurchasePlan: Active membership exists', [
+                Log::warning('PurchasePlan: Active membership exists for this plan', [
                     'membership_id' => $existingMembership->id,
                     'plan_id' => $this->plan->id,
                 ]);
             } elseif ($status == \App\Models\OrgUserPlan::STATUS_UPCOMING) {
                 $this->error = 'You already have an upcoming membership for this plan. Please wait for it to start or contact support.';
-                Log::warning('PurchasePlan: Upcoming membership exists', [
+                Log::warning('PurchasePlan: Upcoming membership exists for this plan', [
                     'membership_id' => $existingMembership->id,
                     'plan_id' => $this->plan->id,
                 ]);
             } else {
                 // PENDING status (6) or other status
                 $this->error = 'You already have a pending membership for this plan. Please complete the payment or wait for it to be processed.';
-                Log::warning('PurchasePlan: Pending membership exists', [
+                Log::warning('PurchasePlan: Pending membership exists for this plan', [
                     'membership_id' => $existingMembership->id,
                     'plan_id' => $this->plan->id,
                     'status' => $status,
@@ -232,9 +234,8 @@ class PurchasePlan extends Component
                 return;
             }
             
-            // Note: We don't check for ANY active plan here because users should be able to purchase
-            // different plans even if they have an active membership for another plan.
-            // The checkExistingMembership() method already checks for the SPECIFIC plan being purchased.
+            // Note: checkExistingMembership() now checks for ANY active/upcoming/pending membership
+            // to prevent payment creation if user already has an active plan (matches callback logic)
             
             $orgId = $orgUser->org_id;
             $orgSettings = OrgSettingsPaymentGateway::getMyFatoorahForOrg($orgId);
@@ -459,18 +460,33 @@ class PurchasePlan extends Component
                 return;
             }
             
-            // Check if user already has an active plan
-            $activePlanCheck = $this->checkActivePlan($orgUser);
-            if ($activePlanCheck && $activePlanCheck['exists']) {
-                $status = $activePlanCheck['status'];
+            // Check if user already has an active/pending/upcoming membership for THIS SPECIFIC plan
+            $existingMembership = \App\Models\OrgUserPlan::where('orgUser_id', $orgUser->id)
+                ->where('orgPlan_id', $this->plan->id)
+                ->whereIn('status', [
+                    \App\Models\OrgUserPlan::STATUS_ACTIVE,
+                    \App\Models\OrgUserPlan::STATUS_UPCOMING,
+                    \App\Models\OrgUserPlan::STATUS_PENDING,
+                ])
+                ->where('isCanceled', false)
+                ->where('isDeleted', false)
+                ->first();
+            
+            if ($existingMembership) {
+                $status = $existingMembership->status;
                 if ($status == \App\Models\OrgUserPlan::STATUS_ACTIVE) {
-                    $this->error = 'You already have an active membership. Please wait for it to expire or contact support.';
+                    $this->error = 'You already have an active membership for this plan.';
                 } elseif ($status == \App\Models\OrgUserPlan::STATUS_UPCOMING) {
-                    $this->error = 'You already have an upcoming membership. Please wait for it to start or contact support.';
+                    $this->error = 'You already have an upcoming membership for this plan. Please wait for it to start or contact support.';
                 } else {
-                    $this->error = 'You already have a pending membership. Please complete the payment or wait for it to be processed.';
+                    $this->error = 'You already have a pending membership for this plan. Please complete the payment or wait for it to be processed.';
                 }
                 $this->loading = false;
+                Log::warning('PurchasePlan: Cannot create free membership - existing membership found for this plan', [
+                    'membership_id' => $existingMembership->id,
+                    'plan_id' => $this->plan->id,
+                    'status' => $status,
+                ]);
                 return;
             }
             

@@ -555,9 +555,11 @@ class CustomerLogin extends Component
         session()->forget('customer_otp_user_id');
         session()->forget('customer_otp_method');
         
-        Log::info('Customer logged in via OTP', [
+        Log::info('Customer logged in via OTP - redirecting to home', [
             'user_id' => $user->id,
-            'org_user_id' => $user->orgUser_id
+            'org_user_id' => $user->orgUser_id,
+            'is_authenticated' => \Illuminate\Support\Facades\Auth::guard('customer')->check(),
+            'redirect_to' => route('home')
         ]);
         
         // Dispatch Yii2 queue job for customer login (matching Yii pattern)

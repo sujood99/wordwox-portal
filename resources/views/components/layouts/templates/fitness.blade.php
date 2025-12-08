@@ -1370,7 +1370,7 @@
                     @endif
                     
                     <!-- Authentication Links -->
-                    @guest
+                    @if(!Auth::guard('customer')->check())
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('customer.signup') }}">Signup</a>
                         </li>
@@ -1382,11 +1382,11 @@
                             <form action="{{ route('logout') }}" method="post">
                                 @csrf
                                 <button type="submit" class="btn btn-link logout">
-                                    Logout ({{ Auth::user()->orgUser->fullName ?? Auth::user()->name }})
+                                    Logout ({{ Auth::guard('customer')->user()->orgUser->fullName ?? Auth::guard('customer')->user()->name ?? 'User' }})
                                 </button>
                             </form>
                         </li>
-                    @endguest
+                    @endif
                 </ul>
             </div>
         </div>

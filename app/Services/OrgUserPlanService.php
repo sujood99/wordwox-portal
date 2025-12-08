@@ -125,8 +125,17 @@ class OrgUserPlanService
     protected function prepareCreateData(array $data): array
     {
         // Set organization context
-        $data['org_id'] = Auth::user()->orgUser->org_id;
-        $data['created_by'] = Auth::user()->orgUser->id;
+        // Use data from array if provided (for payment callbacks), otherwise use Auth user
+        if (!isset($data['org_id']) && Auth::check() && Auth::user()->orgUser) {
+            $data['org_id'] = Auth::user()->orgUser->org_id;
+        }
+        if (!isset($data['created_by']) && Auth::check() && Auth::user()->orgUser) {
+            $data['created_by'] = Auth::user()->orgUser->id;
+        }
+        // If orgUser_id is provided but created_by is not, use orgUser_id as created_by
+        if (!isset($data['created_by']) && isset($data['orgUser_id'])) {
+            $data['created_by'] = $data['orgUser_id'];
+        }
 
         // Set default status - use integer status code
         $data['status'] = OrgUserPlan::STATUS_ACTIVE; // This is integer 2

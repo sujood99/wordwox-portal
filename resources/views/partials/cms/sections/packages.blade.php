@@ -95,9 +95,13 @@
                                                         <button class="btn btn-info package-btn" disabled>
                                                             <i class="fas fa-clock me-1"></i>Upcoming
                                                         </button>
+                                                    @elseif($planStatus == \App\Models\OrgUserPlan::STATUS_PENDING)
+                                                        <button class="btn btn-warning package-btn" disabled>
+                                                            <i class="fas fa-hourglass-half me-1"></i>You have this package
+                                                        </button>
                                                     @else
                                                         <button class="btn btn-warning package-btn" disabled>
-                                                            <i class="fas fa-hourglass-half me-1"></i>Pending
+                                                            <i class="fas fa-hourglass-half me-1"></i>You have this package
                                                         </button>
                                                     @endif
                                                 @else
@@ -176,9 +180,13 @@
                                                 <button class="btn btn-md btn-block btn-info" disabled>
                                                     <i class="fas fa-clock me-1"></i>Upcoming
                                                 </button>
+                                            @elseif($planStatus == \App\Models\OrgUserPlan::STATUS_PENDING)
+                                                <button class="btn btn-md btn-block btn-warning" disabled>
+                                                    <i class="fas fa-hourglass-half me-1"></i>You have this package
+                                                </button>
                                             @else
                                                 <button class="btn btn-md btn-block btn-warning" disabled>
-                                                    <i class="fas fa-hourglass-half me-1"></i>Pending
+                                                    <i class="fas fa-hourglass-half me-1"></i>You have this package
                                                 </button>
                                             @endif
                                         @else
@@ -521,9 +529,13 @@
                                             <button class="btn btn-info d-block px-2 py-3" disabled>
                                                 <i class="fas fa-clock me-1"></i>Upcoming
                                             </button>
+                                        @elseif($planStatus == \App\Models\OrgUserPlan::STATUS_PENDING)
+                                            <button class="btn btn-warning d-block px-2 py-3" disabled>
+                                                <i class="fas fa-hourglass-half me-1"></i>You have this package
+                                            </button>
                                         @else
                                             <button class="btn btn-warning d-block px-2 py-3" disabled>
-                                                <i class="fas fa-hourglass-half me-1"></i>Pending
+                                                <i class="fas fa-hourglass-half me-1"></i>You have this package
                                             </button>
                                         @endif
                                     @else
@@ -620,9 +632,13 @@
                                         <button class="w-full bg-blue-500 text-white py-3 px-6 rounded-lg cursor-not-allowed" disabled>
                                             <i class="fas fa-clock me-1"></i>Upcoming
                                         </button>
+                                    @elseif($planStatus == \App\Models\OrgUserPlan::STATUS_PENDING)
+                                        <button class="w-full bg-yellow-500 text-white py-3 px-6 rounded-lg cursor-not-allowed" disabled>
+                                            <i class="fas fa-hourglass-half me-1"></i>You have this package
+                                        </button>
                                     @else
                                         <button class="w-full bg-yellow-500 text-white py-3 px-6 rounded-lg cursor-not-allowed" disabled>
-                                            <i class="fas fa-hourglass-half me-1"></i>Pending
+                                            <i class="fas fa-hourglass-half me-1"></i>You have this package
                                         </button>
                                     @endif
                                 @else

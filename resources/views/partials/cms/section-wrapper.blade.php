@@ -223,10 +223,11 @@
                             ->orderBy('name', 'asc')
                             ->get();
                         
-                        // Check active memberships for authenticated users
+                        // Check active memberships for authenticated users (check both customer and default guards)
                         $userActivePlans = [];
-                        if (Auth::check() && Auth::user()->orgUser_id) {
-                            $orgUser = \App\Models\OrgUser::find(Auth::user()->orgUser_id);
+                        $user = Auth::guard('customer')->check() ? Auth::guard('customer')->user() : (Auth::check() ? Auth::user() : null);
+                        if ($user && $user->orgUser_id) {
+                            $orgUser = \App\Models\OrgUser::find($user->orgUser_id);
                             if ($orgUser) {
                                 // Get all active/upcoming/pending memberships in one query
                                 $activeMemberships = \App\Models\OrgUserPlan::where('orgUser_id', $orgUser->id)
@@ -643,7 +644,7 @@
                                 @endif
                             @else
                                 {{-- Multiple images - display as carousel slider --}}
-                                <div id="{{ $carouselId }}" class="carousel slide carousel-fade" data-bs-ride="carousel" style="height: {{ $heightPixels }}px;">
+                                <div id="{{ $carouselId }}" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="1500" style="height: {{ $heightPixels }}px;">
                                     {{-- Carousel indicators --}}
                                     <ol class="carousel-indicators">
                                         @foreach($bannerImages as $idx => $image)
