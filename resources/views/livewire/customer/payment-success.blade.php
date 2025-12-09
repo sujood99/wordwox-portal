@@ -22,8 +22,8 @@
                             <h3 class="mb-4" style="color: #000000; font-size: 1.5rem; font-weight: 600;">{{ $plan->name }}</h3>
                             
                             <!-- Organization Name -->
-                            @if(Auth::user() && Auth::user()->orgUser && Auth::user()->orgUser->org)
-                                <p class="mb-0" style="color: #000000; font-size: 1rem;">{{ Auth::user()->orgUser->org->name }}</p>
+                            @if(Auth::guard('customer')->check() && Auth::guard('customer')->user()->orgUser && Auth::guard('customer')->user()->orgUser->org)
+                                <p class="mb-0" style="color: #000000; font-size: 1rem;">{{ Auth::guard('customer')->user()->orgUser->org->name }}</p>
                             @endif
                         </div>
                     </div>

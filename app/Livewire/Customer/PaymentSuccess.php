@@ -65,7 +65,7 @@ class PaymentSuccess extends Component
         }
         
         // If no plan and no error, try to find recently created membership for logged-in user
-        if (!$this->plan && !$this->error && Auth::check() && Auth::user()->orgUser) {
+        if (!$this->plan && !$this->error && Auth::guard('customer')->check() && Auth::guard('customer')->user()->orgUser) {
             $this->tryFindRecentMembership();
         }
     }
@@ -76,7 +76,7 @@ class PaymentSuccess extends Component
     protected function tryFindRecentMembership()
     {
         try {
-            $orgUser = Auth::user()->orgUser;
+            $orgUser = Auth::guard('customer')->user()->orgUser;
             
             // Look for membership created in the last 5 minutes
             $recentMembership = OrgUserPlan::where('orgUser_id', $orgUser->id)

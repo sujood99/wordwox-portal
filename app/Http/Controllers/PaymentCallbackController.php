@@ -428,8 +428,10 @@ class PaymentCallbackController extends Controller
             $finalInvoiceId = $invoiceId ?? '';
             
             try {
-                // Check if user already has an active plan before creating new one
+                // Check if user already has an active plan for THIS SPECIFIC plan only
+                // Users can buy different plans even if they have an active membership for another plan
                 $existingMembership = OrgUserPlan::where('orgUser_id', $orgUserId)
+                    ->where('orgPlan_id', $orgPlanId) // Only check for the SAME plan
                     ->whereIn('status', [
                         OrgUserPlan::STATUS_ACTIVE,
                         OrgUserPlan::STATUS_UPCOMING,
@@ -440,7 +442,7 @@ class PaymentCallbackController extends Controller
                     ->first();
 
                 if ($existingMembership) {
-                    Log::warning('PaymentCallback: User already has active/upcoming/pending membership', [
+                    Log::warning('PaymentCallback: User already has active/upcoming/pending membership for THIS PLAN', [
                         'org_user_id' => $orgUserId,
                         'existing_membership_id' => $existingMembership->id,
                         'existing_plan_id' => $existingMembership->orgPlan_id,
@@ -448,7 +450,7 @@ class PaymentCallbackController extends Controller
                         'new_plan_id' => $orgPlanId,
                     ]);
                     
-                    // Payment was successful, but skip creating duplicate membership
+                    // Payment was successful, but skip creating duplicate membership for the SAME plan
                     // Clear session and redirect to success
                     if ($sessionKey) {
                         Session::forget($sessionKey);
